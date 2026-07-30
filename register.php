@@ -1,5 +1,5 @@
 <?php
-echo "tero 2 wota bau";
+
 /**
  * HydroFlow — Register Handler
  * Handles both GET (show form) and POST (create account).
