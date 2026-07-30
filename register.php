@@ -1,4 +1,5 @@
 <?php
+echo "terobau";
 /**
  * HydroFlow — Register Handler
  * Handles both GET (show form) and POST (create account).
