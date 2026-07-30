@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings &amp; Goals - HydroFlow</title>
+  <meta name="description" content="Customize your HydroFlow experience. Adjust hydration goals, update profile, manage notifications, and personalize your app settings.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="app-layout" style="display: flex;">
+
+  <!-- Mobile Hamburger -->
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+      HydroFlow
+    </div>
+
+    <div class="sidebar__profile">
+      <img
+        class="sidebar__avatar"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAftx2j0EHITOnzNsl54MSKLaEmPQQVnuvGrLthMtqx9P79GKiMbzU4NLF1IDgKD5P6L51WlyMT2AWY91eP-sr8NU63O6OX2V2vzn7dfwyOYXl-bAkzpAkXLJC0BPCJWlDe-MW5SgqSLGnM6Kjy54xWsDkMRPOqntgJ4Y3_p9I1xw1eC7wrlrROmHCeHPlFGWEj7E8GttDFqSxp82f87kEs3FKnPKD7DZFP64h2SLfZPhawTfS6CHIj"
+        alt="Kathford profile avatar"
+      >
+      <div>
+        <h3 class="sidebar__profile-name">Kathford</h3>
+        <p class="sidebar__profile-goal">Daily Goal: 2.5L</p>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a href="dashboard.html" class="nav-item">
+        <span class="material-symbols-outlined">dashboard</span>
+        <span class="text-label-md">Dashboard</span>
+      </a>
+      <a href="history.html" class="nav-item">
+        <span class="material-symbols-outlined">history</span>
+        <span class="text-label-md">History</span>
+      </a>
+      <a href="settings.html" class="nav-item nav-item--active">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+        <span class="text-label-md">Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <span class="material-symbols-outlined sidebar__footer-watermark" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+      <p class="sidebar__footer-text">Stay hydrated, Stay focused.</p>
+    </div>
+  </aside>
+
+  <!-- Top Navbar -->
+  <header class="topnav" id="topnav">
+    <div class="topnav__actions">
+      <button class="topnav__icon-btn" aria-label="Notifications">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button class="topnav__icon-btn" aria-label="Account">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+      <button class="btn-primary btn-sm" style="margin-left: 16px;">
+        <span class="material-symbols-outlined" style="font-size: 18px;">water_drop</span>
+        Log Water
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="app-content">
+    <header class="mb-8">
+      <h1 class="text-headline-lg-responsive" style="color: var(--color-on-surface);">Settings &amp; Goals</h1>
+    </header>
+
+    <div class="grid-settings">
+
+      <!-- Left Column: Goals & Profile -->
+      <div class="flex flex-col gap-6">
+
+        <!-- Daily Goal Calculator Card -->
+        <section class="glass-card settings-section" style="border-radius: 16px;">
+          <div class="settings-section__header">
+            <span class="material-symbols-outlined text-primary">calculate</span>
+            <h2 class="text-headline-md" style="color: var(--color-on-surface);">Daily Goal Calculator</h2>
+          </div>
+
+          <div class="grid-2 mb-6">
+            <div>
+              <label class="text-label-md text-on-surface-variant" style="display: block; margin-bottom: 8px;" for="setting-weight">Weight (kg)</label>
+              <input class="input-field" id="setting-weight" type="number" value="75">
+            </div>
+            <div>
+              <label class="text-label-md text-on-surface-variant" style="display: block; margin-bottom: 8px;" for="setting-activity">Activity Level</label>
+              <select class="input-field" id="setting-activity">
+                <option>Low</option>
+                <option selected>Medium (Active)</option>
+                <option>High</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Calculated Goal Display -->
+          <div style="background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container)); border-radius: 12px; padding: 20px; display: flex; align-items: center; justify-content: space-between; color: white;">
+            <div>
+              <p class="text-label-md" style="color: rgba(255,255,255,0.8); margin-bottom: 4px;">Your Recommended Goal</p>
+              <p class="text-headline-lg" style="color: white;" id="recommended-goal">2.5 Liters / Day</p>
+            </div>
+            <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <span class="material-symbols-outlined" style="font-size: 28px; font-variation-settings: 'FILL' 1;">water_drop</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Profile Information Card -->
+        <section class="glass-card settings-section" style="border-radius: 16px;">
+          <div class="settings-section__header">
+            <span class="material-symbols-outlined text-primary">person</span>
+            <h2 class="text-headline-md" style="color: var(--color-on-surface);">Profile Information</h2>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <div>
+              <label class="text-label-md text-on-surface-variant" style="display: block; margin-bottom: 8px;" for="profile-name">Full Name</label>
+              <input class="input-field" id="profile-name" type="text" value="Kathford">
+            </div>
+            <div>
+              <label class="text-label-md text-on-surface-variant" style="display: block; margin-bottom: 8px;" for="profile-email">Email</label>
+              <input class="input-field" id="profile-email" type="email" value="kathford@example.com">
+            </div>
+            <div class="grid-2">
+              <div>
+                <label class="text-label-md text-on-surface-variant" style="display: block; margin-bottom: 8px;" for="profile-age">Age</label>
+                <input class="input-field" id="profile-age" type="number" value="28">
+              </div>
+              <div>
+                <label class="text-label-md text-on-surface-variant" style="display: block; margin-bottom: 8px;" for="profile-height">Height (cm)</label>
+                <input class="input-field" id="profile-height" type="number" value="175">
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Notifications & Appearance -->
+      <div class="flex flex-col gap-6">
+
+        <!-- Notification Preferences Card -->
+        <section class="glass-card settings-section" style="border-radius: 16px;">
+          <div class="settings-section__header">
+            <span class="material-symbols-outlined text-primary">notifications</span>
+            <h2 class="text-headline-md" style="color: var(--color-on-surface);">Notification Preferences</h2>
+          </div>
+
+          <div>
+            <!-- Drink Reminders -->
+            <div class="settings-row">
+              <div class="settings-row__info">
+                <span class="settings-row__label">Drink Reminders</span>
+                <span class="settings-row__desc">Get reminded to drink water regularly</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-reminders" checked>
+                <span class="toggle__slider"></span>
+              </label>
+            </div>
+            <!-- Reminder Interval -->
+            <div class="settings-row" id="reminder-interval-row">
+              <div class="settings-row__info">
+                <span class="settings-row__label">Reminder Interval</span>
+                <span class="settings-row__desc">How often you want to be reminded</span>
+              </div>
+              <select class="input-field" id="reminder-interval" style="width: auto; min-width: 120px;">
+                <option>30 min</option>
+                <option selected>1 hour</option>
+                <option>2 hours</option>
+                <option>3 hours</option>
+              </select>
+            </div>
+            <!-- Daily Summary -->
+            <div class="settings-row">
+              <div class="settings-row__info">
+                <span class="settings-row__label">Daily Summary</span>
+                <span class="settings-row__desc">Receive a summary of your daily intake</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-summary" checked>
+                <span class="toggle__slider"></span>
+              </label>
+            </div>
+            <!-- Goal Achieved Alert -->
+            <div class="settings-row">
+              <div class="settings-row__info">
+                <span class="settings-row__label">Goal Achieved Alert</span>
+                <span class="settings-row__desc">Get notified when you reach your daily goal</span>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-goal-alert" checked>
+                <span class="toggle__slider"></span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Appearance Card -->
+        <section class="glass-card settings-section" style="border-radius: 16px;">
+          <div class="settings-section__header">
+            <span class="material-symbols-outlined text-primary">palette</span>
+            <h2 class="text-headline-md" style="color: var(--color-on-surface);">Appearance</h2>
+          </div>
+
+          <div>
+            <!-- Theme -->
+            <div class="settings-row">
+              <div class="settings-row__info">
+                <span class="settings-row__label">Theme</span>
+                <span class="settings-row__desc">Switch between light and dark mode</span>
+              </div>
+              <select class="input-field" id="theme-select" style="width: auto; min-width: 120px;">
+                <option selected>Light</option>
+                <option>Dark</option>
+                <option>System</option>
+              </select>
+            </div>
+            <!-- Unit System -->
+            <div class="settings-row">
+              <div class="settings-row__info">
+                <span class="settings-row__label">Unit System</span>
+                <span class="settings-row__desc">Choose your preferred measurement units</span>
+              </div>
+              <select class="input-field" id="unit-select" style="width: auto; min-width: 120px;">
+                <option selected>Metric (ml/L)</option>
+                <option>Imperial (oz)</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-4" style="flex-wrap: wrap;">
+          <button class="btn-primary flex-1" id="btn-save-settings">
+            <span class="material-symbols-outlined" style="font-size: 18px;">save</span>
+            Save Changes
+          </button>
+          <button class="btn-outline-danger flex-1" id="btn-reset-settings">
+            <span class="material-symbols-outlined" style="font-size: 18px;">restart_alt</span>
+            Reset to Default
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

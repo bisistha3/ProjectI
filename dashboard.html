@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - HydroFlow</title>
+  <meta name="description" content="Track your daily water intake, view hydration progress, and log your drinks with HydroFlow dashboard.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="app-layout" style="display: flex;">
+
+  <!-- Mobile Hamburger -->
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+      HydroFlow
+    </div>
+
+    <div class="sidebar__profile">
+      <img
+        class="sidebar__avatar"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuALT90TCPkdQJmpxna2muTfA0r0y5Jcpx81LTXtekZ1oX9ua4tce4YDdpBGCpiworEJ8T3XgR0vvn13SLtz68KSFo2jTdT4A2mubl02Vfa77eI5GwSeGzA5reDSkWsZ2dyC_uIXUIc2MuCqUADcQzNUbLPR3G-fh-jgAutfPD3dAgS7_kKENykDGQRkzzXGbUUqFI4KCjcI5qoLs2OXfQCpQZk1_387sFiQO7WzTz-FxUk6igXKSueu"
+        alt="Kathford profile avatar"
+      >
+      <div>
+        <p class="sidebar__profile-name">Kathford</p>
+        <p class="sidebar__profile-goal">Daily Goal: 2.5L</p>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <a href="dashboard.html" class="nav-item nav-item--active">
+        <span class="material-symbols-outlined">dashboard</span>
+        Dashboard
+      </a>
+      <a href="history.html" class="nav-item">
+        <span class="material-symbols-outlined">history</span>
+        History
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="material-symbols-outlined">settings</span>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <span class="material-symbols-outlined sidebar__footer-watermark" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+      <p class="sidebar__footer-text">Stay hydrated, Stay focused.</p>
+    </div>
+  </aside>
+
+  <!-- Top Navbar -->
+  <header class="topnav" id="topnav">
+    <button class="btn-primary btn-sm" id="btn-log-water">
+      <span class="material-symbols-outlined" style="font-size: 18px;">water_drop</span>
+      Log Water
+    </button>
+    <div class="topnav__actions">
+      <button class="topnav__icon-btn" aria-label="Notifications">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button class="topnav__icon-btn" aria-label="Account">
+        <span class="material-symbols-outlined">account_circle</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="app-content">
+    <!-- Header row -->
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-headline-lg" style="color: var(--color-on-background);">Daily Overview</h1>
+      <div class="streak-badge">
+        <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">local_fire_department</span>
+        12 Day Streak
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="grid-main">
+
+      <!-- Main Gauge Card -->
+      <div class="glass-card-light" style="padding: var(--sp-md); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px;">
+        <!-- Water Gauge -->
+        <div class="gauge">
+          <div class="gauge__outer">
+            <div class="gauge__fill" id="gauge-fill" style="height: 65%;">
+              <div class="gauge__wave"></div>
+            </div>
+          </div>
+          <div class="gauge__content">
+            <div class="gauge__percent">
+              <span id="gauge-percent-value">65</span><span class="gauge__percent-sign">%</span>
+            </div>
+            <p class="gauge__label">Daily Progress</p>
+          </div>
+        </div>
+
+        <!-- Quick Log Actions -->
+        <div class="mt-8 w-full">
+          <p class="text-label-md text-center text-on-surface-variant mb-4">Quick Log</p>
+          <div class="quick-log">
+            <button class="quick-log__btn" data-amount="250">
+              <div class="quick-log__icon">
+                <span class="material-symbols-outlined">water_bottle</span>
+              </div>
+              <span class="quick-log__label">250ml</span>
+            </button>
+            <button class="quick-log__btn" data-amount="500">
+              <div class="quick-log__icon">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+              </div>
+              <span class="quick-log__label">500ml</span>
+            </button>
+            <button class="quick-log__btn" data-amount="750">
+              <div class="quick-log__icon">
+                <span class="material-symbols-outlined">local_drink</span>
+              </div>
+              <span class="quick-log__label">750ml</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar: Stats + Recent Log -->
+      <div class="flex flex-col gap-4" style="gap: var(--sp-md);">
+
+        <!-- Stats Cards -->
+        <div class="grid-2">
+          <div class="glass-card-light stat-card">
+            <span class="material-symbols-outlined stat-card__icon">opacity</span>
+            <p class="stat-card__label">Total Consumed</p>
+            <p class="stat-card__value" id="total-consumed">1.62L</p>
+          </div>
+          <div class="glass-card-light stat-card">
+            <span class="material-symbols-outlined stat-card__icon--muted">hourglass_empty</span>
+            <p class="stat-card__label">Remaining</p>
+            <p class="stat-card__value" id="total-remaining">0.88L</p>
+          </div>
+        </div>
+
+        <!-- Recent Log List -->
+        <div class="glass-card-light" style="padding: var(--sp-md); flex: 1;">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-headline-md" style="color: var(--color-on-background);">Recent Log</h2>
+            <a href="#" class="text-label-md text-primary" style="text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">View All</a>
+          </div>
+          <div class="flex flex-col gap-4" id="log-list">
+            <!-- Log Item 1 -->
+            <div class="log-item">
+              <div class="log-item__left">
+                <div class="log-item__avatar">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">water_drop</span>
+                </div>
+                <div>
+                  <p class="log-item__amount">500ml</p>
+                  <p class="log-item__desc">Water</p>
+                </div>
+              </div>
+              <span class="log-item__time">11:45 AM</span>
+            </div>
+            <!-- Log Item 2 -->
+            <div class="log-item">
+              <div class="log-item__left">
+                <div class="log-item__avatar">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">water_bottle</span>
+                </div>
+                <div>
+                  <p class="log-item__amount">250ml</p>
+                  <p class="log-item__desc">Glass of Water</p>
+                </div>
+              </div>
+              <span class="log-item__time">09:12 AM</span>
+            </div>
+            <!-- Log Item 3 -->
+            <div class="log-item">
+              <div class="log-item__left">
+                <div class="log-item__avatar">
+                  <span class="material-symbols-outlined" style="font-size: 18px;">local_drink</span>
+                </div>
+                <div>
+                  <p class="log-item__amount">750ml</p>
+                  <p class="log-item__desc">Post Workout Bottle</p>
+                </div>
+              </div>
+              <span class="log-item__time">07:30 AM</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
