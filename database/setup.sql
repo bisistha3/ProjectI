@@ -1,7 +1,6 @@
 -- =============================================
 -- HydroFlow — Database Setup
--- Run this script manually in MySQL to create
--- the database and required tables.
+-- Run this script in phpMyAdmin or MySQL CLI.
 -- =============================================
 
 CREATE DATABASE IF NOT EXISTS hydroflow
@@ -11,13 +10,30 @@ CREATE DATABASE IF NOT EXISTS hydroflow
 USE hydroflow;
 
 -- Users table
-CREATE TABLE users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    gender ENUM('male', 'female') DEFAULT 'male',
-    age INT DEFAULT NULL,
-    weight DECIMAL(5,1) DEFAULT NULL,
-    height DECIMAL(5,1) DEFAULT NULL
+CREATE TABLE IF NOT EXISTS users (
+    user_id     INT AUTO_INCREMENT PRIMARY KEY,
+    full_name   VARCHAR(100) NOT NULL,
+    email       VARCHAR(255) NOT NULL UNIQUE,
+    password    VARCHAR(255) NOT NULL,
+    gender      ENUM('male', 'female') DEFAULT 'male',
+    age         INT DEFAULT NULL,
+    weight      DECIMAL(5,1) DEFAULT NULL,
+    height      DECIMAL(5,1) DEFAULT NULL,
+    is_verified TINYINT(1) NOT NULL DEFAULT 0,
+    created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
+
+-- Email OTP verification tokens
+CREATE TABLE IF NOT EXISTS email_otps (
+    id         INT AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT NOT NULL,
+    otp_code   CHAR(6) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used       TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Safe migration: add columns to existing installs
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified TINYINT(1) NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;

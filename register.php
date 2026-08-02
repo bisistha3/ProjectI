@@ -1,11 +1,13 @@
 <?php
 /**
  * HydroFlow — Register Handler
- * Handles both GET (show form) and POST (create account).
+ * Handles both GET (show form) and POST (create account + send OTP).
  */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/validate.php';
+require_once __DIR__ . '/includes/mailer.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
@@ -32,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $weight   = $_POST['weight'] ?? '';
     $height   = $_POST['height'] ?? '';
 
-    // Preserve old values
+    // Preserve old values for repopulating form on error
     $old = [
         'name'   => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
         'email'  => htmlspecialchars($email, ENT_QUOTES, 'UTF-8'),
@@ -49,7 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       ->maxLength('name', $name, 100, 'Full Name');
 
     $v->required('email', $email, 'Email')
-      ->email('email', $email);
+      ->email('email', $email)
+      ->emailDomain('email', $email);
 
     $v->required('password', $password, 'Password')
       ->password('password', $password);
@@ -71,17 +74,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db = getDB();
 
-            // Check for existing email
-            $check = $db->prepare('SELECT user_id FROM users WHERE email = :email');
+            // Check if email already exists
+            $check = $db->prepare('SELECT user_id, is_verified FROM users WHERE email = :email');
             $check->execute([':email' => trim($email)]);
-            if ($check->fetch()) {
-                $errors['email'] = 'An account with this email already exists.';
+            $existing = $check->fetch();
+
+            if ($existing) {
+                if ((int)$existing['is_verified'] === 1) {
+                    // Fully verified account already exists
+                    $errors['email'] = 'An account with this email already exists.';
+                } else {
+                    // Unverified account — resend a fresh OTP
+                    $userId = (int)$existing['user_id'];
+                    $otp    = generateOtp();
+                    saveOtp($db, $userId, $otp);
+                    $sent   = sendOtpEmail(trim($email), trim($name), $otp);
+
+                    $_SESSION['pending_verify_user_id'] = $userId;
+                    $_SESSION['pending_verify_email']   = trim($email);
+                    if (!$sent) $_SESSION['dev_otp_fallback'] = $otp;
+
+                    setFlash('info', 'A new verification code has been sent to your email.');
+                    header('Location: verify-email.php');
+                    exit;
+                }
             } else {
+                // New account — insert as UNVERIFIED
                 $hashedPw = password_hash($password, PASSWORD_BCRYPT);
 
                 $stmt = $db->prepare('
-                    INSERT INTO users (full_name, email, password, gender, age, weight, height)
-                    VALUES (:name, :email, :password, :gender, :age, :weight, :height)
+                    INSERT INTO users (full_name, email, password, gender, age, weight, height, is_verified)
+                    VALUES (:name, :email, :password, :gender, :age, :weight, :height, 0)
                 ');
                 $stmt->execute([
                     ':name'     => trim($name),
@@ -93,9 +116,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':height'   => (float)$height,
                 ]);
 
-                // Set flash success and redirect to login
-                setFlash('success', 'Account created successfully! Please sign in.');
-                header('Location: login.php');
+                $userId = (int)$db->lastInsertId();
+
+                // Generate OTP, save to DB, send email
+                $otp  = generateOtp();
+                saveOtp($db, $userId, $otp);
+                $sent = sendOtpEmail(trim($email), trim($name), $otp);
+
+                // Store pending verification in session
+                $_SESSION['pending_verify_user_id'] = $userId;
+                $_SESSION['pending_verify_email']   = trim($email);
+
+                if (!$sent) {
+                    // Email not configured — show code on verify page (dev mode)
+                    $_SESSION['dev_otp_fallback'] = $otp;
+                }
+
+                header('Location: verify-email.php');
                 exit;
             }
         } catch (Exception $e) {

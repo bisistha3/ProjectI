@@ -6,6 +6,8 @@
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/validate.php';
+require_once __DIR__ . '/includes/mailer.php';
+
 
 // Redirect if already logged in
 if (isLoggedIn()) {
@@ -38,6 +40,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password'])) {
+                // Check if email is verified
+                if ((int)$user['is_verified'] === 0) {
+                    // Resend OTP and redirect to verification page
+                    $otp  = generateOtp();
+                    saveOtp($db, (int)$user['user_id'], $otp);
+                    $sent = sendOtpEmail($user['email'], $user['full_name'], $otp);
+
+                    $_SESSION['pending_verify_user_id'] = (int)$user['user_id'];
+                    $_SESSION['pending_verify_email']   = $user['email'];
+                    if (!$sent) $_SESSION['dev_otp_fallback'] = $otp;
+
+                    setFlash('info', 'Please verify your email first. A new code has been sent.');
+                    header('Location: verify-email.php');
+                    exit;
+                }
+
                 loginUser($user);
                 header('Location: dashboard.html');
                 exit;
