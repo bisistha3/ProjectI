@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * HydroFlow â€” Login Handler
  * Handles both GET (show form) and POST (process login).
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([':email' => trim($email)]);
             $user = $stmt->fetch();
 
-            if ($user && password_verify($password, $user['password'])) {
+            if ($user && $user['password'] === $password) {
                 // Check if email is verified
                 if ((int)$user['is_verified'] === 0) {
                     // Resend OTP and redirect to verification page

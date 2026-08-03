@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * HydroFlow â€” Register Handler
  * Handles both GET (show form) and POST (create account + send OTP).
@@ -100,8 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             } else {
                 // New account â€” insert as UNVERIFIED
-                $hashedPw = password_hash($password, PASSWORD_BCRYPT);
-
                 $stmt = $db->prepare('
                     INSERT INTO users (full_name, email, password, gender, age, weight, height, is_verified)
                     VALUES (:name, :email, :password, :gender, :age, :weight, :height, 0)
@@ -109,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([
                     ':name'     => trim($name),
                     ':email'    => trim($email),
-                    ':password' => $hashedPw,
+                    ':password' => $password,
                     ':gender'   => $gender,
                     ':age'      => (int)$age,
                     ':weight'   => (float)$weight,

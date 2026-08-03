@@ -1,44 +1,11 @@
 <?php
 /**
- * HydroFlow — Email Mailer Helper
- *
- * Sends emails using SMTP via PHPMailer (if available) or PHP's mail().
- * For local XAMPP development, configure your mail settings below.
- *
- * OPTION 1 — Gmail SMTP (recommended for real email delivery):
- *   1. Enable 2-Step Verification on your Google account
- *   2. Create an App Password at: https://myaccount.google.com/apppasswords
- *   3. Fill in MAIL_HOST, MAIL_USER, MAIL_PASS below
- *
- * OPTION 2 — Local testing with Mailtrap:
- *   1. Sign up at https://mailtrap.io (free)
- *   2. Go to Email Testing → Inboxes → SMTP Settings
- *   3. Copy credentials below
- *
- * OPTION 3 — MailHog (local dev, no account needed):
- *   1. Install MailHog (https://github.com/mailhog/MailHog)
- *   2. Set MAIL_HOST=localhost, MAIL_PORT=1025, MAIL_ENCRYPTION=''
+ * HydroFlow — Email & OTP Helper
+ * Requires config.php to be loaded first (done by each page via includes/config.php).
  */
-
-// ── Mail Configuration ────────────────────────────────────────────────────────
-
-// Set to true to use SMTP, false to use PHP mail() function
-define('MAIL_USE_SMTP', true);
-
-// SMTP server settings
-define('MAIL_HOST',       'smtp.gmail.com');  // Gmail | 'smtp.mailtrap.io' | 'localhost'
-define('MAIL_PORT',       587);               // 587 (TLS) | 465 (SSL) | 1025 (MailHog)
-define('MAIL_ENCRYPTION', 'tls');             // 'tls' | 'ssl' | '' (none)
-define('MAIL_USER',       '');                // your Gmail/SMTP username
-define('MAIL_PASS',       '');                // your App Password or SMTP password
-
-// "From" address shown in the email
-define('MAIL_FROM_ADDR', 'noreply@hydroflow.com');
-define('MAIL_FROM_NAME', 'HydroFlow');
-
-// OTP settings
-define('OTP_EXPIRY_MINUTES', 15);   // OTP valid for 15 minutes
-define('OTP_LENGTH', 6);            // 6-digit code
+if (!defined('MAIL_HOST')) {
+    require_once __DIR__ . '/config.php';
+}
 
 
 /**
