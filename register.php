@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * HydroFlow — Register Handler
+ * HydroFlow â€” Register Handler
  * Handles both GET (show form) and POST (create account + send OTP).
  */
 require_once __DIR__ . '/includes/auth.php';
@@ -11,7 +11,7 @@ require_once __DIR__ . '/includes/mailer.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
-    header('Location: dashboard.html');
+    header('Location: dashboard.php');
     exit;
 }
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Fully verified account already exists
                     $errors['email'] = 'An account with this email already exists.';
                 } else {
-                    // Unverified account — resend a fresh OTP
+                    // Unverified account â€” resend a fresh OTP
                     $userId = (int)$existing['user_id'];
                     $otp    = generateOtp();
                     saveOtp($db, $userId, $otp);
@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
             } else {
-                // New account — insert as UNVERIFIED
+                // New account â€” insert as UNVERIFIED
                 $hashedPw = password_hash($password, PASSWORD_BCRYPT);
 
                 $stmt = $db->prepare('
@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['pending_verify_email']   = trim($email);
 
                 if (!$sent) {
-                    // Email not configured — show code on verify page (dev mode)
+                    // Email not configured â€” show code on verify page (dev mode)
                     $_SESSION['dev_otp_fallback'] = $otp;
                 }
 
@@ -344,3 +344,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <script src="app.js"></script>
 </body>
 </html>
+

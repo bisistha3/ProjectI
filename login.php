@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * HydroFlow — Login Handler
+ * HydroFlow â€” Login Handler
  * Handles both GET (show form) and POST (process login).
  */
 require_once __DIR__ . '/includes/auth.php';
@@ -11,7 +11,7 @@ require_once __DIR__ . '/includes/mailer.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
-    header('Location: dashboard.html');
+    header('Location: dashboard.php');
     exit;
 }
 
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 loginUser($user);
-                header('Location: dashboard.html');
+                header('Location: dashboard.php');
                 exit;
             } else {
                 $errors['general'] = 'Invalid email or password.';
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             id="password"
             name="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
             autocomplete="current-password"
             required
           >
@@ -176,3 +176,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <script src="app.js"></script>
 </body>
 </html>
+

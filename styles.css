@@ -486,6 +486,21 @@ select.input-field {
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
+.sidebar__avatar-initials {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 98, 157, 0.3);
+}
+
 .sidebar__profile-name {
   font-size: var(--fs-headline-md);
   font-weight: var(--fw-headline-md);
@@ -586,6 +601,13 @@ select.input-field {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.topnav__greeting {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
 }
 
 .topnav__icon-btn {

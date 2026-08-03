@@ -1,6 +1,6 @@
-<?php
+﻿<?php
 /**
- * HydroFlow — Session & Auth Helper
+ * HydroFlow â€” Session & Auth Helper
  */
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -15,7 +15,7 @@ function isLoggedIn(): bool {
 }
 
 /**
- * Require login — redirect to login page if not authenticated.
+ * Require login â€” redirect to login page if not authenticated.
  */
 function requireLogin(): void {
     if (!isLoggedIn()) {
@@ -65,3 +65,4 @@ function getFlash(string $key, $default = null) {
     unset($_SESSION['_flash'][$key]);
     return $value;
 }
+
