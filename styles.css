@@ -1818,3 +1818,136 @@ select.input-field {
     font-size: 13px;
   }
 }
+
+/* =============================================
+   Settings Page Styles
+   ============================================= */
+
+/* ---------- Glass Card (settings sections) ---------- */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 16px rgba(0, 98, 157, 0.06);
+  padding: 24px;
+}
+
+/* ---------- Settings Section ---------- */
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.settings-section__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-surface-container-high);
+}
+
+.settings-section__header h2 {
+  margin: 0;
+}
+
+/* ---------- Settings Row (account / appearance items) ---------- */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  gap: 16px;
+}
+
+.settings-row + .settings-row {
+  border-top: 1px solid var(--color-surface-container-high);
+}
+
+.settings-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-row__label {
+  font-size: var(--fs-body-md);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.settings-row__desc {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+/* ---------- Gender Toggle Pill ---------- */
+.gender-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  background: var(--color-surface-container);
+  border-radius: var(--radius-full);
+  padding: 3px;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* animated slider background */
+.gender-toggle__slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  height: calc(100% - 6px);
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.gender-toggle label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--fs-label-md);
+  font-weight: var(--fw-label-md);
+  letter-spacing: var(--ls-label-md);
+  color: var(--color-on-surface-variant);
+  cursor: pointer;
+  transition: color 0.25s;
+}
+
+.gender-toggle label.active {
+  color: #ffffff;
+}
+
+.gender-toggle label:hover:not(.active) {
+  color: var(--color-primary);
+}
+
+/* ---------- Settings Page Responsive ---------- */
+@media (max-width: 900px) {
+  .grid-settings {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .settings-section {
+    padding: 16px;
+  }
+
+  .glass-card {
+    padding: 16px;
+  }
+}

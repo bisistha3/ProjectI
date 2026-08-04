@@ -185,12 +185,14 @@ function saveOtp(PDO $db, int $userId, string $otp): void {
     $db->prepare('UPDATE email_otps SET used = 1 WHERE user_id = :uid AND used = 0')
        ->execute([':uid' => $userId]);
 
-    // Insert the new OTP with an expiry timestamp
-    $db->prepare('INSERT INTO email_otps (user_id, otp_code, expires_at) VALUES (:uid, :otp, :exp)')
+    // Insert the new OTP — use MySQL's NOW() to avoid PHP/MySQL timezone mismatch.
+    // If PHP's date() timezone differs from MySQL's, expires_at would be wrong and
+    // every OTP would appear expired when verified with NOW().
+    $db->prepare("INSERT INTO email_otps (user_id, otp_code, expires_at)
+                  VALUES (:uid, :otp, NOW() + INTERVAL {$expiry} MINUTE)")
        ->execute([
            ':uid' => $userId,
            ':otp' => $otp,
-           ':exp' => date('Y-m-d H:i:s', strtotime("+{$expiry} minutes")),
        ]);
 }
 
