@@ -1,7 +1,7 @@
 <?php
 /**
  * HydroFlow — Email & OTP Helper
- * Requires config.php to be loaded first (done by each page via includes/config.php).
+ * Requires config.php to be loaded first (handled automatically below).
  */
 if (!defined('MAIL_HOST')) {
     require_once __DIR__ . '/config.php';
@@ -11,28 +11,51 @@ if (!defined('MAIL_HOST')) {
 /**
  * Send a plain-text + HTML email.
  *
+ * Returns true  → email was sent successfully via SMTP.
+ * Returns false → credentials not configured (dev mode) OR SMTP failed.
+ *
  * @param string $toAddr   Recipient email
  * @param string $toName   Recipient name
  * @param string $subject  Email subject
  * @param string $htmlBody HTML body
- * @param string $textBody Plain-text fallback
- * @return bool            true on success
+ * @param string $textBody Plain-text fallback (auto-generated if omitted)
+ * @return bool
  */
 function sendMail(string $toAddr, string $toName, string $subject, string $htmlBody, string $textBody = ''): bool {
     if (!$textBody) {
         $textBody = strip_tags($htmlBody);
     }
 
+    // ── PRODUCTION MODE ───────────────────────────────────────────────────
+    // When MAIL_USER and MAIL_PASS are filled in config.php, all OTPs are
+    // sent as real emails via SMTP and never shown on screen.
     if (MAIL_USE_SMTP && !empty(MAIL_USER) && !empty(MAIL_PASS)) {
         return sendMailSmtp($toAddr, $toName, $subject, $htmlBody, $textBody);
     }
 
-    // Fallback: PHP built-in mail() — works if server has sendmail configured
+    // ┌─────────────────────────────────────────────────────────────────────┐
+    // │  DEV MODE — REMOVE THIS BLOCK IN PRODUCTION                         │
+    // │                                                                     │
+    // │  When MAIL_USER / MAIL_PASS are empty (no email configured),        │
+    // │  we return false so callers store the OTP in session and display    │
+    // │  it directly on the verify-email page (yellow dev box).             │
+    // │                                                                     │
+    // │  TO DISABLE: Fill in MAIL_USER and MAIL_PASS in config.php.        │
+    // │  The SMTP block above will take over and this will never run.       │
+    // └─────────────────────────────────────────────────────────────────────┘
+    if (empty(MAIL_USER) || empty(MAIL_PASS)) {
+        return false; // ← DEV MODE — REMOVE IN PRODUCTION (or just fill credentials)
+    }
+
+    // Fallback: PHP's built-in mail() — only runs when credentials ARE set
+    // but MAIL_USE_SMTP is false. Not recommended on XAMPP/WAMP.
     return sendMailPhp($toAddr, $toName, $subject, $htmlBody, $textBody);
 }
 
+
 /**
- * Send via SMTP using a raw socket (no Composer/PHPMailer required).
+ * Send via SMTP using a raw socket (no Composer / PHPMailer required).
+ * Used automatically when MAIL_USER and MAIL_PASS are configured.
  */
 function sendMailSmtp(string $toAddr, string $toName, string $subject, string $htmlBody, string $textBody): bool {
     $host       = MAIL_HOST;
@@ -72,13 +95,11 @@ function sendMailSmtp(string $toAddr, string $toName, string $subject, string $h
 
         $read(); // 220 greeting
         $send("EHLO " . (gethostname() ?: 'localhost'));
-        $ehloResp = '';
         while (($line = fgets($sock, 4096)) !== false) {
-            $ehloResp .= $line;
-            if (substr($line, 3, 1) === ' ') break; // last line
+            if (substr($line, 3, 1) === ' ') break; // last EHLO response line
         }
 
-        // Upgrade to TLS if needed
+        // Upgrade to TLS if needed (STARTTLS — used by Gmail port 587)
         if ($encryption === 'tls') {
             $send("STARTTLS");
             $read();
@@ -89,7 +110,7 @@ function sendMailSmtp(string $toAddr, string $toName, string $subject, string $h
             }
         }
 
-        // Auth
+        // Authenticate
         $send("AUTH LOGIN");
         $read();
         $send(base64_encode($user));
@@ -98,6 +119,7 @@ function sendMailSmtp(string $toAddr, string $toName, string $subject, string $h
         $authResp = $read();
         if (strpos($authResp, '235') === false) { fclose($sock); return false; }
 
+        // Send message
         $send("MAIL FROM:<" . MAIL_FROM_ADDR . ">");
         $read();
         $send("RCPT TO:<$toAddr>");
@@ -115,8 +137,11 @@ function sendMailSmtp(string $toAddr, string $toName, string $subject, string $h
     }
 }
 
+
 /**
  * Send via PHP's built-in mail() function.
+ * NOTE: This does NOT work reliably on XAMPP/WAMP without a local mail server.
+ *       Use SMTP (above) for reliable delivery.
  */
 function sendMailPhp(string $toAddr, string $toName, string $subject, string $htmlBody, string $textBody): bool {
     $boundary = 'boundary_' . md5(uniqid());
@@ -137,7 +162,7 @@ function sendMailPhp(string $toAddr, string $toName, string $subject, string $ht
 
 
 /**
- * Generate a cryptographically random OTP code.
+ * Generate a cryptographically random 6-digit OTP code.
  */
 function generateOtp(): string {
     $length = defined('OTP_LENGTH') ? OTP_LENGTH : 6;
@@ -150,16 +175,17 @@ function generateOtp(): string {
 
 
 /**
- * Save OTP to DB for a user (invalidates any previous OTPs).
+ * Save a new OTP to the database for a user.
+ * Automatically invalidates any previous unused OTPs for that user.
  */
 function saveOtp(PDO $db, int $userId, string $otp): void {
     $expiry = defined('OTP_EXPIRY_MINUTES') ? OTP_EXPIRY_MINUTES : 15;
 
-    // Invalidate old OTPs
+    // Invalidate all previous unused OTPs for this user
     $db->prepare('UPDATE email_otps SET used = 1 WHERE user_id = :uid AND used = 0')
        ->execute([':uid' => $userId]);
 
-    // Insert new OTP
+    // Insert the new OTP with an expiry timestamp
     $db->prepare('INSERT INTO email_otps (user_id, otp_code, expires_at) VALUES (:uid, :otp, :exp)')
        ->execute([
            ':uid' => $userId,
@@ -170,7 +196,14 @@ function saveOtp(PDO $db, int $userId, string $otp): void {
 
 
 /**
- * Build and send the OTP verification email to a new user.
+ * Build and send the OTP verification email.
+ *
+ * In PRODUCTION (MAIL_USER + MAIL_PASS configured):
+ *   → Sends a styled HTML email with the 6-digit code.
+ *
+ * In DEV MODE (credentials empty):
+ *   → Returns false. Callers store the OTP in $_SESSION['dev_otp_fallback']
+ *     so it can be displayed on the verify-email page.
  */
 function sendOtpEmail(string $toAddr, string $toName, string $otp): bool {
     $expiry  = defined('OTP_EXPIRY_MINUTES') ? OTP_EXPIRY_MINUTES : 15;

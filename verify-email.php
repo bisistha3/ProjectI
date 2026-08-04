@@ -16,8 +16,13 @@ if (empty($_SESSION['pending_verify_user_id'])) {
 $userId       = (int)$_SESSION['pending_verify_user_id'];
 $pendingEmail = $_SESSION['pending_verify_email'] ?? '';
 
-// Dev fallback OTP (shown when email could not be sent)
-$devOtp = $_SESSION['dev_otp_fallback'] ?? null;
+// ┌───────────────────────────────────────────────────────────────────────┐
+// │  DEV MODE — REMOVE THIS LINE IN PRODUCTION                            │
+// │  Reads the OTP from session to display it on-screen.                  │
+// │  When MAIL_USER + MAIL_PASS are configured, this will always be null  │
+// │  because dev_otp_fallback is never set. Safe to delete.               │
+// └───────────────────────────────────────────────────────────────────────┘
+$devOtp = $_SESSION['dev_otp_fallback'] ?? null; // DEV MODE — remove in production
 
 $error   = '';
 $info    = getFlash('info', '');
@@ -41,12 +46,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 saveOtp($db, $userId, $otp);
                 $sent = sendOtpEmail($user['email'], $user['full_name'], $otp);
                 if ($sent) {
-                    unset($_SESSION['dev_otp_fallback']);
-                    $devOtp = null;
+                    // ┌─────────────────────────────────────────────────────┐
+                    // │  DEV MODE — REMOVE THESE 2 LINES IN PRODUCTION      │
+                    // │  They clear the on-screen OTP after a successful    │
+                    // │  resend. Not needed once real email is working.     │
+                    // └─────────────────────────────────────────────────────┘
+                    unset($_SESSION['dev_otp_fallback']); // DEV MODE — remove in production
+                    $devOtp = null;                       // DEV MODE — remove in production
                     $info   = 'A new verification code has been sent to your email.';
                 } else {
-                    $_SESSION['dev_otp_fallback'] = $otp;
-                    $devOtp  = $otp;
+                    // ┌─────────────────────────────────────────────────────┐
+                    // │  DEV MODE — REMOVE THIS ELSE BLOCK IN PRODUCTION    │
+                    // │  When real email is configured, $sent = true and    │
+                    // │  this else branch will never run. Safe to delete.   │
+                    // └─────────────────────────────────────────────────────┘
+                    $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
+                    $devOtp  = $otp;                      // DEV MODE — remove in production
                     $warning = 'Could not send email. Use the code displayed below.';
                 }
             }
@@ -262,13 +277,33 @@ function maskEmail(string $email): string {
       </div>
     <?php endif; ?>
 
-    <!-- Dev fallback OTP (shown when email could not be sent) -->
-    <?php if ($devOtp): ?>
+
+    <?php
+    /*
+     * ┌─────────────────────────────────────────────────────────────────────┐
+     * │  DEV MODE — REMOVE THIS ENTIRE BLOCK IN PRODUCTION                  │
+     * │                                                                     │
+     * │  This yellow box displays the OTP code directly on-screen.         │
+     * │  It only appears when $devOtp is set (i.e. email is NOT configured).│
+     * │                                                                     │
+     * │  TO DISABLE:                                                        │
+     * │    1. Fill MAIL_USER + MAIL_PASS in includes/config.php            │
+     * │    2. Delete this entire <?php if ($devOtp): ?> block below        │
+     * │    3. Also delete the $devOtp line near the top of this file       │
+     * │    4. Also delete the dev_otp_fallback blocks in:                  │
+     * │         • register.php                                              │
+     * │         • login.php                                                 │
+     * │         • includes/mailer.php                                       │
+     * └─────────────────────────────────────────────────────────────────────┘
+     */
+    ?>
+    <?php if ($devOtp): /* DEV MODE — remove this block in production */ ?>
       <div class="dev-otp-box" style="margin-top:16px;">
         <p>⚠️ Email not configured — use this code for development:</p>
         <div class="dev-otp-code"><?= htmlspecialchars($devOtp) ?></div>
       </div>
-    <?php endif; ?>
+    <?php endif; /* END DEV MODE */ ?>
+
 
     <!-- OTP Verification Form -->
     <form id="verify-form" method="POST" action="verify-email.php" autocomplete="off" style="margin-top:8px;">

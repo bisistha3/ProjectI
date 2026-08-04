@@ -92,17 +92,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $_SESSION['pending_verify_user_id'] = $userId;
                     $_SESSION['pending_verify_email']   = trim($email);
-                    if (!$sent) $_SESSION['dev_otp_fallback'] = $otp;
+
+                    // ┌─────────────────────────────────────────────────────┐
+                    // │  DEV MODE — REMOVE THIS LINE IN PRODUCTION           │
+                    // │  Fill MAIL_USER + MAIL_PASS in config.php to        │
+                    // │  send real emails; $sent will be true so this        │
+                    // │  line will never run. Delete it for cleanliness.     │
+                    // └─────────────────────────────────────────────────────┘
+                    if (!$sent) {
+                        $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
+                    }
 
                     setFlash('info', 'A new verification code has been sent to your email.');
+                    session_write_close();
                     header('Location: verify-email.php');
                     exit;
                 }
             } else {
-                // New account â€” insert as UNVERIFIED
+                // New account — insert as UNVERIFIED
+
+                // ── Calculate BMI-based daily goal at registration ──────────────────────
+                // Formula: weight × BMI-multiplier, gender-adjusted, medium activity assumed
+                $regHeightM  = (float)$height / 100;
+                $regBmi      = ($regHeightM > 0) ? (float)$weight / ($regHeightM ** 2) : 22.0;
+                if      ($regBmi < 18.5) $regMult = 40;  // Underweight
+                elseif  ($regBmi < 25.0) $regMult = 35;  // Normal weight
+                elseif  ($regBmi < 30.0) $regMult = 30;  // Overweight
+                else                    $regMult = 25;  // Obese
+
+                $regGoal = (int)round((float)$weight * $regMult);
+                if ($gender === 'female') $regGoal = (int)round($regGoal * 0.9); // women -10%
+                $regGoal = max(1500, min(5000, $regGoal + 500)); // +500 ml medium activity default
+
                 $stmt = $db->prepare('
-                    INSERT INTO users (full_name, email, password, gender, age, weight, height, is_verified)
-                    VALUES (:name, :email, :password, :gender, :age, :weight, :height, 0)
+                    INSERT INTO users (full_name, email, password, gender, age, weight, height, daily_goal_ml, is_verified)
+                    VALUES (:name, :email, :password, :gender, :age, :weight, :height, :goal, 0)
                 ');
                 $stmt->execute([
                     ':name'     => trim($name),
@@ -112,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':age'      => (int)$age,
                     ':weight'   => (float)$weight,
                     ':height'   => (float)$height,
+                    ':goal'     => $regGoal,
                 ]);
 
                 $userId = (int)$db->lastInsertId();
@@ -125,11 +150,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['pending_verify_user_id'] = $userId;
                 $_SESSION['pending_verify_email']   = trim($email);
 
+                // ┌─────────────────────────────────────────────────────────┐
+                // │  DEV MODE — REMOVE THIS BLOCK IN PRODUCTION             │
+                // │                                                         │
+                // │  If no SMTP credentials are set, $sent = false and     │
+                // │  the OTP is stored in session so verify-email.php       │
+                // │  can display it on-screen in the yellow dev box.        │
+                // │                                                         │
+                // │  TO DISABLE: Fill MAIL_USER + MAIL_PASS in config.php. │
+                // │  $sent will then be true, this block won't execute,     │
+                // │  and the OTP will only arrive via real email.           │
+                // └─────────────────────────────────────────────────────────┘
                 if (!$sent) {
-                    // Email not configured â€” show code on verify page (dev mode)
-                    $_SESSION['dev_otp_fallback'] = $otp;
+                    $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
                 }
 
+                session_write_close();
                 header('Location: verify-email.php');
                 exit;
             }

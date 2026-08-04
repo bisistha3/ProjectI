@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/validate.php';
 require_once __DIR__ . '/includes/mailer.php';
 
@@ -49,9 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $_SESSION['pending_verify_user_id'] = (int)$user['user_id'];
                     $_SESSION['pending_verify_email']   = $user['email'];
-                    if (!$sent) $_SESSION['dev_otp_fallback'] = $otp;
+
+                    // ┌─────────────────────────────────────────────────────┐
+                    // │  DEV MODE — REMOVE THIS BLOCK IN PRODUCTION          │
+                    // │  Fill MAIL_USER + MAIL_PASS in config.php to        │
+                    // │  send real emails. $sent will be true and this       │
+                    // │  block will never execute. Safe to delete.           │
+                    // └─────────────────────────────────────────────────────┘
+                    if (!$sent) {
+                        $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
+                    }
 
                     setFlash('info', 'Please verify your email first. A new code has been sent.');
+                    session_write_close();
                     header('Location: verify-email.php');
                     exit;
                 }

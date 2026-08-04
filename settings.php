@@ -13,42 +13,76 @@ $userId = (int)$_SESSION['user_id'];
 $success = '';
 $errors  = [];
 
-// ── Handle form submission ────────────────────────────────────────────────────
+// ── Handle form submission ───────────────────────────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullName  = trim($_POST['full_name']  ?? '');
     $weight    = (float)($_POST['weight']  ?? 0);
     $height    = (float)($_POST['height']  ?? 0);
     $age       = (int)  ($_POST['age']     ?? 0);
-    $goalMlIn  = (int)  ($_POST['daily_goal_ml'] ?? 2500);
+    $gender    = in_array($_POST['gender'] ?? '', ['male','female']) ? $_POST['gender'] : 'male';
+    $goalMode  = ($_POST['goal_mode'] ?? 'bmi') === 'custom' ? 'custom' : 'bmi';
 
-    // Basic validation
-    if (strlen($fullName) < 2) $errors[] = 'Name must be at least 2 characters.';
-    if ($weight < 10 || $weight > 500) $errors[] = 'Weight must be between 10 and 500 kg.';
-    if ($height < 50 || $height > 300) $errors[] = 'Height must be between 50 and 300 cm.';
-    if ($age < 1 || $age > 120) $errors[] = 'Age must be between 1 and 120.';
-    if ($goalMlIn < 500 || $goalMlIn > 10000) $errors[] = 'Daily goal must be between 500ml and 10L.';
+    // ── BMI-based goal calculation (server-side mirror of the JS calculator) ────────
+    if ($goalMode === 'custom') {
+        // User typed their own goal
+        $goalMlIn = (int)($_POST['custom_goal_ml'] ?? 2500);
+    } else {
+        // Calculate from BMI + gender + activity
+        $heightM  = $height / 100;
+        $bmi      = ($heightM > 0) ? $weight / ($heightM ** 2) : 22.0;
+        if      ($bmi < 18.5) $bmiMult = 40;  // Underweight — needs more
+        elseif  ($bmi < 25.0) $bmiMult = 35;  // Normal weight — standard
+        elseif  ($bmi < 30.0) $bmiMult = 30;  // Overweight
+        else                  $bmiMult = 25;  // Obese — use lean-adjusted
+
+        $goalMlIn = (int)round($weight * $bmiMult);
+        if ($gender === 'female') $goalMlIn = (int)round($goalMlIn * 0.9); // women need ~10% less
+
+        $activityBonus = match($_POST['activity'] ?? 'medium') {
+            'low'  => 0,
+            'high' => 1000,
+            default => 500, // medium
+        };
+        $goalMlIn = max(1500, min(5000, $goalMlIn + $activityBonus));
+    }
+
+    // ── Validation ─────────────────────────────────────────────────────────────────────────
+    if (strlen($fullName) < 2)          $errors[] = 'Name must be at least 2 characters.';
+    if ($weight < 10 || $weight > 500)  $errors[] = 'Weight must be between 10 and 500 kg.';
+    if ($height < 50 || $height > 300)  $errors[] = 'Height must be between 50 and 300 cm.';
+    if ($age < 1    || $age > 120)      $errors[] = 'Age must be between 1 and 120.';
+    if ($goalMlIn < 500 || $goalMlIn > 10000) $errors[] = 'Daily goal must be between 500 ml and 10 L.';
 
     if (empty($errors)) {
-        $db->prepare('UPDATE users SET full_name=?, weight=?, height=?, age=?, daily_goal_ml=? WHERE user_id=?')
-           ->execute([$fullName, $weight, $height, $age, $goalMlIn, $userId]);
+        $db->prepare(
+            'UPDATE users SET full_name=?, weight=?, height=?, age=?, gender=?, daily_goal_ml=? WHERE user_id=?'
+        )->execute([$fullName, $weight, $height, $age, $gender, $goalMlIn, $userId]);
 
-        // Update session name
         $_SESSION['full_name'] = $fullName;
         $success = 'Settings saved successfully!';
     }
 }
 
-// ── Load current user data ────────────────────────────────────────────────────
-$u = $db->prepare('SELECT full_name, email, age, weight, height, daily_goal_ml FROM users WHERE user_id=?');
+// ── Load current user data ───────────────────────────────────────────────────────────────────────────
+$u = $db->prepare('SELECT full_name, email, age, weight, height, gender, daily_goal_ml FROM users WHERE user_id=?');
 $u->execute([$userId]);
 $user      = $u->fetch();
 $fullName  = htmlspecialchars($user['full_name']  ?? '', ENT_QUOTES, 'UTF-8');
 $email     = htmlspecialchars($user['email']      ?? '', ENT_QUOTES, 'UTF-8');
-$age       = (int)($user['age']      ?? 0);
-$weight    = (float)($user['weight'] ?? 0);
-$height    = (float)($user['height'] ?? 0);
+$age       = (int)($user['age']        ?? 0);
+$weight    = (float)($user['weight']   ?? 0);
+$height    = (float)($user['height']   ?? 0);
+$gender    = $user['gender']           ?? 'male';
 $goalMl    = (int)($user['daily_goal_ml'] ?? 2500);
 $goalLabel = number_format($goalMl / 1000, 1) . 'L';
+
+// Pre-compute BMI for display
+$bmiVal = ($height > 0) ? round($weight / (($height / 100) ** 2), 1) : 0;
+if      ($bmiVal < 18.5) { $bmiCategory = 'Underweight'; $bmiColor = '#f59e0b'; }
+elseif  ($bmiVal < 25.0) { $bmiCategory = 'Normal Weight'; $bmiColor = '#10b981'; }
+elseif  ($bmiVal < 30.0) { $bmiCategory = 'Overweight';   $bmiColor = '#f97316'; }
+elseif  ($bmiVal > 0)    { $bmiCategory = 'Obese';        $bmiColor = '#ef4444'; }
+else                     { $bmiCategory = '—';           $bmiColor = 'var(--color-on-surface-variant)'; }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -131,30 +165,94 @@ $goalLabel = number_format($goalMl / 1000, 1) . 'L';
               <span class="material-symbols-outlined text-primary">calculate</span>
               <h2 class="text-headline-md" style="color:var(--color-on-surface);">Daily Hydration Goal</h2>
             </div>
-            <div class="grid-2 mb-6">
+
+            <!-- Gender Toggle -->
+            <div style="margin-bottom:20px;">
+              <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:10px;">Gender</label>
+              <div class="gender-toggle" id="goal-gender-toggle" style="max-width:240px;">
+                <div class="gender-toggle__slider" id="goal-gender-slider" <?= $gender === 'female' ? 'style="transform:translateX(100%)"' : '' ?>></div>
+                <label class="<?= $gender === 'male' ? 'active' : '' ?>" id="goal-label-male">
+                  <input type="radio" name="gender" value="male" <?= $gender === 'male' ? 'checked' : '' ?> class="sr-only" id="setting-gender-male">
+                  <span>♂ Male</span>
+                </label>
+                <label class="<?= $gender === 'female' ? 'active' : '' ?>" id="goal-label-female">
+                  <input type="radio" name="gender" value="female" <?= $gender === 'female' ? 'checked' : '' ?> class="sr-only" id="setting-gender-female">
+                  <span>♀ Female</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Weight / Height / Activity -->
+            <div class="grid-2 mb-6" style="gap:12px;">
               <div>
                 <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="setting-weight">Weight (kg)</label>
                 <input class="input-field" id="setting-weight" name="weight" type="number" step="0.1" min="10" max="500" value="<?= $weight ?>">
               </div>
               <div>
+                <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="setting-height">Height (cm)</label>
+                <input class="input-field" id="setting-height" name="height" type="number" step="0.1" min="50" max="300" value="<?= $height ?>">
+              </div>
+              <div style="grid-column:span 2;">
                 <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="setting-activity">Activity Level</label>
-                <select class="input-field" id="setting-activity">
-                  <option value="low">Low</option>
-                  <option value="medium" selected>Medium (Active)</option>
-                  <option value="high">High</option>
+                <select class="input-field" id="setting-activity" name="activity">
+                  <option value="low">🚶 Low — mostly sedentary (+0 ml)</option>
+                  <option value="medium" selected>🏃 Medium — moderately active (+500 ml)</option>
+                  <option value="high">🏋️ High — very active / athlete (+1000 ml)</option>
                 </select>
               </div>
             </div>
-            <!-- Goal display + hidden field -->
-            <div style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-container));border-radius:12px;padding:20px;display:flex;align-items:center;justify-content:space-between;color:white;">
+
+            <!-- BMI Display -->
+            <div id="bmi-panel" style="background:var(--color-surface-container);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
               <div>
-                <p class="text-label-md" style="color:rgba(255,255,255,0.8);margin-bottom:4px;">Your Daily Goal</p>
-                <p class="text-headline-lg" style="color:white;" id="recommended-goal"><?= $goalLabel ?> / Day</p>
+                <p class="text-label-md" style="color:var(--color-on-surface-variant);margin-bottom:2px;">Your BMI</p>
+                <p style="font-size:22px;font-weight:700;color:var(--color-on-surface);line-height:1;" id="bmi-value"><?= $bmiVal > 0 ? $bmiVal : '—' ?></p>
               </div>
-              <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                <span class="material-symbols-outlined" style="font-size:28px;font-variation-settings:'FILL' 1;">water_drop</span>
+              <div style="text-align:right;">
+                <p class="text-label-md" style="color:var(--color-on-surface-variant);margin-bottom:2px;">Category</p>
+                <span id="bmi-category" style="font-weight:700;font-size:14px;color:<?= $bmiColor ?>"><?= $bmiCategory ?></span>
               </div>
             </div>
+
+            <!-- Recommended Goal Banner -->
+            <div style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-container));border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;color:white;margin-bottom:20px;">
+              <div>
+                <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.05em;margin-bottom:4px;">BMI-BASED RECOMMENDATION</p>
+                <p style="font-size:22px;font-weight:800;color:white;line-height:1;" id="recommended-goal"><?= $goalLabel ?> / Day</p>
+              </div>
+              <div style="width:48px;height:48px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <span class="material-symbols-outlined" style="font-size:24px;font-variation-settings:'FILL' 1;">water_drop</span>
+              </div>
+            </div>
+
+            <!-- Divider with custom toggle -->
+            <div style="border-top:1px solid var(--color-surface-container-high);padding-top:16px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div>
+                  <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;">Set Custom Goal</p>
+                  <p style="font-size:11px;color:var(--color-on-surface-variant);">Override the BMI recommendation with your own target</p>
+                </div>
+                <label style="display:flex;align-items:center;cursor:pointer;gap:8px;">
+                  <span style="font-size:12px;color:var(--color-on-surface-variant);" id="custom-toggle-label">Off</span>
+                  <div id="custom-goal-switch" style="width:44px;height:24px;background:var(--color-surface-container-high);border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
+                    <div id="custom-goal-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </label>
+              </div>
+              <!-- Custom goal input (hidden by default) -->
+              <div id="custom-goal-area" style="display:none;">
+                <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="custom-goal-input">Your custom daily goal</label>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <input class="input-field" id="custom-goal-input" name="custom_goal_ml" type="number" min="500" max="10000" step="50"
+                         placeholder="e.g. 2500" style="flex:1;" value="<?= $goalMl ?>">
+                  <span style="font-size:13px;color:var(--color-on-surface-variant);white-space:nowrap;">ml / day</span>
+                </div>
+                <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">Range: 500 ml – 10,000 ml</p>
+              </div>
+            </div>
+
+            <!-- Hidden fields: goal_mode and daily_goal_ml (set by JS) -->
+            <input type="hidden" name="goal_mode" id="goal-mode" value="bmi">
             <input type="hidden" name="daily_goal_ml" id="daily-goal-ml" value="<?= $goalMl ?>">
           </section>
 
@@ -173,19 +271,14 @@ $goalLabel = number_format($goalMl / 1000, 1) . 'L';
                 <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="profile-email">Email</label>
                 <input class="input-field" id="profile-email" type="email" value="<?= $email ?>" readonly style="opacity:0.6;cursor:not-allowed;" title="Email cannot be changed">
               </div>
-              <div class="grid-2">
-                <div>
-                  <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="profile-age">Age</label>
-                  <input class="input-field" id="profile-age" name="age" type="number" min="1" max="120" value="<?= $age ?>">
-                </div>
-                <div>
-                  <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="profile-height">Height (cm)</label>
-                  <input class="input-field" id="profile-height" name="height" type="number" step="0.1" min="50" max="300" value="<?= $height ?>">
-                </div>
+              <div>
+                <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="profile-age">Age</label>
+                <input class="input-field" id="profile-age" name="age" type="number" min="1" max="120" value="<?= $age ?>">
               </div>
             </div>
           </section>
         </div>
+
 
         <!-- Right Column -->
         <div class="flex flex-col gap-6">
@@ -256,24 +349,5 @@ $goalLabel = number_format($goalMl / 1000, 1) . 'L';
   </main>
 
   <script src="app.js"></script>
-  <script>
-  // Live goal calculator — updates hidden input + display
-  (function() {
-    const wInput   = document.getElementById('setting-weight');
-    const aSelect  = document.getElementById('setting-activity');
-    const display  = document.getElementById('recommended-goal');
-    const hidden   = document.getElementById('daily-goal-ml');
-
-    function calc() {
-      const w = parseFloat(wInput.value) || 70;
-      const multiplier = { low: 30, medium: 35, high: 40 }[aSelect.value] || 35;
-      const ml = Math.round(w * multiplier);
-      hidden.value = ml;
-      display.textContent = (ml / 1000).toFixed(1) + 'L / Day';
-    }
-    wInput.addEventListener('input', calc);
-    aSelect.addEventListener('change', calc);
-  })();
-  </script>
 </body>
 </html>
