@@ -21,22 +21,44 @@
       Sign in to track your hydration goals.
     </p>
 
+    <?php if (!empty($errors['general'])): ?>
+      <div class="alert alert--error mb-4">
+        <span class="material-symbols-outlined" style="font-size: 18px;">error</span>
+        <?= htmlspecialchars($errors['general']) ?>
+      </div>
+    <?php endif; ?>
+
+    <?php
+      $flash = getFlash('success');
+      if ($flash):
+    ?>
+      <div class="alert alert--success mb-4">
+        <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span>
+        <?= htmlspecialchars($flash) ?>
+      </div>
+    <?php endif; ?>
+
     <!-- Login Form -->
-    <form id="login-form" class="w-full flex flex-col gap-5">
+    <form id="login-form" class="w-full flex flex-col gap-5" method="POST" action="login.php" novalidate>
       <!-- Email -->
       <div class="flex flex-col gap-1">
         <label class="text-label-md text-on-surface" for="email">Email Address</label>
         <div class="input-group">
           <span class="material-symbols-outlined icon-left">mail</span>
           <input
-            class="input-field input-field--icon"
+            class="input-field input-field--icon <?= isset($errors['email']) ? 'input-field--error' : '' ?>"
             id="email"
+            name="email"
             type="email"
             placeholder="you@example.com"
             autocomplete="email"
+            value="<?= $old['email'] ?>"
             required
           >
         </div>
+        <?php if (isset($errors['email'])): ?>
+          <span class="field-error"><?= htmlspecialchars($errors['email']) ?></span>
+        <?php endif; ?>
       </div>
 
       <!-- Password -->
@@ -48,10 +70,11 @@
         <div class="input-group">
           <span class="material-symbols-outlined icon-left">lock</span>
           <input
-            class="input-field input-field--icon input-field--icon-right"
+            class="input-field input-field--icon input-field--icon-right <?= isset($errors['password']) ? 'input-field--error' : '' ?>"
             id="password"
+            name="password"
             type="password"
-            placeholder="••••••••"
+            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
             autocomplete="current-password"
             required
           >
@@ -59,6 +82,9 @@
             <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
           </button>
         </div>
+        <?php if (isset($errors['password'])): ?>
+          <span class="field-error"><?= htmlspecialchars($errors['password']) ?></span>
+        <?php endif; ?>
       </div>
 
       <!-- Sign In Button -->
@@ -72,7 +98,7 @@
     <div class="mt-8 text-center">
       <p class="text-body-md text-on-surface-variant">
         Don't have an account?
-        <a class="text-primary font-semibold" href="register.html" style="text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Sign Up</a>
+        <a class="text-primary font-semibold" href="register.php" style="text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Sign Up</a>
       </p>
     </div>
   </main>
@@ -80,3 +106,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+
