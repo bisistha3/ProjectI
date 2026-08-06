@@ -18,12 +18,41 @@ class Validator {
     }
 
     /**
-     * Validate email format.
+     * Validate a person's name:
+     * - Cannot start with a number
+     * - Only letters, spaces, apostrophes and hyphens
+     */
+    public function name(string $field, string $value, string $label = 'Name'): self {
+        $val = trim($value);
+
+        if (isset($this->errors[$field])) {
+            return $this; // skip if a previous rule already failed
+        }
+
+        if ($val !== '' && is_numeric(substr($val, 0, 1))) {
+            $this->errors[$field] = $label . ' cannot start with a number.';
+            return $this;
+        }
+
+        if ($val !== '' && !preg_match("/^[\p{L}][\p{L}\s'\-]*$/u", $val)) {
+            $this->errors[$field] = $label . ' can only contain letters, spaces, apostrophes and hyphens.';
+        }
+
+        return $this;
+    }
+
+    /**
+     * Validate email format using a regex.
      */
     public function email(string $field, string $value): self {
-        if (!filter_var(trim($value), FILTER_VALIDATE_EMAIL)) {
+        $email = trim($value);
+
+        $pattern = '/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/';
+
+        if (!preg_match($pattern, $email)) {
             $this->errors[$field] = 'Please enter a valid email address.';
         }
+
         return $this;
     }
 

@@ -48,7 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $v = new Validator();
     $v->required('name', $name, 'Full Name')
       ->minLength('name', $name, 2, 'Full Name')
-      ->maxLength('name', $name, 100, 'Full Name');
+      ->maxLength('name', $name, 100, 'Full Name')
+      ->name('name', $name, 'Full Name');
 
     $v->required('email', $email, 'Email')
       ->email('email', $email)

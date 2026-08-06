@@ -48,6 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ── Validation ─────────────────────────────────────────────────────────────────────────
     if (strlen($fullName) < 2)          $errors[] = 'Name must be at least 2 characters.';
+    if (preg_match('/^\d/', $fullName))  $errors[] = 'Name cannot start with a number.';
+    if ($fullName !== '' && !preg_match("/^[\p{L}][\p{L}\s'\-]*$/u", $fullName))
+        $errors[] = 'Name can only contain letters, spaces, apostrophes and hyphens.';
     if ($weight < 10 || $weight > 500)  $errors[] = 'Weight must be between 10 and 500 kg.';
     if ($height < 50 || $height > 300)  $errors[] = 'Height must be between 50 and 300 cm.';
     if ($age < 1    || $age > 120)      $errors[] = 'Age must be between 1 and 120.';
