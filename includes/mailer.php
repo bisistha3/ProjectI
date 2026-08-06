@@ -33,18 +33,10 @@ function sendMail(string $toAddr, string $toName, string $subject, string $htmlB
         return sendMailSmtp($toAddr, $toName, $subject, $htmlBody, $textBody);
     }
 
-    // ┌─────────────────────────────────────────────────────────────────────┐
-    // │  DEV MODE — REMOVE THIS BLOCK IN PRODUCTION                         │
-    // │                                                                     │
-    // │  When MAIL_USER / MAIL_PASS are empty (no email configured),        │
-    // │  we return false so callers store the OTP in session and display    │
-    // │  it directly on the verify-email page (yellow dev box).             │
-    // │                                                                     │
-    // │  TO DISABLE: Fill in MAIL_USER and MAIL_PASS in config.php.        │
-    // │  The SMTP block above will take over and this will never run.       │
-    // └─────────────────────────────────────────────────────────────────────┘
+    // No SMTP credentials configured (or SMTP unavailable) → return false.
+    // Callers surface a warning and keep the OTP stored in the database.
     if (empty(MAIL_USER) || empty(MAIL_PASS)) {
-        return false; // ← DEV MODE — REMOVE IN PRODUCTION (or just fill credentials)
+        return false;
     }
 
     // Fallback: PHP's built-in mail() — only runs when credentials ARE set

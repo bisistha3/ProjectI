@@ -93,14 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['pending_verify_user_id'] = $userId;
                     $_SESSION['pending_verify_email']   = trim($email);
 
-                    // ┌─────────────────────────────────────────────────────┐
-                    // │  DEV MODE — REMOVE THIS LINE IN PRODUCTION           │
-                    // │  Fill MAIL_USER + MAIL_PASS in config.php to        │
-                    // │  send real emails; $sent will be true so this        │
-                    // │  line will never run. Delete it for cleanliness.     │
-                    // └─────────────────────────────────────────────────────┘
                     if (!$sent) {
-                        $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
+                        setFlash('warning', 'Could not send the verification email. Please try the Resend Code button.');
                     }
 
                     setFlash('info', 'A new verification code has been sent to your email.');
@@ -150,19 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['pending_verify_user_id'] = $userId;
                 $_SESSION['pending_verify_email']   = trim($email);
 
-                // ┌─────────────────────────────────────────────────────────┐
-                // │  DEV MODE — REMOVE THIS BLOCK IN PRODUCTION             │
-                // │                                                         │
-                // │  If no SMTP credentials are set, $sent = false and     │
-                // │  the OTP is stored in session so verify-email.php       │
-                // │  can display it on-screen in the yellow dev box.        │
-                // │                                                         │
-                // │  TO DISABLE: Fill MAIL_USER + MAIL_PASS in config.php. │
-                // │  $sent will then be true, this block won't execute,     │
-                // │  and the OTP will only arrive via real email.           │
-                // └─────────────────────────────────────────────────────────┘
                 if (!$sent) {
-                    $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
+                    setFlash('warning', 'Could not send the verification email. Please use the Resend Code button on the next page.');
                 }
 
                 session_write_close();

@@ -16,14 +16,6 @@ if (empty($_SESSION['pending_verify_user_id'])) {
 $userId       = (int)$_SESSION['pending_verify_user_id'];
 $pendingEmail = $_SESSION['pending_verify_email'] ?? '';
 
-// ┌───────────────────────────────────────────────────────────────────────┐
-// │  DEV MODE — REMOVE THIS LINE IN PRODUCTION                            │
-// │  Reads the OTP from session to display it on-screen.                  │
-// │  When MAIL_USER + MAIL_PASS are configured, this will always be null  │
-// │  because dev_otp_fallback is never set. Safe to delete.               │
-// └───────────────────────────────────────────────────────────────────────┘
-$devOtp = $_SESSION['dev_otp_fallback'] ?? null; // DEV MODE — remove in production
-
 $error   = '';
 $info    = getFlash('info', '');
 $warning = getFlash('warning', '');
@@ -46,23 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 saveOtp($db, $userId, $otp);
                 $sent = sendOtpEmail($user['email'], $user['full_name'], $otp);
                 if ($sent) {
-                    // ┌─────────────────────────────────────────────────────┐
-                    // │  DEV MODE — REMOVE THESE 2 LINES IN PRODUCTION      │
-                    // │  They clear the on-screen OTP after a successful    │
-                    // │  resend. Not needed once real email is working.     │
-                    // └─────────────────────────────────────────────────────┘
-                    unset($_SESSION['dev_otp_fallback']); // DEV MODE — remove in production
-                    $devOtp = null;                       // DEV MODE — remove in production
-                    $info   = 'A new verification code has been sent to your email.';
+                    $info = 'A new verification code has been sent to your email.';
                 } else {
-                    // ┌─────────────────────────────────────────────────────┐
-                    // │  DEV MODE — REMOVE THIS ELSE BLOCK IN PRODUCTION    │
-                    // │  When real email is configured, $sent = true and    │
-                    // │  this else branch will never run. Safe to delete.   │
-                    // └─────────────────────────────────────────────────────┘
-                    $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
-                    $devOtp  = $otp;                      // DEV MODE — remove in production
-                    $warning = 'Could not send email. Use the code displayed below.';
+                    $warning = 'Could not send the email. Please try again.';
                 }
             }
         } catch (Exception $e) {
@@ -113,8 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Clear pending session data
                     unset(
                         $_SESSION['pending_verify_user_id'],
-                        $_SESSION['pending_verify_email'],
-                        $_SESSION['dev_otp_fallback']
+                        $_SESSION['pending_verify_email']
                     );
 
                     setFlash('success', 'Email verified! Your account is now active. Please sign in.');

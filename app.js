@@ -1,7 +1,4 @@
-/* =============================================
-   HydroFlow — app.js
-   Shared interactivity across all pages
-   ============================================= */
+
 
 document.addEventListener('DOMContentLoaded', () => {
   initPasswordToggles();

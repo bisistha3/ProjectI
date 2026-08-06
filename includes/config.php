@@ -4,13 +4,12 @@
  * ════════════════════════════════════════════════════════════════════════════
  *
  * ┌─────────────────────────────────────────────────────────────────────────┐
- * │                        CURRENT MODE: DEV MODE                           │
+ * │                       CURRENT MODE: PRODUCTION (Gmail SMTP)             │
  * │                                                                         │
- * │  OTP codes are displayed on-screen instead of being emailed.            │
- * │  To switch to PRODUCTION (real emails), follow the steps below.         │
+ * │  OTP codes are sent to the user's email via Gmail SMTP.                 │
  * └─────────────────────────────────────────────────────────────────────────┘
  *
- * ── HOW TO ENABLE REAL EMAIL (PRODUCTION MODE) ───────────────────────────
+ * ── CHANGING EMAIL PROVIDER ───────────────────────────────────────────────
  *
  * STEP 1 — Choose your email provider:
  *
@@ -31,13 +30,7 @@
  *   The system will automatically switch to real email mode.
  *   No other code changes needed.
  *
- * STEP 3 — Remove the dev-mode OTP display from the UI:
- *   Search for the comment "DEV MODE — REMOVE IN PRODUCTION" in:
- *     • includes/mailer.php
- *     • verify-email.php
- *     • register.php
- *     • login.php
- *   And delete those clearly marked blocks.
+ * STEP 3 — (Optional) The on-screen OTP display has been removed.
  *
  * ════════════════════════════════════════════════════════════════════════════
  */
@@ -50,13 +43,14 @@ define('MAIL_HOST',       'smtp.gmail.com');  // Gmail | or 'smtp.mailtrap.io'
 define('MAIL_PORT',       587);               // 587 = TLS (Gmail) | 465 = SSL | 25 = plain
 define('MAIL_ENCRYPTION', 'tls');             // 'tls' | 'ssl' | ''
 
-// ─── DEV MODE: Both values are empty → OTP shown on screen ───────────────
-// ─── PRODUCTION: Fill in your Gmail address and App Password below ────────
-define('MAIL_USER', '');  // ← e.g. 'yourname@gmail.com'
-define('MAIL_PASS', '');  // ← e.g. 'abcd efgh ijkl mnop'  (Gmail App Password)
+// ─── Gmail SMTP (App Password) ───────────────────────────────────────────
+// MAIL_USER = your Gmail address
+// MAIL_PASS = 16-character App Password (myaccount.google.com/apppasswords)
+define('MAIL_USER', 'kritanniraula@gmail.com');
+define('MAIL_PASS', 'gvtx vqah qucq rtvn');
 
 // ─── From Address (shown in recipient's inbox) ────────────────────────────
-define('MAIL_FROM_ADDR', 'noreply@hydroflow.com'); // change to a real address in production
+define('MAIL_FROM_ADDR', 'kritanniraula@gmail.com'); // change to a real address in production
 define('MAIL_FROM_NAME', 'HydroFlow');
 
 // ─── OTP Settings ─────────────────────────────────────────────────────────

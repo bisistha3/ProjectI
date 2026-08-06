@@ -49,23 +49,6 @@
       25%{transform:translateX(-5px);}
       75%{transform:translateX(5px);}
     }
-    .dev-otp-box {
-      background: linear-gradient(135deg, #fff3cd, #ffe08a);
-      border: 1.5px solid #f0ad4e;
-      border-radius: 12px;
-      padding: 14px 20px;
-      text-align: center;
-      margin-bottom: 16px;
-    }
-    .dev-otp-box p { margin: 0; font-size: 13px; color: #7a5200; }
-    .dev-otp-code {
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: 10px;
-      color: #5a3500;
-      font-family: 'Courier New', monospace;
-      margin: 6px 0 0;
-    }
     .resend-row {
       display: flex;
       align-items: center;
@@ -139,34 +122,6 @@
         <?= htmlspecialchars($error) ?>
       </div>
     <?php endif; ?>
-
-
-    <?php
-    /*
-     * ┌─────────────────────────────────────────────────────────────────────┐
-     * │  DEV MODE — REMOVE THIS ENTIRE BLOCK IN PRODUCTION                  │
-     * │                                                                     │
-     * │  This yellow box displays the OTP code directly on-screen.         │
-     * │  It only appears when $devOtp is set (i.e. email is NOT configured).│
-     * │                                                                     │
-     * │  TO DISABLE:                                                        │
-     * │    1. Fill MAIL_USER + MAIL_PASS in includes/config.php            │
-     * │    2. Delete this entire <?php if ($devOtp): ?> block below        │
-     * │    3. Also delete the $devOtp line near the top of this file       │
-     * │    4. Also delete the dev_otp_fallback blocks in:                  │
-     * │         • register.php                                              │
-     * │         • login.php                                                 │
-     * │         • includes/mailer.php                                       │
-     * └─────────────────────────────────────────────────────────────────────┘
-     */
-    ?>
-    <?php if ($devOtp): /* DEV MODE — remove this block in production */ ?>
-      <div class="dev-otp-box" style="margin-top:16px;">
-        <p>⚠️ Email not configured — use this code for development:</p>
-        <div class="dev-otp-code"><?= htmlspecialchars($devOtp) ?></div>
-      </div>
-    <?php endif; /* END DEV MODE */ ?>
-
 
     <!-- OTP Verification Form -->
     <form id="verify-form" method="POST" action="verify-email.php" autocomplete="off" style="margin-top:8px;">

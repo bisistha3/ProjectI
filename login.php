@@ -51,14 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['pending_verify_user_id'] = (int)$user['user_id'];
                     $_SESSION['pending_verify_email']   = $user['email'];
 
-                    // ┌─────────────────────────────────────────────────────┐
-                    // │  DEV MODE — REMOVE THIS BLOCK IN PRODUCTION          │
-                    // │  Fill MAIL_USER + MAIL_PASS in config.php to        │
-                    // │  send real emails. $sent will be true and this       │
-                    // │  block will never execute. Safe to delete.           │
-                    // └─────────────────────────────────────────────────────┘
                     if (!$sent) {
-                        $_SESSION['dev_otp_fallback'] = $otp; // DEV MODE — remove in production
+                        setFlash('warning', 'Could not send the verification email. Please use the Resend Code button.');
                     }
 
                     setFlash('info', 'Please verify your email first. A new code has been sent.');
