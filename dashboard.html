@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - HydroFlow</title>
-  <meta name="description" content="Track your daily water intake, view hydration progress, and log your drinks with HydroFlow dashboard.">
+  <title>Dashboard - HealthFlow</title>
+  <meta name="description" content="Track your daily water, food and exercise intake with HealthFlow dashboard.">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
@@ -21,8 +21,8 @@
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">water_drop</span>
-      HydroFlow
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+      HealthFlow
     </div>
 
     <div class="sidebar__profile">
@@ -31,14 +31,25 @@
       </div>
       <div>
         <p class="sidebar__profile-name"><?= $fullName ?></p>
-        <p class="sidebar__profile-goal">Daily Goal: <?= $goalLabel ?></p>
       </div>
     </div>
 
     <nav class="sidebar__nav">
       <a href="dashboard.php" class="nav-item nav-item--active">
-        <span class="material-symbols-outlined">dashboard</span>
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">dashboard</span>
         Dashboard
+      </a>
+      <a href="log.php?type=water" class="nav-item">
+        <span class="material-symbols-outlined">water_drop</span>
+        Log Water
+      </a>
+      <a href="log.php?type=nutrition" class="nav-item">
+        <span class="material-symbols-outlined">restaurant</span>
+        Log Nutrition
+      </a>
+      <a href="log.php?type=exercise" class="nav-item">
+        <span class="material-symbols-outlined">directions_run</span>
+        Log Exercise
       </a>
       <a href="history.php" class="nav-item">
         <span class="material-symbols-outlined">history</span>
@@ -60,11 +71,7 @@
 
   <!-- Top Navbar -->
   <header class="topnav" id="topnav">
-    <button class="btn-primary btn-sm" id="btn-log-water">
-      <span class="material-symbols-outlined" style="font-size: 18px;">water_drop</span>
-      Log Water
-    </button>
-    <div class="topnav__actions">
+    <div class="topnav__actions" style="margin-left:auto;">
       <span class="topnav__greeting">Hello, <?= $fullName ?>!</span>
       <a href="logout.php" class="topnav__icon-btn" aria-label="Logout" title="Logout">
         <span class="material-symbols-outlined">logout</span>
@@ -85,169 +92,137 @@
       <?php endif; ?>
     </div>
 
-    <!-- Main Grid -->
-    <div class="grid-main">
+    <!-- Progress Cards Grid -->
+    <div class="mini-grid">
 
-      <!-- Main Gauge Card -->
-      <div class="glass-card-light" style="padding: var(--sp-md); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px;">
-        <!-- Water Gauge -->
-        <div class="gauge">
-          <div class="gauge__outer">
-            <div class="gauge__fill" id="gauge-fill" style="height: <?= $percent ?>%;">
-              <div class="gauge__wave"></div>
-            </div>
-          </div>
-          <div class="gauge__content">
-            <div class="gauge__percent">
-              <span id="gauge-percent-value"><?= $percent ?></span><span class="gauge__percent-sign">%</span>
-            </div>
-            <p class="gauge__label">Daily Progress</p>
-          </div>
+      <!-- Water -->
+      <div class="mini-card">
+        <a href="log.php?type=water" class="mini-card__log" title="Log water">+ Log</a>
+        <div class="mini-card__icon" style="background: rgba(0,167,173,0.15); color: var(--color-primary);">
+          <span class="material-symbols-outlined">water_drop</span>
         </div>
-
-        <!-- Quick Log Actions -->
-        <div class="mt-8 w-full">
-          <p class="text-label-md text-center text-on-surface-variant mb-4">Quick Log</p>
-          <div class="quick-log">
-            <button class="quick-log__btn" id="btn-250" data-amount="250" data-type="Water">
-              <div class="quick-log__icon">
-                <span class="material-symbols-outlined">water_bottle</span>
-              </div>
-              <span class="quick-log__label">250ml</span>
-            </button>
-            <button class="quick-log__btn" id="btn-500" data-amount="500" data-type="Water">
-              <div class="quick-log__icon">
-                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">water_drop</span>
-              </div>
-              <span class="quick-log__label">500ml</span>
-            </button>
-            <button class="quick-log__btn" id="btn-750" data-amount="750" data-type="Water">
-              <div class="quick-log__icon">
-                <span class="material-symbols-outlined">local_drink</span>
-              </div>
-              <span class="quick-log__label">750ml</span>
-            </button>
-          </div>
-        </div>
+        <p class="mini-card__label">Water Progress</p>
+        <p class="mini-card__value"><span id="mc-water"><?= number_format($todayMl / 1000, 2) ?></span> / <?= $goalLabel ?></p>
+        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $percent ?>%; background: var(--color-primary);"></div></div>
       </div>
 
-      <!-- Right Sidebar: Stats + Recent Log -->
-      <div class="flex flex-col gap-4" style="gap: var(--sp-md);">
-
-        <!-- Stats Cards -->
-        <div class="grid-2">
-          <div class="glass-card-light stat-card">
-            <span class="material-symbols-outlined stat-card__icon">opacity</span>
-            <p class="stat-card__label">Total Consumed</p>
-            <p class="stat-card__value" id="total-consumed"><?= number_format($todayMl / 1000, 2) ?>L</p>
-          </div>
-          <div class="glass-card-light stat-card">
-            <span class="material-symbols-outlined stat-card__icon--muted">hourglass_empty</span>
-            <p class="stat-card__label">Remaining</p>
-            <p class="stat-card__value" id="total-remaining"><?= number_format($remaining / 1000, 2) ?>L</p>
-          </div>
+      <!-- Calories -->
+      <div class="mini-card">
+        <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
+        <div class="mini-card__icon" style="background: rgba(249,115,22,0.15); color: #f97316;">
+          <span class="material-symbols-outlined">local_fire_department</span>
         </div>
+        <p class="mini-card__label">Calories Progress</p>
+        <p class="mini-card__value"><span id="mc-kcal"><?= number_format($todayKcal) ?></span> / <?= number_format($goalKcal) ?> kcal</p>
+        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $kcalPct ?>%; background: linear-gradient(90deg,#f97316,#ef4444);"></div></div>
+      </div>
 
-        <!-- Recent Log List -->
-        <div class="glass-card-light" style="padding: var(--sp-md); flex: 1;">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-headline-md" style="color: var(--color-on-background);">Today's Log</h2>
-            <a href="history.php" class="text-label-md text-primary" style="text-decoration: none;"
-               onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">View All</a>
-          </div>
-          <div class="flex flex-col gap-4" id="log-list">
-            <?php if (empty($recentLogs)): ?>
-              <p class="text-body-md text-on-surface-variant" style="text-align:center; padding: 24px 0;">
-                No logs yet today.<br>Drink some water! 💧
-              </p>
-            <?php else: ?>
-              <?php foreach ($recentLogs as $log):
-                $icon     = $drinkIcons[$log['drink_type']] ?? 'water_drop';
-                $timeStr  = date('h:i A', strtotime($log['logged_at']));
-              ?>
-              <div class="log-item">
-                <div class="log-item__left">
-                  <div class="log-item__avatar">
-                    <span class="material-symbols-outlined" style="font-size: 18px;"><?= $icon ?></span>
-                  </div>
-                  <div>
-                    <p class="log-item__amount"><?= $log['amount_ml'] ?>ml</p>
-                    <p class="log-item__desc"><?= htmlspecialchars($log['drink_type']) ?></p>
-                  </div>
+      <!-- Protein -->
+      <div class="mini-card">
+        <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
+        <div class="mini-card__icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
+          <span class="material-symbols-outlined">egg_alt</span>
+        </div>
+        <p class="mini-card__label">Protein Progress</p>
+        <p class="mini-card__value"><span id="mc-protein"><?= $todayP ?></span> / <?= $goalP ?> g</p>
+        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $macroPct($todayP, $goalP) ?>%; background: #10b981;"></div></div>
+      </div>
+
+      <!-- Fat -->
+      <div class="mini-card">
+        <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
+        <div class="mini-card__icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
+          <span class="material-symbols-outlined">water_drop</span>
+        </div>
+        <p class="mini-card__label">Fat Progress</p>
+        <p class="mini-card__value"><span id="mc-fat"><?= $todayFt ?></span> / <?= $goalFt ?> g</p>
+        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $macroPct($todayFt, $goalFt) ?>%; background: #f59e0b;"></div></div>
+      </div>
+
+      <!-- Carbohydrates -->
+      <div class="mini-card">
+        <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
+        <div class="mini-card__icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
+          <span class="material-symbols-outlined">grain</span>
+        </div>
+        <p class="mini-card__label">Carbohydrate Progress</p>
+        <p class="mini-card__value"><span id="mc-carbs"><?= $todayCb ?></span> / <?= $goalCb ?> g</p>
+        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $macroPct($todayCb, $goalCb) ?>%; background: #3b82f6;"></div></div>
+      </div>
+
+      <!-- Exercise Progress (all activities combined) -->
+      <div class="mini-card">
+        <a href="log.php?type=exercise" class="mini-card__log" title="Log exercise">+ Log</a>
+        <div class="mini-card__icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
+          <span class="material-symbols-outlined">directions_run</span>
+        </div>
+        <p class="mini-card__label">Exercise Progress<span class="mini-card__sub"> (walking · running · gym · yoga)</span></p>
+        <p class="mini-card__value"><span id="mc-burn"><?= number_format($todayBurn) ?></span> / <?= number_format($goalBurn) ?> kcal</p>
+        <p class="mini-card__sub" id="mc-burn-sub"><?= $todayMin ?> min today</p>
+        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $burnPct ?>%; background: linear-gradient(90deg,#10b981,#84cc16);"></div></div>
+      </div>
+    </div>
+
+    <!-- Today's Log -->
+    <div class="glass-card-light" style="padding: var(--sp-md); margin-top: var(--sp-md);">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-headline-md" style="color: var(--color-on-background);">Today's Log</h2>
+        <a href="history.php" class="text-label-md text-primary" style="text-decoration: none;"
+           onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">View All</a>
+      </div>
+      <div class="flex flex-col gap-4" id="log-list">
+        <?php if (empty($recentLogs)): ?>
+          <p class="text-body-md text-on-surface-variant" style="text-align:center; padding: 24px 0;">
+            No logs yet today.<br>Drink some water, eat well and move! 🌟
+          </p>
+        <?php else: ?>
+          <?php foreach ($recentLogs as $log):
+            $timeStr = date('h:i A', strtotime($log['logged_at']));
+            if ($log['type'] === 'water') {
+                $icon    = $drinkIcons[$log['title']] ?? 'water_drop';
+                $amount  = $log['val'] . 'ml';
+                $desc    = $log['title'];
+            } elseif ($log['type'] === 'exercise') {
+                $icon    = $exerciseIcons[$log['title']] ?? 'directions_run';
+                $amount  = $log['val'] . ' min';
+                $desc    = $log['title'] . ' · ' . $log['burn'] . ' kcal';
+            } else { // food
+                $icon    = $foodIcons[$log['kcal'] ?? 'snack'] ?? 'cookie';
+                $amount  = $log['val'] . ' kcal';
+                $desc    = $log['title'] . ' · P ' . (float)$log['prot'] . ' F ' . (float)$log['fatg'] . ' C ' . (float)$log['carb'];
+            }
+          ?>
+<div class="log-item">
+              <div class="log-item__left">
+                <div class="log-item__avatar log-item__avatar--<?= $log['type'] ?>">
+                  <span class="material-symbols-outlined" style="font-size: 18px;"><?= $icon ?></span>
                 </div>
-                <span class="log-item__time"><?= $timeStr ?></span>
+                <div>
+                  <p class="log-item__amount"><?= $amount ?></p>
+                  <p class="log-item__desc"><?= htmlspecialchars($desc) ?></p>
+                </div>
               </div>
-              <?php endforeach; ?>
-            <?php endif; ?>
-          </div>
-        </div>
-
+              <div class="log-item__actions">
+                <span class="log-item__time"><?= $timeStr ?></span>
+                <button class="log-item__delete" type="button" data-delete-type="<?= $log['type'] ?>" data-delete-id="<?= (int)$log['log_id'] ?>"
+                        title="Delete entry" aria-label="Delete entry">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                </button>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     </div>
   </main>
 
-  <script type="module" src="app.js"></script>
   <script>
-  // Quick-log: POST to same page, update UI without full reload
-  (function() {
-    const goalMl = <?= $goalMl ?>;
-
-    document.querySelectorAll('.quick-log__btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const amount = parseInt(btn.dataset.amount);
-        const type   = btn.dataset.type || 'Water';
-
-        btn.style.transform = 'scale(0.92)';
-        setTimeout(() => { btn.style.transform = ''; }, 150);
-
-        const fd = new FormData();
-        fd.append('amount_ml', amount);
-        fd.append('drink_type', type);
-
-        const res  = await fetch('dashboard.php', { method: 'POST', body: fd });
-        const data = await res.json();
-        if (!data.ok) return;
-
-        // Update gauge
-        document.getElementById('gauge-fill').style.height = data.percent + '%';
-        document.getElementById('gauge-percent-value').textContent = data.percent;
-        document.getElementById('total-consumed').textContent = (data.today_ml / 1000).toFixed(2) + 'L';
-        document.getElementById('total-remaining').textContent = (Math.max(0, goalMl - data.today_ml) / 1000).toFixed(2) + 'L';
-
-        // Prepend log entry
-        const icons = { 'Water': 'water_drop', 'Juice': 'local_drink', 'Tea': 'emoji_food_beverage',
-                        'Coffee': 'coffee', 'Sports Drink': 'sports_bar', 'Other': 'water_bottle' };
-        const icon  = icons[data.drink_type] || 'water_drop';
-        const logList = document.getElementById('log-list');
-        const emptyMsg = logList.querySelector('p');
-        if (emptyMsg) emptyMsg.remove();
-
-        const item = document.createElement('div');
-        item.className = 'log-item';
-        item.style.cssText = 'opacity:0;transform:translateY(-8px);';
-        item.innerHTML = `
-          <div class="log-item__left">
-            <div class="log-item__avatar">
-              <span class="material-symbols-outlined" style="font-size:18px;">${icon}</span>
-            </div>
-            <div>
-              <p class="log-item__amount">${data.amount_ml}ml</p>
-              <p class="log-item__desc">${data.drink_type}</p>
-            </div>
-          </div>
-          <span class="log-item__time">${data.time}</span>
-        `;
-        logList.prepend(item);
-        requestAnimationFrame(() => {
-          item.style.transition = 'opacity 0.3s, transform 0.3s';
-          item.style.opacity = '1';
-          item.style.transform = 'translateY(0)';
-        });
-
-        if (data.today_ml >= goalMl) showGoalAchieved();
-      });
-    });
-  })();
+  window.HEALTHFLOW_REMINDER = <?= json_encode([
+      'enabled' => (bool)$reminderEnabled,
+      'time'    => $reminderTime,
+      'interval_min' => $reminderInt,
+  ]); ?>;
   </script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

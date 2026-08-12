@@ -1,0 +1,7 @@
+/* ---------- HealthFlow: Log Exercise Module ---------- */
+
+/* Activity buttons with icons */
+.preset-btn--icon .material-symbols-outlined {
+  font-size: 22px;
+  color: var(--color-secondary);
+}

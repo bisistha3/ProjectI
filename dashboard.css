@@ -23,7 +23,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: rgba(0, 98, 157, 0.8);
+  background: rgba(0, 105, 109, 0.8);
   transition: height 1s ease-in-out;
 }
 
@@ -116,7 +116,7 @@
 }
 
 .quick-log__btn:hover .quick-log__icon {
-  background-color: rgba(0, 163, 255, 0.15);
+  background-color: rgba(0, 167, 173, 0.15);
   color: var(--color-primary);
 }
 
@@ -184,7 +184,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(0, 163, 255, 0.15);
+  background: rgba(0, 167, 173, 0.15);
   color: var(--color-primary);
   display: flex;
   align-items: center;
@@ -209,4 +209,3 @@
   letter-spacing: var(--ls-label-md);
   color: var(--color-on-surface-variant);
 }
-
