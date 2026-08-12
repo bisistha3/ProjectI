@@ -42,7 +42,7 @@
     <form id="login-form" class="w-full flex flex-col gap-5" method="POST" action="login.php" novalidate>
       <!-- Email -->
       <div class="flex flex-col gap-1">
-        <label class="text-label-md text-on-surface" for="email">Email Address</label>
+        <label class="text-label-md text-on-surface" for="email">Email Address <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
         <div class="input-group">
           <span class="material-symbols-outlined icon-left">mail</span>
           <input
@@ -64,7 +64,7 @@
       <!-- Password -->
       <div class="flex flex-col gap-1">
         <div class="flex justify-between items-center">
-          <label class="text-label-md text-on-surface" for="password">Password</label>
+          <label class="text-label-md text-on-surface" for="password">Password <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
           <a class="text-label-md text-primary" href="#" style="text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Forgot Password?</a>
         </div>
         <div class="input-group">

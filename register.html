@@ -36,6 +36,7 @@
 
         <!-- Full Name -->
         <div>
+          <label class="text-label-md text-on-surface" for="name">Full Name <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
           <div class="input-group">
             <div class="icon-left" style="pointer-events: none;">
               <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
@@ -57,6 +58,7 @@
 
         <!-- Email -->
         <div>
+          <label class="text-label-md text-on-surface" for="reg-email">Email Address <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
           <div class="input-group">
             <div class="icon-left" style="pointer-events: none;">
               <span class="material-symbols-outlined" style="font-size: 20px;">mail</span>
@@ -79,6 +81,7 @@
 
         <!-- Password -->
         <div>
+          <label class="text-label-md text-on-surface" for="reg-password">Password <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
           <div class="input-group">
             <div class="icon-left" style="pointer-events: none;">
               <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
@@ -110,7 +113,7 @@
 
         <!-- Gender Toggle -->
         <div class="flex flex-col gap-2">
-          <label class="text-label-md text-on-surface">Gender</label>
+          <label class="text-label-md text-on-surface">Gender <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
           <div class="gender-toggle" id="gender-toggle">
             <div class="gender-toggle__slider" id="gender-slider" <?= $old['gender'] === 'female' ? 'style="transform:translateX(100%)"' : '' ?>></div>
             <label class="<?= $old['gender'] === 'male' ? 'active' : '' ?>" id="label-male">
@@ -128,7 +131,7 @@
         <div class="grid-3 mt-2">
           <!-- Age -->
           <div class="flex flex-col gap-2">
-            <label class="text-label-md text-on-surface" for="age">Age</label>
+            <label class="text-label-md text-on-surface" for="age">Age <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
             <input
               class="input-field <?= isset($errors['age']) ? 'input-field--error' : '' ?>"
               id="age"
@@ -147,7 +150,7 @@
           <!-- Weight -->
           <div class="flex flex-col gap-2">
             <label class="text-label-md text-on-surface" for="weight">
-              Weight <span class="text-on-surface-variant" style="font-weight: 400;">kg</span>
+              Weight <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span> <span class="text-on-surface-variant" style="font-weight: 400;">kg</span>
             </label>
             <input
               class="input-field <?= isset($errors['weight']) ? 'input-field--error' : '' ?>"
@@ -167,7 +170,7 @@
           <!-- Height -->
           <div class="flex flex-col gap-2">
             <label class="text-label-md text-on-surface" for="height">
-              Height <span class="text-on-surface-variant" style="font-weight: 400;">cm</span>
+              Height <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span> <span class="text-on-surface-variant" style="font-weight: 400;">cm</span>
             </label>
             <input
               class="input-field <?= isset($errors['height']) ? 'input-field--error' : '' ?>"
