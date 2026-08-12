@@ -1,6 +1,6 @@
 ﻿<?php
 /**
- * HydroFlow â€” Session & Auth Helper
+ * HealthFlow — Session & Auth Helper
  */
 
 if (session_status() === PHP_SESSION_NONE) {

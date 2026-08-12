@@ -160,7 +160,7 @@
 
 .bar {
   width: 100%;
-  background-color: rgba(0, 98, 157, 0.2);
+  background-color: rgba(0, 105, 109, 0.2);
   border-radius: 6px 6px 0 0;
   transition: background-color 0.3s, box-shadow 0.3s;
   cursor: pointer;
@@ -170,7 +170,7 @@
 
 .bar:hover {
   background-color: var(--color-primary);
-  box-shadow: 0 0 15px rgba(0, 163, 255, 0.3);
+  box-shadow: 0 0 15px rgba(0, 167, 173, 0.3);
 }
 
 .bar:hover::after {
@@ -183,7 +183,7 @@
 
 .bar--filled {
   background-color: var(--color-primary);
-  box-shadow: 0 0 15px rgba(0, 163, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 167, 173, 0.2);
 }
 
 .bar--filled::before {
@@ -332,10 +332,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(0, 98, 157, 0.05);
+  background: rgba(0, 105, 109, 0.05);
   border-radius: var(--radius-xl);
   padding: 12px;
-  border: 1px solid rgba(0, 98, 157, 0.1);
+  border: 1px solid rgba(0, 105, 109, 0.1);
 }
 
 .streak-info__left {
@@ -429,7 +429,7 @@
 
 .progress-fill--primary {
   background-color: var(--color-primary);
-  box-shadow: 0 0 8px rgba(0, 163, 255, 0.4);
+  box-shadow: 0 0 8px rgba(0, 167, 173, 0.4);
 }
 
 .progress-fill--success {

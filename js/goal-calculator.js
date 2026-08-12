@@ -1,13 +1,25 @@
-/* ---------- Goal Calculator (Settings) — BMI-based ---------- */
+/* ---------- Goal Calculator (Settings) — BMI water + Mifflin-St Jeor nutrition ---------- */
 export function initGoalCalculator() {
   const weightInput  = document.getElementById('setting-weight');
   const heightInput  = document.getElementById('setting-height');
+  const ageInput     = document.getElementById('profile-age');
   const activitySel  = document.getElementById('setting-activity');
   const goalDisplay  = document.getElementById('recommended-goal');
   const bmiValue     = document.getElementById('bmi-value');
   const bmiCategory  = document.getElementById('bmi-category');
   const hiddenGoal   = document.getElementById('daily-goal-ml');
   const goalMode     = document.getElementById('goal-mode');
+
+  // Nutrition recommendation elements
+  const recCalories  = document.getElementById('rec-calories');
+  const recProtein   = document.getElementById('rec-protein');
+  const recFat       = document.getElementById('rec-fat');
+  const recCarbs     = document.getElementById('rec-carbs');
+  const nutriMode    = document.getElementById('nutrition-mode');
+  const nutriSwitch  = document.getElementById('nutrition-goal-switch');
+  const nutriKnob    = document.getElementById('nutrition-goal-knob');
+  const nutriToggleLabel = document.getElementById('nutrition-toggle-label');
+  const nutriCustomArea  = document.getElementById('nutrition-custom-area');
 
   // Gender radios live inside the goal card
   const genderMale   = document.getElementById('setting-gender-male');
@@ -27,7 +39,9 @@ export function initGoalCalculator() {
 
   if (!weightInput || !heightInput || !goalDisplay) return;
 
-  // ── BMI-based calculation ────────────────────────────────────────────────
+  function round5(n) { return Math.round(n / 5) * 5; }
+
+  // ── BMI-based water calculation ────────────────────────────────────────────
   function calcBmi() {
     const w = parseFloat(weightInput.value) || 70;
     const h = parseFloat(heightInput.value)  || 170;
@@ -70,7 +84,33 @@ export function initGoalCalculator() {
     }
   }
 
-  // ── Custom goal toggle switch ─────────────────────────────────────────────
+  // ── Mifflin-St Jeor nutrition calculation (mirror of includes/calculator.php) ──
+  function calcNutrition() {
+    const w = parseFloat(weightInput.value) || 70;
+    const h = parseFloat(heightInput.value)  || 170;
+    const a = parseFloat(ageInput?.value)    || 25;
+    const gender   = genderFemale?.checked ? 'female' : 'male';
+    const activity = activitySel?.value || 'medium';
+
+    const bmr     = 10 * w + 6.25 * h - 5 * a + (gender === 'female' ? -161 : 5);
+    const factor  = { low: 1.375, medium: 1.55, high: 1.725 }[activity] ?? 1.55;
+    let calories  = round5(bmr * factor);
+    let protein   = round5((calories * 0.25) / 4);
+    let fat       = round5((calories * 0.30) / 9);
+    let carbs     = round5((calories * 0.45) / 4);
+
+    calories = Math.max(1200, Math.min(5000, calories));
+    protein  = Math.max(40,   Math.min(300, protein));
+    fat      = Math.max(20,   Math.min(150, fat));
+    carbs    = Math.max(100,  Math.min(600, carbs));
+
+    if (recCalories) recCalories.textContent = calories;
+    if (recProtein)  recProtein.textContent  = protein + 'g';
+    if (recFat)      recFat.textContent      = fat + 'g';
+    if (recCarbs)    recCarbs.textContent    = carbs + 'g';
+  }
+
+  // ── Custom goal toggle switch (water) ──────────────────────────────────────
   let isCustom = false;
   if (switchEl) {
     switchEl.addEventListener('click', () => {
@@ -90,6 +130,28 @@ export function initGoalCalculator() {
       }
       // When switching back to bmi, restore calculated value
       if (!isCustom) calcBmi();
+    });
+  }
+
+  // ── Custom nutrition toggle switch ─────────────────────────────────────────
+  let isNutriCustom = false;
+  if (nutriSwitch) {
+    nutriSwitch.addEventListener('click', () => {
+      isNutriCustom = !isNutriCustom;
+      nutriKnob.style.transform        = isNutriCustom ? 'translateX(20px)' : 'translateX(0)';
+      nutriSwitch.style.background     = isNutriCustom ? 'var(--color-tertiary)' : 'var(--color-surface-container-high)';
+      nutriToggleLabel.textContent     = isNutriCustom ? 'On' : 'Off';
+      nutriToggleLabel.style.color     = isNutriCustom ? 'var(--color-tertiary)' : 'var(--color-on-surface-variant)';
+      nutriCustomArea.style.display    = isNutriCustom ? 'block' : 'none';
+
+      if (nutriMode) nutriMode.value = isNutriCustom ? 'custom' : 'auto';
+
+      if (isNutriCustom) {
+        document.getElementById('custom-calorie-input').value = recCalories.textContent;
+        document.getElementById('custom-protein-input').value = recProtein.textContent.replace('g', '');
+        document.getElementById('custom-fat-input').value     = recFat.textContent.replace('g', '');
+        document.getElementById('custom-carbs-input').value   = recCarbs.textContent.replace('g', '');
+      }
     });
   }
 
@@ -114,9 +176,11 @@ export function initGoalCalculator() {
   }
 
   // ── Event listeners ───────────────────────────────────────────────────────
-  weightInput.addEventListener('input',  calcBmi);
-  heightInput.addEventListener('input',  calcBmi);
-  if (activitySel) activitySel.addEventListener('change', calcBmi);
+  weightInput.addEventListener('input',  () => { calcBmi(); calcNutrition(); });
+  heightInput.addEventListener('input',  () => { calcBmi(); calcNutrition(); });
+  if (ageInput)     ageInput.addEventListener('input', calcNutrition);
+  if (activitySel)  activitySel.addEventListener('change', () => { calcBmi(); calcNutrition(); });
 
-  calcBmi(); // Initial calculation on page load
+  calcBmi();       // Initial calculation on page load
+  calcNutrition();
 }

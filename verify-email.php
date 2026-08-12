@@ -1,6 +1,6 @@
 <?php
 /**
- * HydroFlow — Email OTP Verification Page
+ * HealthFlow — Email OTP Verification Page
  * User must enter the 6-digit code sent to their email to activate their account.
  */
 require_once __DIR__ . '/includes/auth.php';

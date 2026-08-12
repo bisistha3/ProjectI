@@ -1,11 +1,11 @@
 <?php
 /**
- * HydroFlow — Database Connection (MySQL via PDO)
+ * HealthFlow — Database Connection (MySQL via PDO)
  * Make sure to create the database and tables manually before using.
  */
 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'hydroflow');
+define('DB_NAME', 'healthflow');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * HydroFlow — Application Configuration
+ * HealthFlow — Application Configuration
  * ════════════════════════════════════════════════════════════════════════════
  *
  * ┌─────────────────────────────────────────────────────────────────────────┐
@@ -16,7 +16,7 @@
  *   OPTION A — Gmail (recommended):
  *     1. Enable 2-Step Verification on your Google account.
  *     2. Visit: https://myaccount.google.com/apppasswords
- *     3. Create an App Password (select "Mail" → "Other", name it "HydroFlow").
+ *     3. Create an App Password (select "Mail" → "Other", name it "HealthFlow").
  *     4. Copy the 16-character password shown.
  *     5. Fill in MAIL_USER (your Gmail address) and MAIL_PASS (the app password).
  *     6. Leave MAIL_HOST = 'smtp.gmail.com', MAIL_PORT = 587, MAIL_ENCRYPTION = 'tls'.
@@ -51,7 +51,7 @@ define('MAIL_PASS', 'gvtx vqah qucq rtvn');
 
 // ─── From Address (shown in recipient's inbox) ────────────────────────────
 define('MAIL_FROM_ADDR', 'kritanniraula@gmail.com'); // change to a real address in production
-define('MAIL_FROM_NAME', 'HydroFlow');
+define('MAIL_FROM_NAME', 'HealthFlow');
 
 // ─── OTP Settings ─────────────────────────────────────────────────────────
 define('OTP_EXPIRY_MINUTES', 15);  // How long the OTP code stays valid

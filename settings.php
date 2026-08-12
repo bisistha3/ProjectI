@@ -1,9 +1,10 @@
 <?php
 /**
- * HydroFlow — Settings Page (server-side rendered, standard POST form)
+ * HealthFlow — Settings Page (server-side rendered, standard POST form)
  */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/calculator.php';
 
 requireLogin();
 
@@ -13,40 +14,60 @@ $userId = (int)$_SESSION['user_id'];
 $success = '';
 $errors  = [];
 
-// ── Handle form submission ───────────────────────────────────────────────────────────────────────────────
+// ── Handle form submission ───────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullName  = trim($_POST['full_name']  ?? '');
     $weight    = (float)($_POST['weight']  ?? 0);
     $height    = (float)($_POST['height']  ?? 0);
     $age       = (int)  ($_POST['age']     ?? 0);
     $gender    = in_array($_POST['gender'] ?? '', ['male','female']) ? $_POST['gender'] : 'male';
+    $activity  = in_array($_POST['activity'] ?? '', ['low','medium','high']) ? $_POST['activity'] : 'medium';
     $goalMode  = ($_POST['goal_mode'] ?? 'bmi') === 'custom' ? 'custom' : 'bmi';
+    $nutriMode = ($_POST['nutrition_mode'] ?? 'auto') === 'custom' ? 'custom' : 'auto';
 
-    // ── BMI-based goal calculation (server-side mirror of the JS calculator) ────────
+    // Reminder settings (interval-based or one custom time)
+    $reminderEnabled  = isset($_POST['reminder_enabled']) ? 1 : 0;
+    $reminderInterval = (int)($_POST['reminder_interval_min'] ?? 0);
+    if (!in_array($reminderInterval, [0, 60, 120, 180], true)) $reminderInterval = 0;
+    $reminderTime    = trim($_POST['reminder_time'] ?? '20:00');
+    if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $reminderTime)) $reminderTime = '20:00';
+    $reminderTime    .= ':00'; // store as full TIME
+
+    // Sleep schedule
+    $wakeTime  = trim($_POST['wake_time']  ?? '07:00');
+    $sleepTime = trim($_POST['sleep_time'] ?? '22:00');
+    if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $wakeTime))  $wakeTime  = '07:00';
+    if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $sleepTime)) $sleepTime = '22:00';
+    $wakeTime  .= ':00';
+    $sleepTime .= ':00';
+
+    // ── Calories-to-burn goal ─────────────────────────────────────────────────
+    $burnIn = (int)($_POST['burn_goal_kcal'] ?? 300);
+
+    // ── Water goal ────────────────────────────────────────────────────────────
     if ($goalMode === 'custom') {
-        // User typed their own goal
-        $goalMlIn = (int)($_POST['custom_goal_ml'] ?? 2500);
+        $goalMlIn = (int)($_POST['custom_goal_ml'] ?? $_POST['daily_goal_ml'] ?? 2500);
     } else {
-        // Calculate from BMI + gender + activity
-        $heightM  = $height / 100;
-        $bmi      = ($heightM > 0) ? $weight / ($heightM ** 2) : 22.0;
-        if      ($bmi < 18.5) $bmiMult = 40;  // Underweight — needs more
-        elseif  ($bmi < 25.0) $bmiMult = 35;  // Normal weight — standard
-        elseif  ($bmi < 30.0) $bmiMult = 30;  // Overweight
-        else                  $bmiMult = 25;  // Obese — use lean-adjusted
-
-        $goalMlIn = (int)round($weight * $bmiMult);
-        if ($gender === 'female') $goalMlIn = (int)round($goalMlIn * 0.9); // women need ~10% less
-
-        $activityBonus = match($_POST['activity'] ?? 'medium') {
-            'low'  => 0,
-            'high' => 1000,
-            default => 500, // medium
-        };
-        $goalMlIn = max(1500, min(5000, $goalMlIn + $activityBonus));
+        $goalMlIn = calcWaterGoal($weight, $height, $gender, $activity);
     }
 
-    // ── Validation ─────────────────────────────────────────────────────────────────────────
+    // ── Nutrition goals (calories + macros) ──────────────────────────────────
+    if ($nutriMode === 'custom') {
+        $calorieIn = (int)($_POST['custom_calorie_goal']  ?? 2000);
+        $proteinIn = (int)($_POST['custom_protein_goal']  ?? 100);
+        $fatIn     = (int)($_POST['custom_fat_goal']      ?? 65);
+        $carbsIn   = (int)($_POST['custom_carbs_goal']    ?? 250);
+        $exerciseIn= (int)($_POST['exercise_goal_min']    ?? 30);
+    } else {
+        $nutri     = calcNutritionGoals($weight, $height, $age, $gender, $activity);
+        $calorieIn = $nutri['calories'];
+        $proteinIn = $nutri['protein_g'];
+        $fatIn     = $nutri['fat_g'];
+        $carbsIn   = $nutri['carbs_g'];
+        $exerciseIn= (int)($_POST['exercise_goal_min'] ?? 30);
+    }
+
+    // ── Validation ───────────────────────────────────────────────────────────
     if (strlen($fullName) < 2)          $errors[] = 'Name must be at least 2 characters.';
     if (preg_match('/^\d/', $fullName))  $errors[] = 'Name cannot start with a number.';
     if ($fullName !== '' && !preg_match("/^[\p{L}][\p{L}\s'\-]*$/u", $fullName))
@@ -54,20 +75,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($weight < 10 || $weight > 500)  $errors[] = 'Weight must be between 10 and 500 kg.';
     if ($height < 50 || $height > 300)  $errors[] = 'Height must be between 50 and 300 cm.';
     if ($age < 1    || $age > 120)      $errors[] = 'Age must be between 1 and 120.';
-    if ($goalMlIn < 500 || $goalMlIn > 10000) $errors[] = 'Daily goal must be between 500 ml and 10 L.';
+    if ($goalMlIn < 500 || $goalMlIn > 10000) $errors[] = 'Daily water goal must be between 500 ml and 10 L.';
+    if ($calorieIn < 1200 || $calorieIn > 5000) $errors[] = 'Daily calorie goal must be between 1200 and 5000 kcal.';
+    if ($proteinIn < 20  || $proteinIn > 400)   $errors[] = 'Daily protein goal must be between 20 and 400 g.';
+    if ($fatIn < 20      || $fatIn > 250)       $errors[] = 'Daily fat goal must be between 20 and 250 g.';
+    if ($carbsIn < 50    || $carbsIn > 800)     $errors[] = 'Daily carbs goal must be between 50 and 800 g.';
+    if ($exerciseIn < 5  || $exerciseIn > 600)  $errors[] = 'Daily exercise goal must be between 5 and 600 minutes.';
+    if ($burnIn < 50 || $burnIn > 2000) $errors[] = 'Calories burn goal must be between 50 and 2000 kcal.';
 
     if (empty($errors)) {
         $db->prepare(
-            'UPDATE users SET full_name=?, weight=?, height=?, age=?, gender=?, daily_goal_ml=? WHERE user_id=?'
-        )->execute([$fullName, $weight, $height, $age, $gender, $goalMlIn, $userId]);
+            'UPDATE users SET full_name=?, weight=?, height=?, age=?, gender=?, daily_goal_ml=?,
+             daily_calorie_goal=?, daily_protein_goal_g=?, daily_fat_goal_g=?, daily_carbs_goal_g=?,
+             daily_exercise_goal_min=?, daily_burn_goal_kcal=?, reminder_enabled=?, reminder_time=?,
+             reminder_interval_min=?, wake_time=?, sleep_time=? WHERE user_id=?'
+        )->execute([$fullName, $weight, $height, $age, $gender, $goalMlIn,
+                    $calorieIn, $proteinIn, $fatIn, $carbsIn, $exerciseIn,
+                    $burnIn, $reminderEnabled, $reminderTime,
+                    $reminderInterval, $wakeTime, $sleepTime, $userId]);
 
         $_SESSION['full_name'] = $fullName;
         $success = 'Settings saved successfully!';
     }
 }
 
-// ── Load current user data ───────────────────────────────────────────────────────────────────────────
-$u = $db->prepare('SELECT full_name, email, age, weight, height, gender, daily_goal_ml FROM users WHERE user_id=?');
+// ── Load current user data ───────────────────────────────────────────────
+$u = $db->prepare('SELECT full_name, email, age, weight, height, gender, daily_goal_ml,
+                          daily_calorie_goal, daily_protein_goal_g, daily_fat_goal_g,
+                          daily_carbs_goal_g, daily_exercise_goal_min, daily_burn_goal_kcal,
+                          reminder_enabled, reminder_time, reminder_interval_min, wake_time, sleep_time
+                          FROM users WHERE user_id=?');
 $u->execute([$userId]);
 $user      = $u->fetch();
 $fullName  = htmlspecialchars($user['full_name']  ?? '', ENT_QUOTES, 'UTF-8');
@@ -78,6 +115,22 @@ $height    = (float)($user['height']   ?? 0);
 $gender    = $user['gender']           ?? 'male';
 $goalMl    = (int)($user['daily_goal_ml'] ?? 2500);
 $goalLabel = number_format($goalMl / 1000, 1) . 'L';
+
+$calorieGoal = (int)($user['daily_calorie_goal']   ?? 2000);
+$proteinGoal = (int)($user['daily_protein_goal_g'] ?? 125);
+$fatGoal     = (int)($user['daily_fat_goal_g']     ?? 67);
+$carbsGoal   = (int)($user['daily_carbs_goal_g']   ?? 225);
+$exerciseMin = (int)($user['daily_exercise_goal_min'] ?? 30);
+$burnGoal    = (int)($user['daily_burn_goal_kcal'] ?? 300);
+$reminderOn  = (int)($user['reminder_enabled'] ?? 0);
+$reminderTm  = $user['reminder_time'] ?? '20:00:00';
+$reminderTm  = substr($reminderTm, 0, 5); // HH:MM for <input type="time">
+$reminderInt = (int)($user['reminder_interval_min'] ?? 0);
+$wakeTm      = substr($user['wake_time']  ?? '07:00:00', 0, 5);
+$sleepTm     = substr($user['sleep_time'] ?? '22:00:00', 0, 5);
+
+// Live auto-recommendation for the nutrition card (JS mirrors this)
+$nutriRec = calcNutritionGoals($weight, $height, $age, $gender, 'medium');
 
 // Pre-compute BMI for display
 $bmiVal = ($height > 0) ? round($weight / (($height / 100) ** 2), 1) : 0;

@@ -1,6 +1,6 @@
 <?php
 /**
- * HydroFlow â€” Login Handler
+ * HealthFlow — Login Handler
  * Handles both GET (show form) and POST (process login).
  */
 require_once __DIR__ . '/includes/auth.php';

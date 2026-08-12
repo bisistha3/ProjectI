@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings - HydroFlow</title>
-  <meta name="description" content="Customize your HydroFlow profile, adjust hydration goals, and manage your preferences.">
+  <title>Settings - HealthFlow</title>
+  <meta name="description" content="Customize your HealthFlow profile, adjust hydration, nutrition and exercise goals, and manage your preferences.">
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
@@ -17,18 +17,20 @@
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
-      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">water_drop</span>
-      HydroFlow
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">monitor_heart</span>
+      HealthFlow
     </div>
     <div class="sidebar__profile">
       <div class="sidebar__avatar-initials"><?= mb_strtoupper(mb_substr($fullName, 0, 1)) ?></div>
       <div>
         <p class="sidebar__profile-name"><?= $fullName ?></p>
-        <p class="sidebar__profile-goal">Daily Goal: <?= $goalLabel ?></p>
       </div>
     </div>
     <nav class="sidebar__nav">
       <a href="dashboard.php" class="nav-item"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="log.php?type=water" class="nav-item"><span class="material-symbols-outlined">water_drop</span>Log Water</a>
+      <a href="log.php?type=nutrition" class="nav-item"><span class="material-symbols-outlined">restaurant</span>Log Nutrition</a>
+      <a href="log.php?type=exercise" class="nav-item"><span class="material-symbols-outlined">directions_run</span>Log Exercise</a>
       <a href="history.php" class="nav-item"><span class="material-symbols-outlined">history</span>History</a>
       <a href="settings.php" class="nav-item nav-item--active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">settings</span>Settings</a>
     </nav>
@@ -170,6 +172,82 @@
             <input type="hidden" name="daily_goal_ml" id="daily-goal-ml" value="<?= $goalMl ?>">
           </section>
 
+          <!-- Daily Nutrition Goal Card -->
+          <section class="glass-card settings-section" style="border-radius:16px;">
+            <div class="settings-section__header">
+              <span class="material-symbols-outlined text-primary">restaurant</span>
+              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Daily Nutrition Goal</h2>
+            </div>
+
+            <p style="font-size:12px;color:var(--color-on-surface-variant);margin-bottom:16px;">
+              Recommended from your gender, age, height and weight (Mifflin-St Jeor) — recalculates live as you edit your profile.
+            </p>
+
+            <!-- Auto Recommendation Banner -->
+            <div id="nutrition-panel" style="background:linear-gradient(135deg,var(--color-tertiary),var(--color-tertiary-container));border-radius:12px;padding:18px 20px;color:white;margin-bottom:20px;">
+              <p style="font-size:11px;font-weight:600;letter-spacing:0.05em;margin-bottom:10px;color:rgba(255,255,255,0.8);">YOUR DAILY TARGETS</p>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                <div style="flex:1;min-width:90px;">
+                  <p style="font-size:20px;font-weight:800;line-height:1;" id="rec-calories"><?= $nutriRec['calories'] ?></p>
+                  <p style="font-size:11px;opacity:0.8;">kcal</p>
+                </div>
+                <div style="flex:1;min-width:70px;">
+                  <p style="font-size:20px;font-weight:800;line-height:1;" id="rec-protein"><?= $nutriRec['protein_g'] ?>g</p>
+                  <p style="font-size:11px;opacity:0.8;">Protein</p>
+                </div>
+                <div style="flex:1;min-width:70px;">
+                  <p style="font-size:20px;font-weight:800;line-height:1;" id="rec-fat"><?= $nutriRec['fat_g'] ?>g</p>
+                  <p style="font-size:11px;opacity:0.8;">Fat</p>
+                </div>
+                <div style="flex:1;min-width:70px;">
+                  <p style="font-size:20px;font-weight:800;line-height:1;" id="rec-carbs"><?= $nutriRec['carbs_g'] ?>g</p>
+                  <p style="font-size:11px;opacity:0.8;">Carbs</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Divider with custom toggle -->
+            <div style="border-top:1px solid var(--color-surface-container-high);padding-top:16px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div>
+                  <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;">Set Custom Targets</p>
+                  <p style="font-size:11px;color:var(--color-on-surface-variant);">Override the recommendation with your own values</p>
+                </div>
+                <label id="nutrition-custom-toggle" style="display:flex;align-items:center;cursor:pointer;gap:8px;">
+                  <span style="font-size:12px;color:var(--color-on-surface-variant);" id="nutrition-toggle-label">Off</span>
+                  <div id="nutrition-goal-switch" style="width:44px;height:24px;background:var(--color-surface-container-high);border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
+                    <div id="nutrition-goal-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Custom nutrition input area (hidden by default) -->
+              <div id="nutrition-custom-area" style="display:none;">
+                <div class="grid-2" style="gap:12px;margin-bottom:10px;">
+                  <div>
+                    <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Calories (kcal)</label>
+                    <input class="input-field nutrition-custom-input" id="custom-calorie-input" name="custom_calorie_goal" type="number" min="1200" max="5000" step="50" value="<?= $calorieGoal ?>">
+                  </div>
+                  <div>
+                    <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Protein (g)</label>
+                    <input class="input-field nutrition-custom-input" id="custom-protein-input" name="custom_protein_goal" type="number" min="20" max="400" step="5" value="<?= $proteinGoal ?>">
+                  </div>
+                  <div>
+                    <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Fat (g)</label>
+                    <input class="input-field nutrition-custom-input" id="custom-fat-input" name="custom_fat_goal" type="number" min="20" max="250" step="5" value="<?= $fatGoal ?>">
+                  </div>
+                  <div>
+                    <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Carbs (g)</label>
+                    <input class="input-field nutrition-custom-input" id="custom-carbs-input" name="custom_carbs_goal" type="number" min="50" max="800" step="5" value="<?= $carbsGoal ?>">
+                  </div>
+                </div>
+                <p style="font-size:11px;color:var(--color-on-surface-variant);">Calories: 1200–5000 · Protein: 20–400g · Fat: 20–250g · Carbs: 50–800g</p>
+              </div>
+            </div>
+
+            <input type="hidden" name="nutrition_mode" id="nutrition-mode" value="auto">
+          </section>
+
           <!-- Profile Information Card -->
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
@@ -197,6 +275,84 @@
         <!-- Right Column -->
         <div class="flex flex-col gap-6">
 
+          <!-- Daily Exercise Goal Card -->
+          <section class="glass-card settings-section" style="border-radius:16px;">
+            <div class="settings-section__header">
+              <span class="material-symbols-outlined text-primary">directions_run</span>
+              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Daily Exercise Goal</h2>
+            </div>
+            <div>
+              <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="exercise-goal-min">Target duration per day</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input class="input-field" id="exercise-goal-min" name="exercise_goal_min" type="number" min="5" max="600" step="5"
+                       value="<?= $exerciseMin ?>" style="flex:1;">
+                <span style="font-size:13px;color:var(--color-on-surface-variant);white-space:nowrap;">minutes / day</span>
+              </div>
+              <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">WHO recommends at least 150 minutes of moderate activity per week (~30 min/day).</p>
+            </div>
+            <div style="border-top:1px solid var(--color-surface-container-high);padding-top:14px;margin-top:14px;">
+              <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Calories to burn per day</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input class="input-field" name="burn_goal_kcal" type="number" min="50" max="2000" step="10"
+                       value="<?= $burnGoal ?>" style="flex:1;">
+                <span style="font-size:13px;color:var(--color-on-surface-variant);white-space:nowrap;">kcal / day</span>
+              </div>
+              <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">Total calories burned through activity per day.</p>
+            </div>
+          </section>
+
+          <!-- Reminders Card -->
+          <section class="glass-card settings-section" style="border-radius:16px;">
+            <div class="settings-section__header">
+              <span class="material-symbols-outlined text-primary">notifications_active</span>
+              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Reminders</h2>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div>
+                  <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;">Daily Reminder</p>
+                  <p style="font-size:11px;color:var(--color-on-surface-variant);">One reminder for water, meals and exercise</p>
+                </div>
+                <label style="display:flex;align-items:center;cursor:pointer;gap:8px;">
+                  <span style="font-size:12px;color:var(--color-on-surface-variant);" id="reminder-toggle-label"><?= $reminderOn ? 'On' : 'Off' ?></span>
+                  <div>
+                    <input type="checkbox" name="reminder_enabled" id="reminder-enabled" value="1" <?= $reminderOn ? 'checked' : '' ?> class="sr-only" style="display:none;">
+                    <div id="reminder-switch" style="width:44px;height:24px;background:<?= $reminderOn ? 'var(--color-primary)' : 'var(--color-surface-container-high)' ?>;border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
+                      <div id="reminder-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s, left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);<?= $reminderOn ? 'left:23px;' : '' ?>"></div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+              <div id="reminder-time-area" style="<?= $reminderOn && $reminderInt === 0 ? '' : 'display:none;' ?>">
+                <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="reminder-time">Remind me at</label>
+                <input class="input-field" id="reminder-time" name="reminder_time" type="time" value="<?= $reminderTm ?>">
+              </div>
+              <div style="margin-top:14px;">
+                <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="reminder-interval">Remind me</label>
+                <select class="input-field" id="reminder-interval" name="reminder_interval_min">
+                  <option value="60"  <?= $reminderInt === 60  ? 'selected' : '' ?>>Every 1 hour</option>
+                  <option value="120" <?= $reminderInt === 120 ? 'selected' : '' ?>>Every 2 hours</option>
+                  <option value="180" <?= $reminderInt === 180 ? 'selected' : '' ?>>Every 3 hours</option>
+                  <option value="0"   <?= $reminderInt === 0   ? 'selected' : '' ?>>Custom time</option>
+                </select>
+                <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">While the app is open, a gentle toast reminds you to log your water, meals and exercise.</p>
+              </div>
+              <div style="border-top:1px solid var(--color-surface-container-high);padding-top:14px;margin-top:14px;">
+                <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;margin-bottom:4px;">Sleep Schedule</p>
+                <div class="grid-2" style="gap:12px;margin-top:10px;">
+                  <div>
+                    <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="wake-time">Wake Up Time</label>
+                    <input class="input-field" id="wake-time" name="wake_time" type="time" value="<?= $wakeTm ?>">
+                  </div>
+                  <div>
+                    <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="sleep-time">Sleep Time</label>
+                    <input class="input-field" id="sleep-time" name="sleep_time" type="time" value="<?= $sleepTm ?>">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <!-- Account Security Card -->
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
@@ -213,7 +369,7 @@
               <div class="settings-row">
                 <div class="settings-row__info">
                   <span class="settings-row__label">Member Since</span>
-                  <span class="settings-row__desc">HydroFlow account</span>
+                  <span class="settings-row__desc">HealthFlow account</span>
                 </div>
               </div>
               <div class="settings-row" style="padding-top:16px;border-top:1px solid var(--color-surface-container-high);">
@@ -262,6 +418,13 @@
     </form>
   </main>
 
+  <script>
+  window.HEALTHFLOW_REMINDER = <?= json_encode([
+      'enabled' => (bool)$reminderOn,
+      'time'    => $reminderTm,
+      'interval_min' => $reminderInt,
+  ]); ?>;
+  </script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

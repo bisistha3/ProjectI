@@ -48,18 +48,22 @@ export function initBarTooltips() {
   const bars = document.querySelectorAll('.bar-col');
   if (bars.length === 0) return;
 
-  const goalL = 2.5;
   bars.forEach(col => {
     const value = parseInt(col.getAttribute('data-value'), 10);
     if (isNaN(value)) return;
 
-    const litres = (goalL * value / 100).toFixed(1);
+    const goal = parseFloat(col.getAttribute('data-goal')) || 100;
+    const unit = col.getAttribute('data-unit') || '';
+    let shown = goal * value / 100;
+    if (unit === 'L') shown = shown.toFixed(1);
+    else shown = Math.round(shown);
+
     const bar = col.querySelector('.bar');
     if (!bar) return;
 
     // Create tooltip
     const tooltip = document.createElement('div');
-    tooltip.textContent = litres + 'L';
+    tooltip.textContent = shown + unit;
     tooltip.style.cssText = `
       position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
       background: var(--color-inverse-surface, #2d3133); color: white;

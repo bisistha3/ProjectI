@@ -1,6 +1,6 @@
 <?php
 /**
- * HydroFlow — Input Validation Helper
+ * HealthFlow — Input Validation Helper
  * Server-side validation for all form fields.
  */
 
@@ -233,7 +233,7 @@ class Validator {
             CURLOPT_CONNECTTIMEOUT => 3,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_USERAGENT      => 'HydroFlow/1.0',
+            CURLOPT_USERAGENT      => 'HealthFlow/1.0',
             CURLOPT_HTTPHEADER     => ['Accept: application/json'],
         ]);
 

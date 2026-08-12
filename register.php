@@ -1,12 +1,13 @@
 <?php
 /**
- * HydroFlow â€” Register Handler
+ * HealthFlow — Register Handler
  * Handles both GET (show form) and POST (create account + send OTP).
  */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/validate.php';
+require_once __DIR__ . '/includes/calculator.php';
 require_once __DIR__ . '/includes/mailer.php';
 
 // Redirect if already logged in
@@ -106,22 +107,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // New account — insert as UNVERIFIED
 
-                // ── Calculate BMI-based daily goal at registration ──────────────────────
-                // Formula: weight × BMI-multiplier, gender-adjusted, medium activity assumed
-                $regHeightM  = (float)$height / 100;
-                $regBmi      = ($regHeightM > 0) ? (float)$weight / ($regHeightM ** 2) : 22.0;
-                if      ($regBmi < 18.5) $regMult = 40;  // Underweight
-                elseif  ($regBmi < 25.0) $regMult = 35;  // Normal weight
-                elseif  ($regBmi < 30.0) $regMult = 30;  // Overweight
-                else                    $regMult = 25;  // Obese
-
-                $regGoal = (int)round((float)$weight * $regMult);
-                if ($gender === 'female') $regGoal = (int)round($regGoal * 0.9); // women -10%
-                $regGoal = max(1500, min(5000, $regGoal + 500)); // +500 ml medium activity default
+                // ── Calculate personalised goals at registration ───────────────
+                // Water: BMI formula (medium activity assumed at signup).
+                // Nutrition: Mifflin-St Jeor TDEE → calorie + macro split.
+                $regGoal   = calcWaterGoal((float)$weight, (float)$height, $gender, 'medium');
+                $nutri     = calcNutritionGoals((float)$weight, (float)$height, (int)$age, $gender, 'medium');
 
                 $stmt = $db->prepare('
-                    INSERT INTO users (full_name, email, password, gender, age, weight, height, daily_goal_ml, is_verified)
-                    VALUES (:name, :email, :password, :gender, :age, :weight, :height, :goal, 0)
+                    INSERT INTO users (full_name, email, password, gender, age, weight, height,
+                                       daily_goal_ml, daily_calorie_goal, daily_protein_goal_g,
+                                       daily_fat_goal_g, daily_carbs_goal_g, daily_exercise_goal_min,
+                                       is_verified)
+                    VALUES (:name, :email, :password, :gender, :age, :weight, :height,
+                            :goal, :kcal, :protein, :fat, :carbs, 30, 0)
                 ');
                 $stmt->execute([
                     ':name'     => trim($name),
@@ -132,6 +130,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ':weight'   => (float)$weight,
                     ':height'   => (float)$height,
                     ':goal'     => $regGoal,
+                    ':kcal'     => $nutri['calories'],
+                    ':protein'  => $nutri['protein_g'],
+                    ':fat'      => $nutri['fat_g'],
+                    ':carbs'    => $nutri['carbs_g'],
                 ]);
 
                 $userId = (int)$db->lastInsertId();
