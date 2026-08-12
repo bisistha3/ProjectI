@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initBarTooltips();
 });
 
-/* ---------- Password Visibility Toggle ---------- */
+/* ---------- Password Visibility Toggle -------- */
 function initPasswordToggles() {
   const toggleBtns = document.querySelectorAll('.toggle-password');
   toggleBtns.forEach(btn => {
@@ -397,7 +397,7 @@ function initFormHandlers() {
   }
 
   function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(email);
   }
 
   // --- Real-time: clear error on input ---
