@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log - HealthFlow</title>
+  <meta name="description" content="Log your daily water, nutrition and exercise with HealthFlow.">
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="app-layout" style="display: flex;">
+
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+      HealthFlow
+    </div>
+    <div class="sidebar__profile">
+      <div class="sidebar__avatar-initials"><?= mb_strtoupper(mb_substr($fullName, 0, 1)) ?></div>
+      <div>
+        <p class="sidebar__profile-name"><?= $fullName ?></p>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="dashboard.php" class="nav-item"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="log.php?type=water" class="nav-item <?= $type === 'water' ? 'nav-item--active' : '' ?>">
+        <span class="material-symbols-outlined" <?= $type === 'water' ? "style='font-variation-settings: \"FILL\" 1;'" : '' ?>>water_drop</span>
+        Log Water
+      </a>
+      <a href="log.php?type=nutrition" class="nav-item <?= $type === 'nutrition' ? 'nav-item--active' : '' ?>">
+        <span class="material-symbols-outlined" <?= $type === 'nutrition' ? "style='font-variation-settings: \"FILL\" 1;'" : '' ?>>restaurant</span>
+        Log Nutrition
+      </a>
+      <a href="log.php?type=exercise" class="nav-item <?= $type === 'exercise' ? 'nav-item--active' : '' ?>">
+        <span class="material-symbols-outlined" <?= $type === 'exercise' ? "style='font-variation-settings: \"FILL\" 1;'" : '' ?>>directions_run</span>
+        Log Exercise
+      </a>
+      <a href="history.php" class="nav-item"><span class="material-symbols-outlined">history</span>History</a>
+      <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
+    </nav>
+    <div class="sidebar__footer">
+      <a href="logout.php" class="nav-item" style="color: var(--color-error);">
+        <span class="material-symbols-outlined">logout</span>Logout
+      </a>
+    </div>
+  </aside>
+
+  <header class="topnav" id="topnav">
+    <div class="topnav__actions" style="margin-left:auto;">
+      <span class="topnav__greeting">Hello, <?= $fullName ?>!</span>
+      <a href="logout.php" class="topnav__icon-btn" aria-label="Logout" title="Logout">
+        <span class="material-symbols-outlined">logout</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <header class="mb-8">
+      <h1 class="text-headline-lg-responsive" style="color: var(--color-on-surface);">
+        <?= $type === 'water' ? 'Log Water' : ($type === 'nutrition' ? 'Log Nutrition' : 'Log Exercise') ?>
+      </h1>
+    </header>
+
+    <!-- ── WATER ─────────────────────────────────────────────────────────── -->
+    <?php if ($type === 'water'): ?>
+    <div class="grid-settings">
+      <div class="flex flex-col gap-6">
+        <!-- Today's progress -->
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Hydration</h2>
+          <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span class="text-label-md text-on-surface-variant">Consumed</span>
+            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-water-text"><?= number_format($todayMl / 1000, 2) ?> L / <?= $goalLabel ?></span>
+          </div>
+          <div class="progress-track" style="height:14px;">
+            <div class="progress-fill" id="log-water-fill" style="width:<?= $goalMl > 0 ? min(100, round($todayMl / $goalMl * 100)) : 0 ?>%; background: var(--color-primary);"></div>
+          </div>
+
+          <div class="quick-log mt-8" style="justify-content:flex-start; flex-wrap:wrap;">
+            <button class="quick-log__btn" data-action="water" data-amount="250" data-type="Water">
+              <div class="quick-log__icon"><span class="material-symbols-outlined">water_bottle</span></div>
+              <span class="quick-log__label">250ml</span>
+            </button>
+            <button class="quick-log__btn" data-action="water" data-amount="500" data-type="Water">
+              <div class="quick-log__icon"><span class="material-symbols-outlined">water_drop</span></div>
+              <span class="quick-log__label">500ml</span>
+            </button>
+            <button class="quick-log__btn" data-action="water" data-amount="750" data-type="Water">
+              <div class="quick-log__icon"><span class="material-symbols-outlined">local_drink</span></div>
+              <span class="quick-log__label">750ml</span>
+            </button>
+          </div>
+
+          <!-- Custom amount -->
+          <div class="mt-8" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <div class="input-group" style="flex:1; min-width:140px;">
+              <span class="material-symbols-outlined icon-left">add</span>
+              <input class="input-field input-field--icon" id="log-water-amount" type="number" min="1" max="5000" step="50" placeholder="Custom ml">
+            </div>
+            <select class="input-field" id="log-water-drink" style="width:auto; min-width:130px;">
+              <option>Water</option>
+              <option>Juice</option>
+              <option>Tea</option>
+              <option>Coffee</option>
+              <option>Sports Drink</option>
+              <option>Other</option>
+            </select>
+            <button class="btn-primary" id="btn-log-water-custom" type="button">Add</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Recent logs -->
+      <div class="glass-card-light" style="padding: var(--sp-md);">
+        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Drinks</h2>
+        <div class="flex flex-col gap-4" id="log-list">
+          <?php if (empty($recentLogs)): ?>
+            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">Nothing logged yet — grab a glass! 💧</p>
+          <?php else: ?>
+            <?php foreach ($recentLogs as $log): ?>
+<div class="log-item">
+                <div class="log-item__left">
+                  <div class="log-item__avatar log-item__avatar--water">
+                    <span class="material-symbols-outlined" style="font-size:18px;"><?= $drinkIcons[$log['title']] ?? 'water_drop' ?></span>
+                  </div>
+                  <div>
+                    <p class="log-item__amount"><?= $log['val'] ?>ml</p>
+                    <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?></p>
+                  </div>
+                </div>
+                <div class="log-item__actions">
+                  <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                  <button class="log-item__delete" type="button" data-delete-type="water" data-delete-id="<?= (int)$log['log_id'] ?>"
+                          title="Delete entry" aria-label="Delete entry">
+                    <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                  </button>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- ── NUTRITION ────────────────────────────────────────────────────── -->
+    <?php if ($type === 'nutrition'): ?>
+    <div class="grid-settings">
+      <div class="flex flex-col gap-6">
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Nutrition</h2>
+
+          <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span class="text-label-md text-on-surface-variant">Calories</span>
+            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-kcal-text"><?= number_format($todayKcal) ?> / <?= number_format($goalKcal) ?> kcal</span>
+          </div>
+          <div class="progress-track" style="height:12px; margin-bottom:14px;">
+            <div class="progress-fill" id="log-kcal-fill" style="width:<?= $macroPct($todayKcal, $goalKcal) ?>%; background: linear-gradient(90deg,#f97316,#ef4444);"></div>
+          </div>
+
+          <div class="macro-row">
+            <div>
+              <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span class="text-label-md" style="font-size:12px; color:#10b981;">Protein</span>
+                <span class="text-label-md" style="font-size:12px; color:var(--color-on-surface-variant);" id="log-protein-text"><?= $todayP ?> / <?= $goalP ?> g</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" id="log-protein-fill" style="width:<?= $macroPct($todayP, $goalP) ?>%; background:#10b981;"></div></div>
+            </div>
+          </div>
+          <div class="macro-row">
+            <div>
+              <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span class="text-label-md" style="font-size:12px; color:#f59e0b;">Fat</span>
+                <span class="text-label-md" style="font-size:12px; color:var(--color-on-surface-variant);" id="log-fat-text"><?= $todayFt ?> / <?= $goalFt ?> g</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" id="log-fat-fill" style="width:<?= $macroPct($todayFt, $goalFt) ?>%; background:#f59e0b;"></div></div>
+            </div>
+          </div>
+          <div class="macro-row">
+            <div>
+              <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span class="text-label-md" style="font-size:12px; color:#3b82f6;">Carbs</span>
+                <span class="text-label-md" style="font-size:12px; color:var(--color-on-surface-variant);" id="log-carbs-text"><?= $todayCb ?> / <?= $goalCb ?> g</span>
+              </div>
+              <div class="progress-track"><div class="progress-fill" id="log-carbs-fill" style="width:<?= $macroPct($todayCb, $goalCb) ?>%; background:#3b82f6;"></div></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Preset foods -->
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Quick Foods</h2>
+          <div class="food-grid">
+            <?php foreach ($foods as $name => $f): ?>
+            <button class="preset-btn" data-action="food" data-food="<?= htmlspecialchars($name, ENT_QUOTES) ?>">
+              <span><?= htmlspecialchars($name) ?></span>
+              <span class="preset-btn__kcal"><?= $f['calories'] ?> kcal</span>
+            </button>
+            <?php endforeach; ?>
+          </div>
+        </section>
+
+        <!-- My Foods (saved custom foods) -->
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">My Foods</h2>
+          <?php if (empty($customFoods)): ?>
+            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:12px 0;">
+              No saved foods yet — add a custom food once and it appears here for one-click logging.
+            </p>
+          <?php else: ?>
+          <div class="food-grid" id="my-foods-grid">
+            <?php foreach ($customFoods as $cf): ?>
+            <div class="preset-btn preset-btn--custom">
+              <button class="preset-btn__remove" type="button" data-delete-food="<?= (int)$cf['food_id'] ?>"
+                      title="Remove from My Foods" aria-label="Remove from My Foods">
+                <span class="material-symbols-outlined" style="font-size:14px;">close</span>
+              </button>
+              <button class="preset-btn__main" type="button" data-action="food" data-food="<?= htmlspecialchars($cf['food_name'], ENT_QUOTES) ?>">
+                <span><?= htmlspecialchars($cf['food_name']) ?></span>
+                <span class="preset-btn__kcal"><?= (int)$cf['calories'] ?> kcal</span>
+              </button>
+            </div>
+            <?php endforeach; ?>
+          </div>
+          <?php endif; ?>
+        </section>
+
+        <!-- Custom food -->
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Add Custom Food</h2>
+          <p style="font-size:11px;color:var(--color-on-surface-variant);margin:-8px 0 12px;">Saved to My Foods automatically after adding — log it with one click next time.</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div class="flex" style="display:flex; gap:8px;">
+              <input class="input-field" id="log-food-name" type="text" placeholder="Food name" style="flex:1.4;">
+              <select class="input-field" id="log-food-meal" style="flex:1;">
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack" selected>Snack</option>
+              </select>
+            </div>
+            <div class="flex" style="display:flex; gap:8px;">
+              <input class="input-field" id="log-food-kcal" type="number" min="1" max="3000" placeholder="kcal" style="flex:1;">
+              <input class="input-field" id="log-food-protein" type="number" min="0" step="0.1" placeholder="Protein g" style="flex:1;">
+              <input class="input-field" id="log-food-fat" type="number" min="0" step="0.1" placeholder="Fat g" style="flex:1;">
+              <input class="input-field" id="log-food-carbs" type="number" min="0" step="0.1" placeholder="Carbs g" style="flex:1;">
+            </div>
+            <button class="btn-primary" id="btn-log-food-custom" type="button">Add Food</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Recent logs -->
+      <div class="glass-card-light" style="padding: var(--sp-md);">
+        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Meals</h2>
+        <div class="flex flex-col gap-4" id="log-list">
+          <?php if (empty($recentLogs)): ?>
+            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">No meals logged yet today.</p>
+          <?php else: ?>
+            <?php foreach ($recentLogs as $log): ?>
+<div class="log-item">
+                <div class="log-item__left">
+                  <div class="log-item__avatar log-item__avatar--food">
+                    <span class="material-symbols-outlined" style="font-size:18px;"><?= $foodIcons[$log['meal_type']] ?? 'cookie' ?></span>
+                  </div>
+                  <div>
+                    <p class="log-item__amount"><?= $log['val'] ?> kcal</p>
+                    <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?> · P <?= round((float)$log['protein_g'],1) ?> F <?= round((float)$log['fat_g'],1) ?> C <?= round((float)$log['carbs_g'],1) ?></p>
+                  </div>
+                </div>
+                <div class="log-item__actions">
+                  <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                  <button class="log-item__delete" type="button" data-delete-type="food" data-delete-id="<?= (int)$log['log_id'] ?>"
+                          title="Delete entry" aria-label="Delete entry">
+                    <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                  </button>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- ── EXERCISE ─────────────────────────────────────────────────────── -->
+    <?php if ($type === 'exercise'): ?>
+    <div class="grid-settings">
+      <div class="flex flex-col gap-6">
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Activity</h2>
+          <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span class="text-label-md text-on-surface-variant">Duration</span>
+            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-min-text"><?= $todayMin ?> / <?= $goalMin ?> min</span>
+          </div>
+          <div class="progress-track" style="height:14px; margin-bottom:8px;">
+            <div class="progress-fill" id="log-min-fill" style="width:<?= $goalMin > 0 ? min(100, round($todayMin / $goalMin * 100)) : 0 ?>%; background: linear-gradient(90deg,#10b981,#84cc16);"></div>
+          </div>
+          <p class="text-label-md text-on-surface-variant">Calories burned today: <b style="color:var(--color-on-surface);" id="log-burn-text"><?= number_format($todayBurn) ?></b> kcal</p>
+        </section>
+
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Log Activity</h2>
+          <div class="food-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <?php foreach ($exerciseTypes as $ex): ?>
+            <button class="preset-btn preset-btn--icon" data-action="exercise" data-type="<?= htmlspecialchars($ex, ENT_QUOTES) ?>">
+              <span class="material-symbols-outlined"><?= $exerciseIcons[$ex] ?></span><span><?= htmlspecialchars($ex) ?></span>
+            </button>
+            <?php endforeach; ?>
+          </div>
+          <div class="mt-8" style="display:flex; gap:8px; align-items:center;">
+            <input class="input-field" id="log-exercise-duration" type="number" min="1" max="600" placeholder="Minutes" value="30" style="flex:1;">
+            <button class="btn-primary" id="btn-log-exercise" type="button">Log</button>
+          </div>
+          <p style="font-size:11px; color:var(--color-on-surface-variant); margin-top:6px;">Calories burned auto-calculated from your weight (MET).</p>
+        </section>
+      </div>
+
+      <!-- Recent logs -->
+      <div class="glass-card-light" style="padding: var(--sp-md);">
+        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Workouts</h2>
+        <div class="flex flex-col gap-4" id="log-list">
+          <?php if (empty($recentLogs)): ?>
+            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">No workouts logged yet — get moving! 🏃</p>
+          <?php else: ?>
+            <?php foreach ($recentLogs as $log): ?>
+<div class="log-item">
+                <div class="log-item__left">
+                  <div class="log-item__avatar log-item__avatar--exercise">
+                    <span class="material-symbols-outlined" style="font-size:18px;"><?= $exerciseIcons[$log['title']] ?? 'directions_run' ?></span>
+                  </div>
+                  <div>
+                    <p class="log-item__amount"><?= $log['val'] ?> min</p>
+                    <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?> · <?= $log['burn'] ?> kcal</p>
+                  </div>
+                </div>
+                <div class="log-item__actions">
+                  <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                  <button class="log-item__delete" type="button" data-delete-type="exercise" data-delete-id="<?= (int)$log['log_id'] ?>"
+                          title="Delete entry" aria-label="Delete entry">
+                    <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                  </button>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
+  </main>
+
+  <script>
+  window.HEALTHFLOW_REMINDER = <?= json_encode([
+      'enabled' => (bool)($user['reminder_enabled'] ?? 0),
+      'time'    => $user['reminder_time'] ?? '20:00:00',
+      'interval_min' => (int)($user['reminder_interval_min'] ?? 0),
+  ]); ?>;
+  </script>
+  <script type="module" src="app.js"></script>
+  <script type="module">
+  // Logging AJAX — POST to log.php, refresh page on success (simplest reliable refresh).
+  (() => {
+    const post = async (fd) => {
+      const res = await fetch('log.php', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data && data.ok) location.reload();
+    };
+
+    // Water quick buttons
+    document.querySelectorAll('[data-action="water"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fd = new FormData();
+        fd.append('action', 'water');
+        fd.append('amount_ml', btn.dataset.amount);
+        fd.append('drink_type', btn.dataset.type || 'Water');
+        post(fd);
+      });
+    });
+
+    // Water custom amount
+    document.getElementById('btn-log-water-custom')?.addEventListener('click', () => {
+      const amount = document.getElementById('log-water-amount').value;
+      if (!amount || parseInt(amount, 10) <= 0) return;
+      const fd = new FormData();
+      fd.append('action', 'water');
+      fd.append('amount_ml', amount);
+      fd.append('drink_type', document.getElementById('log-water-drink').value);
+      post(fd);
+    });
+
+    // Preset foods
+    document.querySelectorAll('[data-action="food"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fd = new FormData();
+        fd.append('action', 'food');
+        fd.append('food_name', btn.dataset.food);
+        post(fd);
+      });
+    });
+
+    // Remove saved custom food from My Foods
+    document.querySelectorAll('[data-delete-food]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Remove this food from My Foods?')) return;
+        const fd = new FormData();
+        fd.append('action', 'delete_custom_food');
+        fd.append('food_id', btn.dataset.deleteFood);
+        const res = await fetch('log.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data && data.ok) location.reload();
+      });
+    });
+
+    // Custom food
+    document.getElementById('btn-log-food-custom')?.addEventListener('click', () => {
+      const name = document.getElementById('log-food-name').value.trim();
+      const kcal = document.getElementById('log-food-kcal').value;
+      if (!name || !kcal || parseInt(kcal, 10) <= 0) return;
+      const fd = new FormData();
+      fd.append('action', 'food');
+      fd.append('food_name', name);
+      fd.append('meal_type', document.getElementById('log-food-meal').value);
+      fd.append('calories', kcal);
+      fd.append('protein_g', document.getElementById('log-food-protein').value || 0);
+      fd.append('fat_g', document.getElementById('log-food-fat').value || 0);
+      fd.append('carbs_g', document.getElementById('log-food-carbs').value || 0);
+      post(fd);
+    });
+
+    // Exercise
+    let selectedExercise = null;
+    document.querySelectorAll('[data-action="exercise"]').forEach(btn => {
+      btn.addEventListener('click', () => { selectedExercise = btn; logExercise(btn); });
+    });
+    document.getElementById('btn-log-exercise')?.addEventListener('click', () => {
+      if (selectedExercise) selectedExercise.click();
+    });
+    function logExercise(btn) {
+      const duration = document.getElementById('log-exercise-duration')?.value || 30;
+      const fd = new FormData();
+      fd.append('action', 'exercise');
+      fd.append('exercise_type', btn.dataset.type);
+      fd.append('duration_min', duration);
+      post(fd);
+    }
+  })();
+  </script>
+</body>
+</html>

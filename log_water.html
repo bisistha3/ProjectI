@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Water - HealthFlow</title>
+  <meta name="description" content="Log your daily water intake with HealthFlow.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="log_water.css">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body class="app-layout" style="display: flex;">
+
+  <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+      HealthFlow
+    </div>
+    <div class="sidebar__profile">
+      <div class="sidebar__avatar-initials"><?= mb_strtoupper(mb_substr($fullName, 0, 1)) ?></div>
+      <div>
+        <p class="sidebar__profile-name"><?= $fullName ?></p>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="dashboard.php" class="nav-item"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="log_water.php" class="nav-item nav-item--active">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">water_drop</span>
+        Log Water
+      </a>
+      <a href="log_nutrition.php" class="nav-item"><span class="material-symbols-outlined">restaurant</span>Log Nutrition</a>
+      <a href="log_exercise.php" class="nav-item"><span class="material-symbols-outlined">directions_run</span>Log Exercise</a>
+      <a href="history.php" class="nav-item"><span class="material-symbols-outlined">history</span>History</a>
+      <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
+    </nav>
+    <div class="sidebar__footer">
+      <a href="logout.php" class="nav-item" style="color: var(--color-error);">
+        <span class="material-symbols-outlined">logout</span>Logout
+      </a>
+    </div>
+  </aside>
+
+  <header class="topnav" id="topnav">
+    <div class="topnav__actions" style="margin-left:auto;">
+      <span class="topnav__greeting">Hello, <?= $fullName ?>!</span>
+      <a href="logout.php" class="topnav__icon-btn" aria-label="Logout" title="Logout">
+        <span class="material-symbols-outlined">logout</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="app-content">
+    <header class="mb-8">
+      <h1 class="text-headline-lg-responsive" style="color: var(--color-on-surface);">Log Water</h1>
+    </header>
+
+    <div class="grid-settings">
+      <div class="flex flex-col gap-6">
+        <!-- Today's progress -->
+        <section class="glass-card-light" style="padding: var(--sp-md);">
+          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Hydration</h2>
+          <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span class="text-label-md text-on-surface-variant">Consumed</span>
+            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-water-text"><?= number_format($todayMl / 1000, 2) ?> L / <?= $goalLabel ?></span>
+          </div>
+          <div class="progress-track" style="height:14px;">
+            <div class="progress-fill" id="log-water-fill" style="width:<?= $goalMl > 0 ? min(100, round($todayMl / $goalMl * 100)) : 0 ?>%; background: var(--color-primary);"></div>
+          </div>
+
+          <div class="quick-log mt-8" style="justify-content:flex-start; flex-wrap:wrap;">
+            <button class="quick-log__btn" data-action="water" data-amount="250" data-type="Water">
+              <div class="quick-log__icon"><span class="material-symbols-outlined">water_bottle</span></div>
+              <span class="quick-log__label">250ml</span>
+            </button>
+            <button class="quick-log__btn" data-action="water" data-amount="500" data-type="Water">
+              <div class="quick-log__icon"><span class="material-symbols-outlined">water_drop</span></div>
+              <span class="quick-log__label">500ml</span>
+            </button>
+            <button class="quick-log__btn" data-action="water" data-amount="750" data-type="Water">
+              <div class="quick-log__icon"><span class="material-symbols-outlined">local_drink</span></div>
+              <span class="quick-log__label">750ml</span>
+            </button>
+          </div>
+
+          <!-- Custom amount -->
+          <div class="mt-8" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <div class="input-group" style="flex:1; min-width:140px;">
+              <span class="material-symbols-outlined icon-left">add</span>
+              <input class="input-field input-field--icon" id="log-water-amount" type="number" min="1" max="5000" step="50" placeholder="Custom ml">
+            </div>
+            <select class="input-field" id="log-water-drink" style="width:auto; min-width:130px;">
+              <option>Water</option>
+              <option>Juice</option>
+              <option>Tea</option>
+              <option>Coffee</option>
+              <option>Sports Drink</option>
+              <option>Other</option>
+            </select>
+            <button class="btn-primary" id="btn-log-water-custom" type="button">Add</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Recent logs -->
+      <div class="glass-card-light" style="padding: var(--sp-md);">
+        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Drinks</h2>
+        <div class="flex flex-col gap-4" id="log-list">
+          <?php if (empty($recentLogs)): ?>
+            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">Nothing logged yet — grab a glass! 💧</p>
+          <?php else: ?>
+            <?php foreach ($recentLogs as $log): ?>
+            <div class="log-item">
+              <div class="log-item__left">
+                <div class="log-item__avatar log-item__avatar--water">
+                  <span class="material-symbols-outlined" style="font-size:18px;"><?= $drinkIcons[$log['title']] ?? 'water_drop' ?></span>
+                </div>
+                <div>
+                  <p class="log-item__amount"><?= $log['val'] ?>ml</p>
+                  <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?></p>
+                </div>
+              </div>
+              <div class="log-item__actions">
+                <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                <button class="log-item__delete" type="button" data-delete-type="water" data-delete-id="<?= (int)$log['log_id'] ?>"
+                        title="Delete entry" aria-label="Delete entry">
+                  <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                </button>
+              </div>
+            </div>
+            <?php endforeach; ?>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+  window.HEALTHFLOW_REMINDER = <?= json_encode([
+      'enabled' => (bool)($user['reminder_enabled'] ?? 0),
+      'time'    => $user['reminder_time'] ?? '20:00:00',
+      'interval_min' => (int)($user['reminder_interval_min'] ?? 0),
+  ]); ?>;
+  </script>
+  <script type="module" src="app.js"></script>
+  <script type="module" src="js/log-water.js"></script>
+</body>
+</html>
