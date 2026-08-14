@@ -66,7 +66,7 @@ export function initBarTooltips() {
     tooltip.textContent = shown + unit;
     tooltip.style.cssText = `
       position: absolute; top: -28px; left: 50%; transform: translateX(-50%);
-      background: var(--color-inverse-surface, #2d3133); color: white;
+      background: #2d3133; color: white;
       font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px;
       pointer-events: none; opacity: 0; transition: opacity 0.2s;
       white-space: nowrap; z-index: 5;

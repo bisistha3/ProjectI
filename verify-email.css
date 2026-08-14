@@ -1,0 +1,80 @@
+@import url('base.css');
+
+/* ---------- Typography Classes (used on verify page) ---------- */
+.text-display-lg { font-size: 48px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
+.text-headline-lg { font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -0.01em; }
+.text-headline-lg-mobile { font-size: 24px; line-height: 32px; font-weight: 700; }
+.text-body-md { font-size: 14px; line-height: 20px; font-weight: 400; }
+.text-label-md { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.05em; }
+
+.text-headline-lg-responsive { font-size: 24px; line-height: 32px; font-weight: 700; }
+@media (min-width: 769px) { .text-headline-lg-responsive { font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -0.01em; } }
+
+/* ---------- Layout: Auth Pages ---------- */
+.auth-layout { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+
+.auth-card { width: 100%; max-width: 448px; border-radius: 0.75rem; padding: 32px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); }
+
+.auth-card--wide { max-width: 480px; align-items: stretch; position: relative; overflow: hidden; padding: 24px; gap: 24px; }
+
+/* ---------- Decorative ---------- */
+.decor-blob { position: absolute; width: 160px; height: 160px; background: rgba(207, 229, 255, 0.2); border-radius: 50%; filter: blur(40px); pointer-events: none; top: -80px; right: -80px; }
+
+/* ---------- Component: Alert Banners ---------- */
+.alert { width: 100%; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 0.5rem; font-size: 13px; font-weight: 500; }
+
+.alert--error { background-color: #ffdad6; color: #93000a; border: 1px solid rgba(186, 26, 26, 0.15); }
+
+.alert--success { background-color: #f0fdf4; color: #166534; border: 1px solid rgba(22, 163, 74, 0.15); }
+
+.alert--info { background-color: #f0f9ff; color: #0369a1; border: 1px solid rgba(3, 105, 161, 0.15); }
+
+.alert--warning { background-color: #fffbeb; color: #92400e; border: 1px solid rgba(146, 64, 14, 0.15); }
+
+/* Shake animation */
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+.shake { animation: shake 0.4s ease; }
+
+/* ---------- Component: Buttons ---------- */
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #00696d; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 9999px; border: none; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+
+.btn-primary:hover { background-color: #00a7ad; color: #00373a; }
+
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-primary .material-symbols-outlined { font-size: 18px; transition: transform 0.2s; }
+
+.btn-primary:hover .material-symbols-outlined { transform: translateX(4px); }
+
+.btn-gradient { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(to right, #00696d, #00a7ad); color: #ffffff; font-size: 20px; font-weight: 600; line-height: 28px; padding: 12px 24px; border-radius: 9999px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 105, 109, 0.25); transition: box-shadow 0.2s, transform 0.15s; }
+
+.btn-gradient:hover { box-shadow: 0 6px 20px rgba(0, 105, 109, 0.35); }
+
+.btn-gradient:active { transform: scale(0.95); }
+
+/* ---------- OTP Digit Inputs ---------- */
+.otp-inputs { display: flex; gap: 10px; justify-content: center; margin: 24px 0; }
+
+.otp-digit { width: 52px; height: 60px; text-align: center; font-size: 28px; font-weight: 700; font-family: 'Courier New', monospace; border: 2px solid #bec7d4; border-radius: 12px; background: #f2f4f6; color: #191c1e; caret-color: #00696d; transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s; outline: none; }
+
+.otp-digit:focus { border-color: #00696d; box-shadow: 0 0 0 3px rgba(0, 105, 109, 0.18); transform: scale(1.07); }
+
+.otp-digit.filled { border-color: #00a7ad; background: #c4f5f7; }
+
+.otp-digit.error-digit { border-color: #ba1a1a; background: #ffdad6; animation: shake 0.35s ease; }
+
+/* ---------- Resend Row ---------- */
+.resend-row { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; color: #3f4852; }
+
+.resend-btn { background: none; border: none; color: #00696d; font-weight: 700; font-size: 13px; cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
+
+.resend-btn:hover { background: #c4f5f7; }
+
+/* ---------- Email Chip ---------- */
+.email-chip { display: inline-flex; align-items: center; gap: 6px; background: #eceef0; border-radius: 100px; padding: 4px 14px 4px 10px; font-size: 13px; font-weight: 600; color: #191c1e; margin: 8px 0 4px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) { .auth-card { padding: 24px; } }
+
+@media (min-width: 640px) { .auth-card { padding: 48px; } }

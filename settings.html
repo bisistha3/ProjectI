@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Settings - HealthFlow</title>
   <meta name="description" content="Customize your HealthFlow profile, adjust hydration, nutrition and exercise goals, and manage your preferences.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="settings.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body class="app-layout" style="display: flex;">
@@ -35,7 +35,7 @@
       <a href="settings.php" class="nav-item nav-item--active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">settings</span>Settings</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="logout.php" class="nav-item" style="color:var(--color-error);">
+      <a href="logout.php" class="nav-item" style="color:#ba1a1a;">
         <span class="material-symbols-outlined">logout</span>Logout
       </a>
     </div>
@@ -52,7 +52,7 @@
 
   <main class="app-content">
     <header class="mb-8">
-      <h1 class="text-headline-lg-responsive" style="color:var(--color-on-surface);">Settings &amp; Goals</h1>
+      <h1 class="text-headline-lg-responsive" style="color:#191c1e;">Settings &amp; Goals</h1>
     </header>
 
     <?php if ($success): ?>
@@ -79,7 +79,7 @@
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
               <span class="material-symbols-outlined text-primary">calculate</span>
-              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Daily Hydration Goal</h2>
+              <h2 class="text-headline-md" style="color:#191c1e;">Daily Hydration Goal</h2>
             </div>
 
             <!-- Gender Toggle -->
@@ -119,19 +119,19 @@
             </div>
 
             <!-- BMI Display -->
-            <div id="bmi-panel" style="background:var(--color-surface-container);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+            <div id="bmi-panel" style="background:#eceef0;border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
               <div>
-                <p class="text-label-md" style="color:var(--color-on-surface-variant);margin-bottom:2px;">Your BMI</p>
-                <p style="font-size:22px;font-weight:700;color:var(--color-on-surface);line-height:1;" id="bmi-value"><?= $bmiVal > 0 ? $bmiVal : '—' ?></p>
+                <p class="text-label-md" style="color:#3f4852;margin-bottom:2px;">Your BMI</p>
+                <p style="font-size:22px;font-weight:700;color:#191c1e;line-height:1;" id="bmi-value"><?= $bmiVal > 0 ? $bmiVal : '—' ?></p>
               </div>
               <div style="text-align:right;">
-                <p class="text-label-md" style="color:var(--color-on-surface-variant);margin-bottom:2px;">Category</p>
+                <p class="text-label-md" style="color:#3f4852;margin-bottom:2px;">Category</p>
                 <span id="bmi-category" style="font-weight:700;font-size:14px;color:<?= $bmiColor ?>"><?= $bmiCategory ?></span>
               </div>
             </div>
 
             <!-- Recommended Goal Banner -->
-            <div style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-container));border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;color:white;margin-bottom:20px;">
+            <div style="background:linear-gradient(135deg,#00696d,#00a7ad);border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;color:white;margin-bottom:20px;">
               <div>
                 <p style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.05em;margin-bottom:4px;">BMI-BASED RECOMMENDATION</p>
                 <p style="font-size:22px;font-weight:800;color:white;line-height:1;" id="recommended-goal"><?= $goalLabel ?> / Day</p>
@@ -142,15 +142,15 @@
             </div>
 
             <!-- Divider with custom toggle -->
-            <div style="border-top:1px solid var(--color-surface-container-high);padding-top:16px;">
+            <div style="border-top:1px solid #e6e8ea;padding-top:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
                 <div>
-                  <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;">Set Custom Goal</p>
-                  <p style="font-size:11px;color:var(--color-on-surface-variant);">Override the BMI recommendation with your own target</p>
+                  <p class="text-label-md" style="color:#191c1e;font-weight:600;">Set Custom Goal</p>
+                  <p style="font-size:11px;color:#3f4852;">Override the BMI recommendation with your own target</p>
                 </div>
                 <label style="display:flex;align-items:center;cursor:pointer;gap:8px;">
-                  <span style="font-size:12px;color:var(--color-on-surface-variant);" id="custom-toggle-label">Off</span>
-                  <div id="custom-goal-switch" style="width:44px;height:24px;background:var(--color-surface-container-high);border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
+                  <span style="font-size:12px;color:#3f4852;" id="custom-toggle-label">Off</span>
+                  <div id="custom-goal-switch" style="width:44px;height:24px;background:#e6e8ea;border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
                     <div id="custom-goal-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
                   </div>
                 </label>
@@ -161,9 +161,9 @@
                 <div style="display:flex;align-items:center;gap:10px;">
                   <input class="input-field" id="custom-goal-input" name="custom_goal_ml" type="number" min="500" max="10000" step="50"
                          placeholder="e.g. 2500" style="flex:1;" value="<?= $goalMl ?>">
-                  <span style="font-size:13px;color:var(--color-on-surface-variant);white-space:nowrap;">ml / day</span>
+                  <span style="font-size:13px;color:#3f4852;white-space:nowrap;">ml / day</span>
                 </div>
-                <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">Range: 500 ml – 10,000 ml</p>
+                <p style="font-size:11px;color:#3f4852;margin-top:6px;">Range: 500 ml – 10,000 ml</p>
               </div>
             </div>
 
@@ -176,15 +176,15 @@
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
               <span class="material-symbols-outlined text-primary">restaurant</span>
-              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Daily Nutrition Goal</h2>
+              <h2 class="text-headline-md" style="color:#191c1e;">Daily Nutrition Goal</h2>
             </div>
 
-            <p style="font-size:12px;color:var(--color-on-surface-variant);margin-bottom:16px;">
+            <p style="font-size:12px;color:#3f4852;margin-bottom:16px;">
               Recommended from your gender, age, height and weight (Mifflin-St Jeor) — recalculates live as you edit your profile.
             </p>
 
             <!-- Auto Recommendation Banner -->
-            <div id="nutrition-panel" style="background:linear-gradient(135deg,var(--color-tertiary),var(--color-tertiary-container));border-radius:12px;padding:18px 20px;color:white;margin-bottom:20px;">
+            <div id="nutrition-panel" style="background:linear-gradient(135deg,#3d6b23,#86c963);border-radius:12px;padding:18px 20px;color:white;margin-bottom:20px;">
               <p style="font-size:11px;font-weight:600;letter-spacing:0.05em;margin-bottom:10px;color:rgba(255,255,255,0.8);">YOUR DAILY TARGETS</p>
               <div style="display:flex;flex-wrap:wrap;gap:12px;">
                 <div style="flex:1;min-width:90px;">
@@ -207,15 +207,15 @@
             </div>
 
             <!-- Divider with custom toggle -->
-            <div style="border-top:1px solid var(--color-surface-container-high);padding-top:16px;">
+            <div style="border-top:1px solid #e6e8ea;padding-top:16px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
                 <div>
-                  <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;">Set Custom Targets</p>
-                  <p style="font-size:11px;color:var(--color-on-surface-variant);">Override the recommendation with your own values</p>
+                  <p class="text-label-md" style="color:#191c1e;font-weight:600;">Set Custom Targets</p>
+                  <p style="font-size:11px;color:#3f4852;">Override the recommendation with your own values</p>
                 </div>
                 <label id="nutrition-custom-toggle" style="display:flex;align-items:center;cursor:pointer;gap:8px;">
-                  <span style="font-size:12px;color:var(--color-on-surface-variant);" id="nutrition-toggle-label">Off</span>
-                  <div id="nutrition-goal-switch" style="width:44px;height:24px;background:var(--color-surface-container-high);border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
+                  <span style="font-size:12px;color:#3f4852;" id="nutrition-toggle-label">Off</span>
+                  <div id="nutrition-goal-switch" style="width:44px;height:24px;background:#e6e8ea;border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
                     <div id="nutrition-goal-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
                   </div>
                 </label>
@@ -241,7 +241,7 @@
                     <input class="input-field nutrition-custom-input" id="custom-carbs-input" name="custom_carbs_goal" type="number" min="50" max="800" step="5" value="<?= $carbsGoal ?>">
                   </div>
                 </div>
-                <p style="font-size:11px;color:var(--color-on-surface-variant);">Calories: 1200–5000 · Protein: 20–400g · Fat: 20–250g · Carbs: 50–800g</p>
+                <p style="font-size:11px;color:#3f4852;">Calories: 1200–5000 · Protein: 20–400g · Fat: 20–250g · Carbs: 50–800g</p>
               </div>
             </div>
 
@@ -252,7 +252,7 @@
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
               <span class="material-symbols-outlined text-primary">person</span>
-              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Profile Information</h2>
+              <h2 class="text-headline-md" style="color:#191c1e;">Profile Information</h2>
             </div>
             <div class="flex flex-col gap-4">
               <div>
@@ -279,25 +279,25 @@
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
               <span class="material-symbols-outlined text-primary">directions_run</span>
-              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Daily Exercise Goal</h2>
+              <h2 class="text-headline-md" style="color:#191c1e;">Daily Exercise Goal</h2>
             </div>
             <div>
               <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="exercise-goal-min">Target duration per day</label>
               <div style="display:flex;align-items:center;gap:10px;">
                 <input class="input-field" id="exercise-goal-min" name="exercise_goal_min" type="number" min="5" max="600" step="5"
                        value="<?= $exerciseMin ?>" style="flex:1;">
-                <span style="font-size:13px;color:var(--color-on-surface-variant);white-space:nowrap;">minutes / day</span>
+                <span style="font-size:13px;color:#3f4852;white-space:nowrap;">minutes / day</span>
               </div>
-              <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">WHO recommends at least 150 minutes of moderate activity per week (~30 min/day).</p>
+              <p style="font-size:11px;color:#3f4852;margin-top:6px;">WHO recommends at least 150 minutes of moderate activity per week (~30 min/day).</p>
             </div>
-            <div style="border-top:1px solid var(--color-surface-container-high);padding-top:14px;margin-top:14px;">
+            <div style="border-top:1px solid #e6e8ea;padding-top:14px;margin-top:14px;">
               <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Calories to burn per day</label>
               <div style="display:flex;align-items:center;gap:10px;">
                 <input class="input-field" name="burn_goal_kcal" type="number" min="50" max="2000" step="10"
                        value="<?= $burnGoal ?>" style="flex:1;">
-                <span style="font-size:13px;color:var(--color-on-surface-variant);white-space:nowrap;">kcal / day</span>
+                <span style="font-size:13px;color:#3f4852;white-space:nowrap;">kcal / day</span>
               </div>
-              <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">Total calories burned through activity per day.</p>
+              <p style="font-size:11px;color:#3f4852;margin-top:6px;">Total calories burned through activity per day.</p>
             </div>
           </section>
 
@@ -305,19 +305,19 @@
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
               <span class="material-symbols-outlined text-primary">notifications_active</span>
-              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Reminders</h2>
+              <h2 class="text-headline-md" style="color:#191c1e;">Reminders</h2>
             </div>
             <div>
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
                 <div>
-                  <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;">Daily Reminder</p>
-                  <p style="font-size:11px;color:var(--color-on-surface-variant);">One reminder for water, meals and exercise</p>
+                  <p class="text-label-md" style="color:#191c1e;font-weight:600;">Daily Reminder</p>
+                  <p style="font-size:11px;color:#3f4852;">One reminder for water, meals and exercise</p>
                 </div>
                 <label style="display:flex;align-items:center;cursor:pointer;gap:8px;">
-                  <span style="font-size:12px;color:var(--color-on-surface-variant);" id="reminder-toggle-label"><?= $reminderOn ? 'On' : 'Off' ?></span>
+                  <span style="font-size:12px;color:#3f4852;" id="reminder-toggle-label"><?= $reminderOn ? 'On' : 'Off' ?></span>
                   <div>
                     <input type="checkbox" name="reminder_enabled" id="reminder-enabled" value="1" <?= $reminderOn ? 'checked' : '' ?> class="sr-only" style="display:none;">
-                    <div id="reminder-switch" style="width:44px;height:24px;background:<?= $reminderOn ? 'var(--color-primary)' : 'var(--color-surface-container-high)' ?>;border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
+                    <div id="reminder-switch" style="width:44px;height:24px;background:<?= $reminderOn ? '#00696d' : '#e6e8ea' ?>;border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
                       <div id="reminder-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s, left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);<?= $reminderOn ? 'left:23px;' : '' ?>"></div>
                     </div>
                   </div>
@@ -335,10 +335,10 @@
                   <option value="180" <?= $reminderInt === 180 ? 'selected' : '' ?>>Every 3 hours</option>
                   <option value="0"   <?= $reminderInt === 0   ? 'selected' : '' ?>>Custom time</option>
                 </select>
-                <p style="font-size:11px;color:var(--color-on-surface-variant);margin-top:6px;">While the app is open, a gentle toast reminds you to log your water, meals and exercise.</p>
+                <p style="font-size:11px;color:#3f4852;margin-top:6px;">While the app is open, a gentle toast reminds you to log your water, meals and exercise.</p>
               </div>
-              <div style="border-top:1px solid var(--color-surface-container-high);padding-top:14px;margin-top:14px;">
-                <p class="text-label-md" style="color:var(--color-on-surface);font-weight:600;margin-bottom:4px;">Sleep Schedule</p>
+              <div style="border-top:1px solid #e6e8ea;padding-top:14px;margin-top:14px;">
+                <p class="text-label-md" style="color:#191c1e;font-weight:600;margin-bottom:4px;">Sleep Schedule</p>
                 <div class="grid-2" style="gap:12px;margin-top:10px;">
                   <div>
                     <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="wake-time">Wake Up Time</label>
@@ -357,7 +357,7 @@
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
               <span class="material-symbols-outlined text-primary">lock</span>
-              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Account</h2>
+              <h2 class="text-headline-md" style="color:#191c1e;">Account</h2>
             </div>
             <div>
               <div class="settings-row">
@@ -372,9 +372,9 @@
                   <span class="settings-row__desc">HealthFlow account</span>
                 </div>
               </div>
-              <div class="settings-row" style="padding-top:16px;border-top:1px solid var(--color-surface-container-high);">
+              <div class="settings-row" style="padding-top:16px;border-top:1px solid #e6e8ea;">
                 <div class="settings-row__info">
-                  <span class="settings-row__label" style="color:var(--color-error);">Sign Out</span>
+                  <span class="settings-row__label" style="color:#ba1a1a;">Sign Out</span>
                   <span class="settings-row__desc">Log out of your account</span>
                 </div>
                 <a href="logout.php" class="btn-outline-danger" style="font-size:13px;padding:8px 16px;text-decoration:none;">
@@ -389,7 +389,7 @@
           <section class="glass-card settings-section" style="border-radius:16px;">
             <div class="settings-section__header">
               <span class="material-symbols-outlined text-primary">palette</span>
-              <h2 class="text-headline-md" style="color:var(--color-on-surface);">Appearance</h2>
+              <h2 class="text-headline-md" style="color:#191c1e;">Appearance</h2>
             </div>
             <div>
               <div class="settings-row">

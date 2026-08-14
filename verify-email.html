@@ -5,83 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verify Email - HealthFlow</title>
   <meta name="description" content="Enter your 6-digit verification code to activate your HealthFlow account.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="verify-email.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-  <style>
-    /* OTP digit inputs */
-    .otp-inputs {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin: 24px 0;
-    }
-    .otp-digit {
-      width: 52px;
-      height: 60px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: 700;
-      font-family: 'Courier New', monospace;
-      border: 2px solid var(--color-outline, #bec7d4);
-      border-radius: 12px;
-      background: var(--color-surface-container-low, #f2f4f6);
-      color: var(--color-on-surface, #191c1e);
-      caret-color: var(--color-primary, #00696d);
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
-      outline: none;
-    }
-    .otp-digit:focus {
-      border-color: var(--color-primary, #00696d);
-      box-shadow: 0 0 0 3px rgba(0, 105, 109, 0.18);
-      transform: scale(1.07);
-    }
-    .otp-digit.filled {
-      border-color: var(--color-primary-container, #00a7ad);
-      background: var(--color-primary-fixed, #c4f5f7);
-    }
-    .otp-digit.error-digit {
-      border-color: var(--color-error, #ba1a1a);
-      background: var(--color-error-container, #ffdad6);
-      animation: shake 0.35s ease;
-    }
-    @keyframes shake {
-      0%,100%{transform:translateX(0);}
-      25%{transform:translateX(-5px);}
-      75%{transform:translateX(5px);}
-    }
-    .resend-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 13px;
-      color: var(--color-on-surface-variant, #3f4852);
-    }
-    .resend-btn {
-      background: none;
-      border: none;
-      color: var(--color-primary, #00696d);
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      padding: 2px 4px;
-      border-radius: 4px;
-      transition: background 0.15s;
-    }
-    .resend-btn:hover { background: var(--color-primary-fixed, #c4f5f7); }
-    .email-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--color-surface-container, #eceef0);
-      border-radius: 100px;
-      padding: 4px 14px 4px 10px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--color-on-surface, #191c1e);
-      margin: 8px 0 4px;
-    }
-  </style>
 </head>
 <body class="auth-layout">
 

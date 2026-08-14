@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Log - HealthFlow</title>
   <meta name="description" content="Log your daily water, nutrition and exercise with HealthFlow.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="log.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body class="app-layout" style="display: flex;">
@@ -44,7 +44,7 @@
       <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="logout.php" class="nav-item" style="color: var(--color-error);">
+      <a href="logout.php" class="nav-item" style="color: #ba1a1a;">
         <span class="material-symbols-outlined">logout</span>Logout
       </a>
     </div>
@@ -61,7 +61,7 @@
 
   <main class="app-content">
     <header class="mb-8">
-      <h1 class="text-headline-lg-responsive" style="color: var(--color-on-surface);">
+      <h1 class="text-headline-lg-responsive" style="color: #191c1e;">
         <?= $type === 'water' ? 'Log Water' : ($type === 'nutrition' ? 'Log Nutrition' : 'Log Exercise') ?>
       </h1>
     </header>
@@ -71,14 +71,14 @@
     <div class="grid-settings">
       <div class="flex flex-col gap-6">
         <!-- Today's progress -->
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Hydration</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Hydration</h2>
           <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span class="text-label-md text-on-surface-variant">Consumed</span>
-            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-water-text"><?= number_format($todayMl / 1000, 2) ?> L / <?= $goalLabel ?></span>
+            <span class="text-label-md" style="color:#191c1e;" id="log-water-text"><?= number_format($todayMl / 1000, 2) ?> L / <?= $goalLabel ?></span>
           </div>
           <div class="progress-track" style="height:14px;">
-            <div class="progress-fill" id="log-water-fill" style="width:<?= $goalMl > 0 ? min(100, round($todayMl / $goalMl * 100)) : 0 ?>%; background: var(--color-primary);"></div>
+            <div class="progress-fill" id="log-water-fill" style="width:<?= $goalMl > 0 ? min(100, round($todayMl / $goalMl * 100)) : 0 ?>%; background: #00696d;"></div>
           </div>
 
           <div class="quick-log mt-8" style="justify-content:flex-start; flex-wrap:wrap;">
@@ -116,8 +116,8 @@
       </div>
 
       <!-- Recent logs -->
-      <div class="glass-card-light" style="padding: var(--sp-md);">
-        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Drinks</h2>
+      <div class="glass-card-light" style="padding: 24px;">
+        <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Drinks</h2>
         <div class="flex flex-col gap-4" id="log-list">
           <?php if (empty($recentLogs)): ?>
             <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">Nothing logged yet — grab a glass! 💧</p>
@@ -152,12 +152,12 @@
     <?php if ($type === 'nutrition'): ?>
     <div class="grid-settings">
       <div class="flex flex-col gap-6">
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Nutrition</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Nutrition</h2>
 
           <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span class="text-label-md text-on-surface-variant">Calories</span>
-            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-kcal-text"><?= number_format($todayKcal) ?> / <?= number_format($goalKcal) ?> kcal</span>
+            <span class="text-label-md" style="color:#191c1e;" id="log-kcal-text"><?= number_format($todayKcal) ?> / <?= number_format($goalKcal) ?> kcal</span>
           </div>
           <div class="progress-track" style="height:12px; margin-bottom:14px;">
             <div class="progress-fill" id="log-kcal-fill" style="width:<?= $macroPct($todayKcal, $goalKcal) ?>%; background: linear-gradient(90deg,#f97316,#ef4444);"></div>
@@ -167,7 +167,7 @@
             <div>
               <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span class="text-label-md" style="font-size:12px; color:#10b981;">Protein</span>
-                <span class="text-label-md" style="font-size:12px; color:var(--color-on-surface-variant);" id="log-protein-text"><?= $todayP ?> / <?= $goalP ?> g</span>
+                <span class="text-label-md" style="font-size:12px; color:#3f4852;" id="log-protein-text"><?= $todayP ?> / <?= $goalP ?> g</span>
               </div>
               <div class="progress-track"><div class="progress-fill" id="log-protein-fill" style="width:<?= $macroPct($todayP, $goalP) ?>%; background:#10b981;"></div></div>
             </div>
@@ -176,7 +176,7 @@
             <div>
               <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span class="text-label-md" style="font-size:12px; color:#f59e0b;">Fat</span>
-                <span class="text-label-md" style="font-size:12px; color:var(--color-on-surface-variant);" id="log-fat-text"><?= $todayFt ?> / <?= $goalFt ?> g</span>
+                <span class="text-label-md" style="font-size:12px; color:#3f4852;" id="log-fat-text"><?= $todayFt ?> / <?= $goalFt ?> g</span>
               </div>
               <div class="progress-track"><div class="progress-fill" id="log-fat-fill" style="width:<?= $macroPct($todayFt, $goalFt) ?>%; background:#f59e0b;"></div></div>
             </div>
@@ -185,7 +185,7 @@
             <div>
               <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span class="text-label-md" style="font-size:12px; color:#3b82f6;">Carbs</span>
-                <span class="text-label-md" style="font-size:12px; color:var(--color-on-surface-variant);" id="log-carbs-text"><?= $todayCb ?> / <?= $goalCb ?> g</span>
+                <span class="text-label-md" style="font-size:12px; color:#3f4852;" id="log-carbs-text"><?= $todayCb ?> / <?= $goalCb ?> g</span>
               </div>
               <div class="progress-track"><div class="progress-fill" id="log-carbs-fill" style="width:<?= $macroPct($todayCb, $goalCb) ?>%; background:#3b82f6;"></div></div>
             </div>
@@ -193,8 +193,8 @@
         </section>
 
         <!-- Preset foods -->
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Quick Foods</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Quick Foods</h2>
           <div class="food-grid">
             <?php foreach ($foods as $name => $f): ?>
             <button class="preset-btn" data-action="food" data-food="<?= htmlspecialchars($name, ENT_QUOTES) ?>">
@@ -206,8 +206,8 @@
         </section>
 
         <!-- My Foods (saved custom foods) -->
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">My Foods</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">My Foods</h2>
           <?php if (empty($customFoods)): ?>
             <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:12px 0;">
               No saved foods yet — add a custom food once and it appears here for one-click logging.
@@ -231,9 +231,9 @@
         </section>
 
         <!-- Custom food -->
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Add Custom Food</h2>
-          <p style="font-size:11px;color:var(--color-on-surface-variant);margin:-8px 0 12px;">Saved to My Foods automatically after adding — log it with one click next time.</p>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Add Custom Food</h2>
+          <p style="font-size:11px;color:#3f4852;margin:-8px 0 12px;">Saved to My Foods automatically after adding — log it with one click next time.</p>
           <div style="display:flex; flex-direction:column; gap:10px;">
             <div class="flex" style="display:flex; gap:8px;">
               <input class="input-field" id="log-food-name" type="text" placeholder="Food name" style="flex:1.4;">
@@ -256,8 +256,8 @@
       </div>
 
       <!-- Recent logs -->
-      <div class="glass-card-light" style="padding: var(--sp-md);">
-        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Meals</h2>
+      <div class="glass-card-light" style="padding: 24px;">
+        <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Meals</h2>
         <div class="flex flex-col gap-4" id="log-list">
           <?php if (empty($recentLogs)): ?>
             <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">No meals logged yet today.</p>
@@ -292,20 +292,20 @@
     <?php if ($type === 'exercise'): ?>
     <div class="grid-settings">
       <div class="flex flex-col gap-6">
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Activity</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Activity</h2>
           <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span class="text-label-md text-on-surface-variant">Duration</span>
-            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-min-text"><?= $todayMin ?> / <?= $goalMin ?> min</span>
+            <span class="text-label-md" style="color:#191c1e;" id="log-min-text"><?= $todayMin ?> / <?= $goalMin ?> min</span>
           </div>
           <div class="progress-track" style="height:14px; margin-bottom:8px;">
             <div class="progress-fill" id="log-min-fill" style="width:<?= $goalMin > 0 ? min(100, round($todayMin / $goalMin * 100)) : 0 ?>%; background: linear-gradient(90deg,#10b981,#84cc16);"></div>
           </div>
-          <p class="text-label-md text-on-surface-variant">Calories burned today: <b style="color:var(--color-on-surface);" id="log-burn-text"><?= number_format($todayBurn) ?></b> kcal</p>
+          <p class="text-label-md text-on-surface-variant">Calories burned today: <b style="color:#191c1e;" id="log-burn-text"><?= number_format($todayBurn) ?></b> kcal</p>
         </section>
 
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Log Activity</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Log Activity</h2>
           <div class="food-grid" style="grid-template-columns: repeat(2, 1fr);">
             <?php foreach ($exerciseTypes as $ex): ?>
             <button class="preset-btn preset-btn--icon" data-action="exercise" data-type="<?= htmlspecialchars($ex, ENT_QUOTES) ?>">
@@ -317,13 +317,13 @@
             <input class="input-field" id="log-exercise-duration" type="number" min="1" max="600" placeholder="Minutes" value="30" style="flex:1;">
             <button class="btn-primary" id="btn-log-exercise" type="button">Log</button>
           </div>
-          <p style="font-size:11px; color:var(--color-on-surface-variant); margin-top:6px;">Calories burned auto-calculated from your weight (MET).</p>
+          <p style="font-size:11px; color:#3f4852; margin-top:6px;">Calories burned auto-calculated from your weight (MET).</p>
         </section>
       </div>
 
       <!-- Recent logs -->
-      <div class="glass-card-light" style="padding: var(--sp-md);">
-        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Workouts</h2>
+      <div class="glass-card-light" style="padding: 24px;">
+        <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Workouts</h2>
         <div class="flex flex-col gap-4" id="log-list">
           <?php if (empty($recentLogs)): ?>
             <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">No workouts logged yet — get moving! 🏃</p>

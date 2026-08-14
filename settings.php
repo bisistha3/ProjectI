@@ -138,5 +138,5 @@ if      ($bmiVal < 18.5) { $bmiCategory = 'Underweight'; $bmiColor = '#f59e0b'; 
 elseif  ($bmiVal < 25.0) { $bmiCategory = 'Normal Weight'; $bmiColor = '#10b981'; }
 elseif  ($bmiVal < 30.0) { $bmiCategory = 'Overweight';   $bmiColor = '#f97316'; }
 elseif  ($bmiVal > 0)    { $bmiCategory = 'Obese';        $bmiColor = '#ef4444'; }
-else                     { $bmiCategory = '—';           $bmiColor = 'var(--color-on-surface-variant)'; }
+else                     { $bmiCategory = '—';           $bmiColor = '#3f4852'; }
 require __DIR__ . '/settings.html';

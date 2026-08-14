@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - HealthFlow</title>
   <meta name="description" content="Track your daily water, food and exercise intake with HealthFlow dashboard.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="dashboard.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body class="app-layout" style="display: flex;">
@@ -62,7 +62,7 @@
     </nav>
 
     <div class="sidebar__footer">
-      <a href="logout.php" class="nav-item" style="margin-top: auto; color: var(--color-error);">
+      <a href="logout.php" class="nav-item" style="margin-top: auto; color: #ba1a1a;">
         <span class="material-symbols-outlined">logout</span>
         Logout
       </a>
@@ -83,7 +83,7 @@
   <main class="app-content">
     <!-- Header row -->
     <div class="flex justify-between items-center mb-4">
-      <h1 class="text-headline-lg" style="color: var(--color-on-background);">Daily Overview</h1>
+      <h1 class="text-headline-lg" style="color: #191c1e;">Daily Overview</h1>
       <?php if ($streak > 0): ?>
       <div class="streak-badge">
         <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">local_fire_department</span>
@@ -98,12 +98,12 @@
       <!-- Water -->
       <div class="mini-card">
         <a href="log.php?type=water" class="mini-card__log" title="Log water">+ Log</a>
-        <div class="mini-card__icon" style="background: rgba(0,167,173,0.15); color: var(--color-primary);">
+        <div class="mini-card__icon" style="background: rgba(0,167,173,0.15); color: #00696d;">
           <span class="material-symbols-outlined">water_drop</span>
         </div>
         <p class="mini-card__label">Water Progress</p>
         <p class="mini-card__value"><span id="mc-water"><?= number_format($todayMl / 1000, 2) ?></span> / <?= $goalLabel ?></p>
-        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $percent ?>%; background: var(--color-primary);"></div></div>
+        <div class="mini-card__track"><div class="mini-card__fill" style="width: <?= $percent ?>%; background: #00696d;"></div></div>
       </div>
 
       <!-- Calories -->
@@ -164,10 +164,10 @@
     </div>
 
     <!-- Today's Log -->
-    <div class="glass-card-light" style="padding: var(--sp-md); margin-top: var(--sp-md);">
+    <div class="glass-card-light" style="padding: 24px; margin-top: 24px;">
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-headline-md" style="color: var(--color-on-background);">Today's Log</h2>
-        <a href="history.php" class="text-label-md text-primary" style="text-decoration: none;"
+        <h2 class="text-headline-md" style="color: #191c1e;">Today's Log</h2>
+        <a href="history.php" class="text-label-md" style="color: #00696d; text-decoration: none;"
            onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">View All</a>
       </div>
       <div class="flex flex-col gap-4" id="log-list">

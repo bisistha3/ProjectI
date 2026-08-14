@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Log Water - HealthFlow</title>
   <meta name="description" content="Log your daily water intake with HealthFlow.">
-  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="log_water.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
@@ -39,7 +38,7 @@
       <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="logout.php" class="nav-item" style="color: var(--color-error);">
+      <a href="logout.php" class="nav-item" style="color: #ba1a1a;">
         <span class="material-symbols-outlined">logout</span>Logout
       </a>
     </div>
@@ -56,20 +55,20 @@
 
   <main class="app-content">
     <header class="mb-8">
-      <h1 class="text-headline-lg-responsive" style="color: var(--color-on-surface);">Log Water</h1>
+      <h1 class="text-headline-lg-responsive" style="color: #191c1e;">Log Water</h1>
     </header>
 
     <div class="grid-settings">
       <div class="flex flex-col gap-6">
         <!-- Today's progress -->
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Hydration</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Hydration</h2>
           <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span class="text-label-md text-on-surface-variant">Consumed</span>
-            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-water-text"><?= number_format($todayMl / 1000, 2) ?> L / <?= $goalLabel ?></span>
+            <span class="text-label-md" style="color:#191c1e;" id="log-water-text"><?= number_format($todayMl / 1000, 2) ?> L / <?= $goalLabel ?></span>
           </div>
           <div class="progress-track" style="height:14px;">
-            <div class="progress-fill" id="log-water-fill" style="width:<?= $goalMl > 0 ? min(100, round($todayMl / $goalMl * 100)) : 0 ?>%; background: var(--color-primary);"></div>
+            <div class="progress-fill" id="log-water-fill" style="width:<?= $goalMl > 0 ? min(100, round($todayMl / $goalMl * 100)) : 0 ?>%; background: #00696d;"></div>
           </div>
 
           <div class="quick-log mt-8" style="justify-content:flex-start; flex-wrap:wrap;">
@@ -107,8 +106,8 @@
       </div>
 
       <!-- Recent logs -->
-      <div class="glass-card-light" style="padding: var(--sp-md);">
-        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Drinks</h2>
+      <div class="glass-card-light" style="padding: 24px;">
+        <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Drinks</h2>
         <div class="flex flex-col gap-4" id="log-list">
           <?php if (empty($recentLogs)): ?>
             <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">Nothing logged yet — grab a glass! 💧</p>

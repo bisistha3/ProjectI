@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Log Exercise - HealthFlow</title>
   <meta name="description" content="Log your daily exercise with HealthFlow.">
-  <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="log_exercise.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
@@ -39,7 +38,7 @@
       <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="logout.php" class="nav-item" style="color: var(--color-error);">
+      <a href="logout.php" class="nav-item" style="color: #ba1a1a;">
         <span class="material-symbols-outlined">logout</span>Logout
       </a>
     </div>
@@ -56,25 +55,25 @@
 
   <main class="app-content">
     <header class="mb-8">
-      <h1 class="text-headline-lg-responsive" style="color: var(--color-on-surface);">Log Exercise</h1>
+      <h1 class="text-headline-lg-responsive" style="color: #191c1e;">Log Exercise</h1>
     </header>
 
     <div class="grid-settings">
       <div class="flex flex-col gap-6">
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Activity</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Activity</h2>
           <div class="flex justify-between" style="display:flex; justify-content:space-between; margin-bottom:8px;">
             <span class="text-label-md text-on-surface-variant">Duration</span>
-            <span class="text-label-md" style="color:var(--color-on-surface);" id="log-min-text"><?= $todayMin ?> / <?= $goalMin ?> min</span>
+            <span class="text-label-md" style="color:#191c1e;" id="log-min-text"><?= $todayMin ?> / <?= $goalMin ?> min</span>
           </div>
           <div class="progress-track" style="height:14px; margin-bottom:8px;">
             <div class="progress-fill" id="log-min-fill" style="width:<?= $goalMin > 0 ? min(100, round($todayMin / $goalMin * 100)) : 0 ?>%; background: linear-gradient(90deg,#10b981,#84cc16);"></div>
           </div>
-          <p class="text-label-md text-on-surface-variant">Calories burned today: <b style="color:var(--color-on-surface);" id="log-burn-text"><?= number_format($todayBurn) ?></b> kcal</p>
+          <p class="text-label-md text-on-surface-variant">Calories burned today: <b style="color:#191c1e;" id="log-burn-text"><?= number_format($todayBurn) ?></b> kcal</p>
         </section>
 
-        <section class="glass-card-light" style="padding: var(--sp-md);">
-          <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Log Activity</h2>
+        <section class="glass-card-light" style="padding: 24px;">
+          <h2 class="text-headline-md mb-6" style="color: #191c1e;">Log Activity</h2>
           <div class="food-grid" style="grid-template-columns: repeat(2, 1fr);">
             <?php foreach ($exerciseTypes as $ex): ?>
             <button class="preset-btn preset-btn--icon" data-action="exercise" data-type="<?= htmlspecialchars($ex, ENT_QUOTES) ?>">
@@ -86,13 +85,13 @@
             <input class="input-field" id="log-exercise-duration" type="number" min="1" max="600" placeholder="Minutes" value="30" style="flex:1;">
             <button class="btn-primary" id="btn-log-exercise" type="button">Log</button>
           </div>
-          <p style="font-size:11px; color:var(--color-on-surface-variant); margin-top:6px;">Calories burned auto-calculated from your weight (MET).</p>
+          <p style="font-size:11px; color:#3f4852; margin-top:6px;">Calories burned auto-calculated from your weight (MET).</p>
         </section>
       </div>
 
       <!-- Recent logs -->
-      <div class="glass-card-light" style="padding: var(--sp-md);">
-        <h2 class="text-headline-md mb-6" style="color: var(--color-on-surface);">Today's Workouts</h2>
+      <div class="glass-card-light" style="padding: 24px;">
+        <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Workouts</h2>
         <div class="flex flex-col gap-4" id="log-list">
           <?php if (empty($recentLogs)): ?>
             <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">No workouts logged yet — get moving! 🏃</p>

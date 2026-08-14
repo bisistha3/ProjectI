@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>History - HealthFlow</title>
   <meta name="description" content="View your water, food and exercise history, weekly trends, streak calendar, and daily logs.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="history.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body class="app-layout" style="display: flex; flex-direction: column;">
@@ -35,7 +35,7 @@
       <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
     </nav>
     <div class="sidebar__footer">
-      <a href="logout.php" class="nav-item" style="color: var(--color-error);">
+      <a href="logout.php" class="nav-item" style="color: #ba1a1a;">
         <span class="material-symbols-outlined">logout</span>Logout
       </a>
     </div>
@@ -52,7 +52,7 @@
 
   <main class="app-content" style="flex-grow:1; gap:32px; padding-bottom:48px;">
 
-    <h1 class="text-headline-lg history-desktop-title" style="color:var(--color-on-surface);">Health History</h1>
+    <h1 class="text-headline-lg history-desktop-title" style="color:#191c1e;">Health History</h1>
 
     <!-- Type Tabs -->
     <div class="chart-toggle" style="display:flex; gap:8px; margin-bottom:4px;">
@@ -134,7 +134,7 @@
           <p class="stat-card__value"><?= number_format((float)($metrics['total_burn'] ?? 0)) ?> <span style="font-size:12px;">kcal</span></p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:var(--color-primary); margin-bottom:8px; font-variation-settings:'FILL' 1;">bolt</span>
+          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">bolt</span>
           <p class="stat-card__label">Burn Rate</p>
           <p class="stat-card__value"><?= $metrics['kcal_per_min'] ?? '0' ?> <span style="font-size:12px;">kcal/min</span></p>
         </div>
@@ -147,7 +147,7 @@
       <!-- Weekly Bar Chart -->
       <div class="glass-card chart-card <?= $type === 'water' ? 'chart-card--wide' : 'chart-card--wide' ?>">
         <div class="chart-card__header">
-          <h3 class="text-headline-md" style="color:var(--color-on-surface);">Last 7 Days</h3>
+          <h3 class="text-headline-md" style="color:#191c1e;">Last 7 Days</h3>
           <?php
           $unit = $type === 'water' ? 'L' : ($type === 'food' ? 'kcal' : 'min');
           $displayGoal = $type === 'water' ? $goalLabel
@@ -162,7 +162,7 @@
                data-value="<?= $d['pct'] ?>" data-goal="<?= $d['goal'] ?>" data-unit="<?= $unit ?>"
                data-label="<?= htmlspecialchars($d['label']) ?>">
             <div class="bar <?= $d['pct'] >= 100 ? 'bar--filled' : '' ?>" style="height:<?= max(2, $d['pct']) ?>%;"></div>
-            <span class="bar-label" <?= $d['is_today'] ? 'style="color:var(--color-primary);"' : '' ?>><?= $d['label'] ?></span>
+            <span class="bar-label" <?= $d['is_today'] ? 'style="color:#00696d;"' : '' ?>><?= $d['label'] ?></span>
           </div>
           <?php endforeach; ?>
         </div>
@@ -176,8 +176,8 @@
       <?php if ($type === 'water'): ?>
       <div class="glass-card calendar-card">
         <div class="calendar-card__header">
-          <h3 class="text-headline-md" style="color:var(--color-on-surface);">Streak Calendar</h3>
-          <span class="text-label-md" style="color:var(--color-on-surface);"><?= date('F Y') ?></span>
+          <h3 class="text-headline-md" style="color:#191c1e;">Streak Calendar</h3>
+          <span class="text-label-md" style="color:#191c1e;"><?= date('F Y') ?></span>
         </div>
         <div class="cal-grid cal-grid--header">
           <span>SU</span><span>MO</span><span>TU</span><span>WE</span><span>TH</span><span>FR</span><span>SA</span>
@@ -205,10 +205,10 @@
         </div>
         <div class="streak-info">
           <div class="streak-info__left">
-            <span class="material-symbols-outlined" style="color:var(--color-primary);font-variation-settings:'FILL' 1;">local_fire_department</span>
+            <span class="material-symbols-outlined" style="color:#00696d;font-variation-settings:'FILL' 1;">local_fire_department</span>
             <div>
-              <p class="text-label-md" style="color:var(--color-on-surface);">Current Streak</p>
-              <p style="font-size:10px;color:var(--color-on-surface-variant);"><?= $streak ?> day<?= $streak !== 1 ? 's' : '' ?> in a row</p>
+              <p class="text-label-md" style="color:#191c1e;">Current Streak</p>
+              <p style="font-size:10px;color:#3f4852;"><?= $streak ?> day<?= $streak !== 1 ? 's' : '' ?> in a row</p>
             </div>
           </div>
           <span class="text-headline-md text-primary"><?= str_pad($streak, 2, '0', STR_PAD_LEFT) ?></span>
@@ -219,7 +219,7 @@
 
     <!-- Daily Log Table -->
     <section class="glass-card table-card">
-      <h3 class="text-headline-md mb-6" style="color:var(--color-on-surface);">Daily Log: Last 7 Days</h3>
+      <h3 class="text-headline-md mb-6" style="color:#191c1e;">Daily Log: Last 7 Days</h3>
       <div class="table-wrapper">
         <table class="history-table">
           <thead>
@@ -244,7 +244,7 @@
           </thead>
           <tbody>
             <?php if (empty($tableRows)): ?>
-            <tr><td colspan="5" style="text-align:center;color:var(--color-on-surface-variant);padding:32px;">
+            <tr><td colspan="5" style="text-align:center;color:#3f4852;padding:32px;">
               <?= $type === 'water' ? 'No water logged yet — drink up!' : ($type === 'food' ? 'No meals logged yet.' : 'No exercise logged yet.') ?>
             </td></tr>
             <?php else: ?>
@@ -276,7 +276,7 @@
               else                         { $statusCls = 'status-badge--missed';   $status = 'Missed';      $barCls = 'progress-fill--error';   $showStatus = $type !== 'food'; }
             ?>
             <tr>
-              <td class="font-semibold" style="color:var(--color-on-surface);"><?= htmlspecialchars($dateLabel) ?></td>
+              <td class="font-semibold" style="color:#191c1e;"><?= htmlspecialchars($dateLabel) ?></td>
               <td><?= $disp ?></td>
               <td>
                 <div class="progress-track">

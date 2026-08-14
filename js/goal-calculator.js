@@ -117,9 +117,9 @@ export function initGoalCalculator() {
       isCustom = !isCustom;
       // Animate knob
       knobEl.style.transform      = isCustom ? 'translateX(20px)' : 'translateX(0)';
-      switchEl.style.background   = isCustom ? 'var(--color-primary)' : 'var(--color-surface-container-high)';
+      switchEl.style.background   = isCustom ? '#00696d' : '#e6e8ea';
       toggleLabel.textContent     = isCustom ? 'On' : 'Off';
-      toggleLabel.style.color     = isCustom ? 'var(--color-primary)' : 'var(--color-on-surface-variant)';
+      toggleLabel.style.color     = isCustom ? '#00696d' : '#3f4852';
       customArea.style.display    = isCustom ? 'block' : 'none';
 
       if (goalMode) goalMode.value = isCustom ? 'custom' : 'bmi';
@@ -139,9 +139,9 @@ export function initGoalCalculator() {
     nutriSwitch.addEventListener('click', () => {
       isNutriCustom = !isNutriCustom;
       nutriKnob.style.transform        = isNutriCustom ? 'translateX(20px)' : 'translateX(0)';
-      nutriSwitch.style.background     = isNutriCustom ? 'var(--color-tertiary)' : 'var(--color-surface-container-high)';
+      nutriSwitch.style.background     = isNutriCustom ? '#3d6b23' : '#e6e8ea';
       nutriToggleLabel.textContent     = isNutriCustom ? 'On' : 'Off';
-      nutriToggleLabel.style.color     = isNutriCustom ? 'var(--color-tertiary)' : 'var(--color-on-surface-variant)';
+      nutriToggleLabel.style.color     = isNutriCustom ? '#3d6b23' : '#3f4852';
       nutriCustomArea.style.display    = isNutriCustom ? 'block' : 'none';
 
       if (nutriMode) nutriMode.value = isNutriCustom ? 'custom' : 'auto';

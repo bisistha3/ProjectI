@@ -19,7 +19,7 @@ export function initReminderToggle() {
   };
   const refresh = () => {
     const on = checkbox.checked;
-    switchEl.style.background = on ? 'var(--color-primary)' : 'var(--color-surface-container-high)';
+    switchEl.style.background = on ? '#00696d' : '#e6e8ea';
     if (knobEl) knobEl.style.left = on ? '23px' : '3px';
     if (labelEl) labelEl.textContent = on ? 'On' : 'Off';
     showTimeArea();

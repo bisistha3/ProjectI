@@ -1,58 +1,120 @@
-/* =============================================
-   Register Page Styles
-   ============================================= */
+@import url('base.css');
 
-/* ---------- Gender Toggle Pill ---------- */
-/* ---------- Gender Toggle Pill ---------- */
-.gender-toggle {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 100%;
-  background: var(--color-surface-container);
-  border-radius: var(--radius-full);
-  padding: 3px;
-  overflow: hidden;
-  user-select: none;
-}
+/* ---------- Typography Classes (used on register page) ---------- */
+.text-display-lg { font-size: 48px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em; }
+.text-headline-lg { font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -0.01em; }
+.text-headline-lg-mobile { font-size: 24px; line-height: 32px; font-weight: 700; }
+.text-headline-md { font-size: 20px; line-height: 28px; font-weight: 600; }
+.text-body-md { font-size: 14px; line-height: 20px; font-weight: 400; }
+.text-label-md { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.05em; }
 
-/* animated slider background */
-.gender-toggle__slider {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  height: calc(100% - 6px);
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-  z-index: 0;
-}
+.text-headline-lg-responsive { font-size: 24px; line-height: 32px; font-weight: 700; }
+@media (min-width: 769px) { .text-headline-lg-responsive { font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -0.01em; } }
 
-.gender-toggle label {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: var(--radius-full);
-  font-size: var(--fs-label-md);
-  font-weight: var(--fw-label-md);
-  letter-spacing: var(--ls-label-md);
-  color: var(--color-on-surface-variant);
-  cursor: pointer;
-  transition: color 0.25s;
-}
+/* ---------- Layout: Auth Pages ---------- */
+.auth-layout { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
 
-.gender-toggle label.active {
-  color: #ffffff;
-}
+.auth-card { width: 100%; max-width: 448px; border-radius: 0.75rem; padding: 32px; display: flex; flex-direction: column; align-items: center; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); }
 
-.gender-toggle label:hover:not(.active) {
-  color: var(--color-primary);
-  
-}
+.auth-card--wide { max-width: 480px; align-items: stretch; position: relative; overflow: hidden; padding: 24px; gap: 24px; }
 
+/* ---------- Decorative ---------- */
+.decor-blob { position: absolute; width: 160px; height: 160px; background: rgba(207, 229, 255, 0.2); border-radius: 50%; filter: blur(40px); pointer-events: none; top: -80px; right: -80px; }
+
+/* ---------- Component: Alert Banners ---------- */
+.alert { width: 100%; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 0.5rem; font-size: 13px; font-weight: 500; }
+
+.alert--error { background-color: #ffdad6; color: #93000a; border: 1px solid rgba(186, 26, 26, 0.15); }
+
+.alert--success { background-color: #f0fdf4; color: #166534; border: 1px solid rgba(22, 163, 74, 0.15); }
+
+/* Shake animation for invalid submit */
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+.shake { animation: shake 0.4s ease; }
+
+/* ---------- Component: Input Fields ---------- */
+.input-field { width: 100%; background-color: #f2f4f6; border: 1px solid #bec7d4; border-radius: 0.5rem; padding: 10px 12px; font-size: 14px; line-height: 20px; color: #191c1e; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+
+.input-field::placeholder { color: #bec7d4; }
+
+.input-field:focus { border-color: #00696d; box-shadow: 0 0 0 2px rgba(0, 105, 109, 0.15); }
+
+.input-field--icon { padding-left: 40px; }
+
+.input-field--icon-right { padding-right: 40px; }
+
+.input-field--error { border-color: #ba1a1a !important; box-shadow: 0 0 0 2px rgba(186, 26, 26, 0.12); }
+
+.input-field--error:focus { border-color: #ba1a1a !important; box-shadow: 0 0 0 2px rgba(186, 26, 26, 0.2); }
+
+.field-error { display: block; font-size: 11px; font-weight: 500; color: #ba1a1a; margin-top: 4px; padding-left: 2px; }
+
+/* ---------- Input Group with Icons ---------- */
+.input-group { position: relative; }
+
+.input-group .icon-left { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6f7883; font-size: 20px; pointer-events: none; }
+
+.input-group .icon-right { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #6f7883; font-size: 20px; cursor: pointer; background: none; border: none; padding: 0; display: flex; transition: color 0.2s; }
+
+.input-group .icon-right:hover { color: #191c1e; }
+
+/* ---------- Component: Gender Toggle ---------- */
+.gender-toggle { display: flex; background-color: #f7f9fb; padding: 4px; border-radius: 0.5rem; border: 1px solid #bec7d4; position: relative; }
+
+.gender-toggle__slider { position: absolute; width: calc(50% - 4px); top: 4px; bottom: 4px; left: 4px; background: #c5e8d9; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: transform 0.3s ease; pointer-events: none; }
+
+.gender-toggle label { flex: 1; text-align: center; padding: 8px; position: relative; z-index: 1; cursor: pointer; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: #3f4852; transition: color 0.3s; }
+
+.gender-toggle label.active { color: #002022; }
+
+.gender-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+/* Gender Toggle Pill variant (settings-style) */
+.gender-toggle-pill { position: relative; display: grid; grid-template-columns: 1fr 1fr; width: 100%; background: #eceef0; border-radius: 9999px; padding: 3px; overflow: hidden; user-select: none; }
+
+.gender-toggle-pill__slider { position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px); background: #00696d; border-radius: 9999px; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 0; }
+
+.gender-toggle-pill label { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: #3f4852; cursor: pointer; transition: color 0.25s; }
+
+.gender-toggle-pill label.active { color: #ffffff; }
+
+.gender-toggle-pill label:hover:not(.active) { color: #00696d; }
+
+.gender-toggle-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+/* ---------- Component: Section Label ---------- */
+.section-label { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: #00696d; text-transform: uppercase; }
+
+/* ---------- Component: Buttons ---------- */
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #00696d; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 9999px; border: none; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+
+.btn-primary:hover { background-color: #00a7ad; color: #00373a; }
+
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-primary .material-symbols-outlined { font-size: 18px; transition: transform 0.2s; }
+
+.btn-primary:hover .material-symbols-outlined { transform: translateX(4px); }
+
+.btn-gradient { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(to right, #00696d, #00a7ad); color: #ffffff; font-size: 20px; font-weight: 600; line-height: 28px; padding: 12px 24px; border-radius: 9999px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 105, 109, 0.25); transition: box-shadow 0.2s, transform 0.15s; }
+
+.btn-gradient:hover { box-shadow: 0 6px 20px rgba(0, 105, 109, 0.35); }
+
+.btn-gradient:active { transform: scale(0.95); }
+
+.btn-sm { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; padding: 8px 24px; }
+
+/* ---------- Layout: Grid Helpers ---------- */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.grid-main { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+.grid-settings { display: grid; grid-template-columns: 7fr 5fr; gap: 24px; }
+
+/* ---------- Utilities ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) { .auth-card { padding: 24px; } .grid-main { grid-template-columns: 1fr; } .grid-settings { grid-template-columns: 1fr; } }
+
+@media (min-width: 640px) { .auth-card { padding: 48px; } }

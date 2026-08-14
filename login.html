@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - HealthFlow</title>
   <meta name="description" content="Sign in to HealthFlow to track your water, food and exercise every day.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="login.css">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
 <body class="auth-layout">
@@ -42,7 +42,7 @@
     <form id="login-form" class="w-full flex flex-col gap-5" method="POST" action="login.php" novalidate>
       <!-- Email -->
       <div class="flex flex-col gap-1">
-        <label class="text-label-md text-on-surface" for="email">Email Address <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
+        <label class="text-label-md text-on-surface" for="email">Email Address <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
         <div class="input-group">
           <span class="material-symbols-outlined icon-left">mail</span>
           <input
@@ -64,8 +64,8 @@
       <!-- Password -->
       <div class="flex flex-col gap-1">
         <div class="flex justify-between items-center">
-          <label class="text-label-md text-on-surface" for="password">Password <span class="required-indicator" style="color: var(--color-error); margin-left: 2px;">*</span></label>
-          <a class="text-label-md text-primary" href="#" style="text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Forgot Password?</a>
+          <label class="text-label-md text-on-surface" for="password">Password <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
+          <a class="text-label-md" style="color: #00696d; text-decoration: none;" href="#" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Forgot Password?</a>
         </div>
         <div class="input-group">
           <span class="material-symbols-outlined icon-left">lock</span>
@@ -98,7 +98,7 @@
     <div class="mt-8 text-center">
       <p class="text-body-md text-on-surface-variant">
         Don't have an account?
-        <a class="text-primary font-semibold" href="register.php" style="text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Sign Up</a>
+        <a class="font-semibold" style="color: #00696d; text-decoration: none;" href="register.php" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Sign Up</a>
       </p>
     </div>
   </main>

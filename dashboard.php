@@ -343,4 +343,3 @@ $exerciseIcons = [
 ];
 $foods  = presetFoods();
 require __DIR__ . '/dashboard.html';
-require __DIR__ . '/dashboard.html';

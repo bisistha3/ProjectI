@@ -239,24 +239,24 @@ for ($i = 6; $i >= 0; $i--) {
 }
 
 // Metric labels per type
-$metricMeta = [
-    'water'   => ['avg' => ['lbl' => 'Avg. Daily Intake', 'val' => $metrics['avg_l']  ?? '0.0', 'unit' => 'L',
-                            'icon' => 'water_ph', 'color' => 'var(--color-primary)'],
-                  'best' => ['lbl' => 'Best Day', 'val' => $metrics['best_l'] ?? '0.0', 'unit' => 'L',
-                            'icon' => 'calendar_month', 'color' => 'var(--color-tertiary-container)'],
-                  'total' => ['lbl' => 'Total Consumed', 'val' => $metrics['total_l'] ?? '0.0', 'unit' => 'L',
-                            'icon' => 'bar_chart', 'color' => 'var(--color-secondary)']],
-    'food'    => ['avg' => ['lbl' => 'Avg. Daily Calories', 'val' => number_format((float)($metrics['avg_kcal'] ?? 0)), 'unit' => 'kcal',
-                            'icon' => 'restaurant', 'color' => 'var(--color-tertiary)'],
-                  'best' => ['lbl' => 'Best Day', 'val' => number_format((float)($metrics['best_kcal'] ?? 0)), 'unit' => 'kcal',
-                            'icon' => 'calendar_month', 'color' => 'var(--color-tertiary-container)'],
-                  'total' => ['lbl' => 'Total Consumed', 'val' => number_format((float)($metrics['total_kcal'] ?? 0)), 'unit' => 'kcal',
-                            'icon' => 'bar_chart', 'color' => 'var(--color-secondary)']],
-    'exercise'=> ['avg' => ['lbl' => 'Avg. Daily Activity', 'val' => $metrics['avg_min'] ?? '0', 'unit' => 'min',
-                            'icon' => 'directions_run', 'color' => 'var(--color-primary)'],
-                  'best' => ['lbl' => 'Best Day', 'val' => $metrics['best_min'] ?? '0', 'unit' => 'min',
-                            'icon' => 'calendar_month', 'color' => 'var(--color-tertiary-container)'],
-                  'total' => ['lbl' => 'Total Activity', 'val' => $metrics['total_min'] ?? '0', 'unit' => 'min',
-                            'icon' => 'bar_chart', 'color' => 'var(--color-secondary)']],
-];
+    $metricMeta = [
+        'water'   => ['avg' => ['lbl' => 'Avg. Daily Intake', 'val' => $metrics['avg_l']  ?? '0.0', 'unit' => 'L',
+                            'icon' => 'water_ph', 'color' => '#00696d'],
+                      'best' => ['lbl' => 'Best Day', 'val' => $metrics['best_l'] ?? '0.0', 'unit' => 'L',
+                            'icon' => 'calendar_month', 'color' => '#86c963'],
+                      'total' => ['lbl' => 'Total Consumed', 'val' => $metrics['total_l'] ?? '0.0', 'unit' => 'L',
+                            'icon' => 'bar_chart', 'color' => '#445f56']],
+        'food'    => ['avg' => ['lbl' => 'Avg. Daily Calories', 'val' => number_format((float)($metrics['avg_kcal'] ?? 0)), 'unit' => 'kcal',
+                            'icon' => 'restaurant', 'color' => '#3d6b23'],
+                      'best' => ['lbl' => 'Best Day', 'val' => number_format((float)($metrics['best_kcal'] ?? 0)), 'unit' => 'kcal',
+                            'icon' => 'calendar_month', 'color' => '#86c963'],
+                      'total' => ['lbl' => 'Total Consumed', 'val' => number_format((float)($metrics['total_kcal'] ?? 0)), 'unit' => 'kcal',
+                            'icon' => 'bar_chart', 'color' => '#445f56']],
+        'exercise'=> ['avg' => ['lbl' => 'Avg. Daily Activity', 'val' => $metrics['avg_min'] ?? '0', 'unit' => 'min',
+                            'icon' => 'directions_run', 'color' => '#00696d'],
+                      'best' => ['lbl' => 'Best Day', 'val' => $metrics['best_min'] ?? '0', 'unit' => 'min',
+                            'icon' => 'calendar_month', 'color' => '#86c963'],
+                      'total' => ['lbl' => 'Total Activity', 'val' => $metrics['total_min'] ?? '0', 'unit' => 'min',
+                            'icon' => 'bar_chart', 'color' => '#445f56']],
+    ];
 require __DIR__ . '/history.html';
