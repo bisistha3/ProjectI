@@ -4,6 +4,8 @@ export function initFormHandlers() {
   // --- Validation helpers ---
   function showError(input, msg) {
     input.classList.add('input-field--error');
+    input.classList.remove('input-field--success');
+    removeSuccessIcon(input);
     // Remove any existing error
     const existing = input.closest('.input-group')?.parentElement?.querySelector('.field-error')
                   || input.parentElement?.querySelector('.field-error');
@@ -22,45 +24,169 @@ export function initFormHandlers() {
     if (err && err.classList.contains('field-error')) err.remove();
   }
 
+  function showSuccess(input) {
+    input.classList.remove('input-field--error');
+    input.classList.add('input-field--success');
+    clearError(input);
+    addSuccessIcon(input);
+  }
+
+  function addSuccessIcon(input) {
+    if (input.classList.contains('input-field--icon-right') && input.type !== 'password') {
+      const group = input.closest('.input-group');
+      if (group && !group.querySelector('.field-success')) {
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined field-success';
+        icon.textContent = 'check_circle';
+        group.appendChild(icon);
+      }
+    }
+  }
+
+  function removeSuccessIcon(input) {
+    const group = input.closest('.input-group');
+    const icon = group?.querySelector('.field-success');
+    if (icon) icon.remove();
+  }
+
+  function clearAllStates(input) {
+    input.classList.remove('input-field--error', 'input-field--success');
+    removeSuccessIcon(input);
+    clearError(input);
+  }
+
   function isValidEmail(email) {
     return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(email);
   }
 
-  // --- Real-time: clear error on input ---
+  // --- Validators (matching PHP rules exactly) ---
+  function validateName(value) {
+    const v = value.trim();
+    if (!v) return { valid: true }; // empty handled on blur/submit
+    if (v.length < 2) return { valid: false, msg: 'Full Name must be at least 2 characters.' };
+    if (!/^[\p{L}]/u.test(v)) return { valid: false, msg: 'Full Name cannot start with a number.' };
+    if (!/^[\p{L}][\p{L}\s'\-]*$/u.test(v)) return { valid: false, msg: 'Full Name can only contain letters, spaces, apostrophes and hyphens.' };
+    return { valid: true };
+  }
+
+  function validateEmail(value) {
+    const v = value.trim();
+    if (!v) return { valid: true };
+    if (!isValidEmail(v)) return { valid: false, msg: 'Please enter a valid email address.' };
+    return { valid: true };
+  }
+
+  function validatePassword(value) {
+    const v = value;
+    if (!v) return { valid: true };
+    if (v.length < 8) return { valid: false, msg: 'Password must be at least 8 characters.' };
+    if (!/[A-Z]/.test(v)) return { valid: false, msg: 'Password must contain at least one uppercase letter.' };
+    if (!/[a-z]/.test(v)) return { valid: false, msg: 'Password must contain at least one lowercase letter.' };
+    if (!/[0-9]/.test(v)) return { valid: false, msg: 'Password must contain at least one digit.' };
+    return { valid: true };
+  }
+
+  function validateAge(value) {
+    const v = value.trim();
+    if (!v) return { valid: true };
+    const n = parseInt(v, 10);
+    if (isNaN(n) || n < 1 || n > 120) return { valid: false, msg: 'Age must be between 1 and 120.' };
+    return { valid: true };
+  }
+
+  function validateWeight(value) {
+    const v = value.trim();
+    if (!v) return { valid: true };
+    const n = parseFloat(v);
+    if (isNaN(n) || n < 1 || n > 300) return { valid: false, msg: 'Weight must be between 1 and 300 kg.' };
+    return { valid: true };
+  }
+
+  function validateHeight(value) {
+    const v = value.trim();
+    if (!v) return { valid: true };
+    const n = parseFloat(v);
+    if (isNaN(n) || n < 50 || n > 250) return { valid: false, msg: 'Height must be between 50 and 250 cm.' };
+    return { valid: true };
+  }
+
+  
+
+  // --- Debounce helper ---
+  function debounce(fn, ms) {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn(...args), ms);
+    };
+  }
+
+  // --- Core validation function ---
+  function validateField(input, validator, checkRequired = false) {
+    const value = input.value;
+    const result = validator(value);
+
+    if (checkRequired && !value.trim()) {
+      showError(input, `${getFieldLabel(input)} is required.`);
+      return false;
+    }
+
+    if (!result.valid) {
+      showError(input, result.msg);
+      return false;
+    }
+
+    if (value.trim()) {
+      showSuccess(input);
+    } else {
+      clearAllStates(input);
+    }
+    return true;
+  }
+
+  function getFieldLabel(input) {
+    const label = document.querySelector(`label[for="${input.id}"]`);
+    return label ? label.textContent.replace('*', '').trim() : 'Field';
+  }
+
+  // --- Attach real-time validation to all input fields ---
+  const validators = {
+    name:     validateName,
+    email:    validateEmail,
+    password: validatePassword,
+    age:      validateAge,
+    weight:   validateWeight,
+    height:   validateHeight,
+  };
+
   document.querySelectorAll('.input-field').forEach(input => {
-    input.addEventListener('input', () => clearError(input));
+    const key = input.id.replace('reg-', ''); // normalize reg-email -> email
+    const validator = validators[key];
+    if (!validator) return;
+
+    // Real-time validation on input (debounced)
+    const debouncedValidate = debounce(() => validateField(input, validator), 300);
+    input.addEventListener('input', debouncedValidate);
+
+    // Required check on blur
+    input.addEventListener('blur', () => validateField(input, validator, true));
   });
 
   // === LOGIN FORM ===
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
-      let valid = true;
       const emailInput = document.getElementById('email');
       const passInput  = document.getElementById('password');
 
-      // Clear previous JS errors
-      [emailInput, passInput].forEach(clearError);
+      const emailValid = validateField(emailInput, validateEmail, true);
+      const passValid  = validateField(passInput, validatePassword, true);
 
-      if (!emailInput.value.trim()) {
-        showError(emailInput, 'Email is required.');
-        valid = false;
-      } else if (!isValidEmail(emailInput.value.trim())) {
-        showError(emailInput, 'Please enter a valid email address.');
-        valid = false;
-      }
-
-      if (!passInput.value) {
-        showError(passInput, 'Password is required.');
-        valid = false;
-      }
-
-      if (!valid) {
+      if (!emailValid || !passValid) {
         e.preventDefault();
         loginForm.classList.add('shake');
         setTimeout(() => loginForm.classList.remove('shake'), 400);
       }
-      // If valid, form submits normally to PHP via POST
     });
   }
 
@@ -68,7 +194,6 @@ export function initFormHandlers() {
   const registerForm = document.getElementById('register-form');
   if (registerForm) {
     registerForm.addEventListener('submit', (e) => {
-      let valid = true;
       const fields = {
         name:     document.getElementById('name'),
         email:    document.getElementById('reg-email'),
@@ -78,82 +203,18 @@ export function initFormHandlers() {
         height:   document.getElementById('height'),
       };
 
-      // Clear all previous errors
-      Object.values(fields).forEach(f => { if (f) clearError(f); });
+      const nameValid     = validateField(fields.name, validateName, true);
+      const emailValid    = validateField(fields.email, validateEmail, true);
+      const passwordValid = validateField(fields.password, validatePassword, true);
+      const ageValid      = validateField(fields.age, validateAge, true);
+      const weightValid   = validateField(fields.weight, validateWeight, true);
+      const heightValid   = validateField(fields.height, validateHeight, true);
 
-      // Full Name
-      if (!fields.name?.value.trim()) {
-        showError(fields.name, 'Full Name is required.');
-        valid = false;
-      } else if (fields.name.value.trim().length < 2) {
-        showError(fields.name, 'Full Name must be at least 2 characters.');
-        valid = false;
-      }
-
-      // Email
-      if (!fields.email?.value.trim()) {
-        showError(fields.email, 'Email is required.');
-        valid = false;
-      } else if (!isValidEmail(fields.email.value.trim())) {
-        showError(fields.email, 'Please enter a valid email address.');
-        valid = false;
-      }
-
-      // Password
-      const pw = fields.password?.value || '';
-      if (!pw) {
-        showError(fields.password, 'Password is required.');
-        valid = false;
-      } else if (pw.length < 8) {
-        showError(fields.password, 'Password must be at least 8 characters.');
-        valid = false;
-      } else if (!/[A-Z]/.test(pw)) {
-        showError(fields.password, 'Password must contain at least one uppercase letter.');
-        valid = false;
-      } else if (!/[a-z]/.test(pw)) {
-        showError(fields.password, 'Password must contain at least one lowercase letter.');
-        valid = false;
-      } else if (!/[0-9]/.test(pw)) {
-        showError(fields.password, 'Password must contain at least one digit.');
-        valid = false;
-      }
-
-      // Age
-      const age = parseInt(fields.age?.value, 10);
-      if (!fields.age?.value.trim()) {
-        showError(fields.age, 'Age is required.');
-        valid = false;
-      } else if (isNaN(age) || age < 1 || age > 120) {
-        showError(fields.age, 'Age must be between 1 and 120.');
-        valid = false;
-      }
-
-      // Weight
-      const weight = parseFloat(fields.weight?.value);
-      if (!fields.weight?.value.trim()) {
-        showError(fields.weight, 'Weight is required.');
-        valid = false;
-      } else if (isNaN(weight) || weight < 1 || weight > 300) {
-        showError(fields.weight, 'Weight must be between 1 and 300 kg.');
-        valid = false;
-      }
-
-      // Height
-      const height = parseFloat(fields.height?.value);
-      if (!fields.height?.value.trim()) {
-        showError(fields.height, 'Height is required.');
-        valid = false;
-      } else if (isNaN(height) || height < 50 || height > 250) {
-        showError(fields.height, 'Height must be between 50 and 250 cm.');
-        valid = false;
-      }
-
-      if (!valid) {
+      if (!(nameValid && emailValid && passwordValid && ageValid && weightValid && heightValid)) {
         e.preventDefault();
         registerForm.classList.add('shake');
         setTimeout(() => registerForm.classList.remove('shake'), 400);
       }
-      // If valid, form submits normally to PHP via POST
     });
   }
 }
