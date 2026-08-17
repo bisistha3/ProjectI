@@ -3,10 +3,8 @@
 -- Run this script in phpMyAdmin or MySQL CLI.
 -- =============================================
 
-CREATE DATABASE IF NOT EXISTS healthflow
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-    
+CREATE DATABASE IF NOT EXISTS healthflow;
+
 USE healthflow;
 
 -- Users table
@@ -33,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
     sleep_time             TIME NOT NULL DEFAULT '22:00:00',
     is_verified            TINYINT(1) NOT NULL DEFAULT 0,
     created_at           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+);
 
 -- Email OTP verification tokens
 CREATE TABLE IF NOT EXISTS email_otps (
@@ -44,7 +42,7 @@ CREATE TABLE IF NOT EXISTS email_otps (
     used       TINYINT(1) NOT NULL DEFAULT 0,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+);
 
 -- Water intake logs
 CREATE TABLE IF NOT EXISTS water_logs (
@@ -54,22 +52,37 @@ CREATE TABLE IF NOT EXISTS water_logs (
     drink_type VARCHAR(50) NOT NULL DEFAULT 'Water',
     logged_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+);
 
--- Food intake logs (calories + macros per serving)
+-- Foods table (global + user-specific)
+CREATE TABLE IF NOT EXISTS foods (
+    food_id         INT AUTO_INCREMENT PRIMARY KEY,
+    user_id         INT NULL,
+    food_name       VARCHAR(100) NOT NULL,
+    serving_size_g  DECIMAL(7,1) NOT NULL DEFAULT 100,
+    calories        INT NOT NULL,
+    protein_g       DECIMAL(5,1) NOT NULL DEFAULT 0,
+    fat_g           DECIMAL(5,1) NOT NULL DEFAULT 0,
+    carbs_g         DECIMAL(5,1) NOT NULL DEFAULT 0,
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Food intake logs (preserves exact nutritional values at time of logging)
 CREATE TABLE IF NOT EXISTS food_logs (
     log_id      INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT NOT NULL,
-    food_name   VARCHAR(100) NOT NULL,
+    food_id     INT NOT NULL,
     meal_type   ENUM('breakfast', 'lunch', 'dinner', 'snack') NOT NULL DEFAULT 'snack',
+    qty_g       DECIMAL(7,1) NOT NULL DEFAULT 100,
     calories    INT NOT NULL,
     protein_g   DECIMAL(5,1) NOT NULL DEFAULT 0,
     fat_g       DECIMAL(5,1) NOT NULL DEFAULT 0,
     carbs_g     DECIMAL(5,1) NOT NULL DEFAULT 0,
-    qty         VARCHAR(50) NOT NULL DEFAULT '1 serving',
     logged_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE RESTRICT
+);
 
 -- Exercise logs (duration + auto-calculated calories burned)
 CREATE TABLE IF NOT EXISTS exercise_logs (
@@ -80,48 +93,15 @@ CREATE TABLE IF NOT EXISTS exercise_logs (
     calories_burned INT NOT NULL,
     logged_at       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+);
 
--- User's saved custom foods (auto-saved from the log page for one-click logging)
-CREATE TABLE IF NOT EXISTS custom_foods (
-    food_id    INT AUTO_INCREMENT PRIMARY KEY,
-    user_id    INT NOT NULL,
-    food_name  VARCHAR(100) NOT NULL,
-    calories   INT NOT NULL,
-    protein_g  DECIMAL(5,1) NOT NULL DEFAULT 0,
-    fat_g      DECIMAL(5,1) NOT NULL DEFAULT 0,
-    carbs_g    DECIMAL(5,1) NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_custom_food (user_id, food_name),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
--- Safe migrations for existing installs (hydroflow → healthflow)
-ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified   TINYINT(1) NOT NULL DEFAULT 0;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_goal_ml INT NOT NULL DEFAULT 2500;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_calorie_goal   INT NOT NULL DEFAULT 2000;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_protein_goal_g INT NOT NULL DEFAULT 125;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_fat_goal_g     INT NOT NULL DEFAULT 67;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_carbs_goal_g   INT NOT NULL DEFAULT 225;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_exercise_goal_min INT NOT NULL DEFAULT 30;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS reminder_enabled TINYINT(1) NOT NULL DEFAULT 0;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS reminder_time    TIME NOT NULL DEFAULT '20:00:00';
-ALTER TABLE users ADD COLUMN IF NOT EXISTS daily_burn_goal_kcal INT NOT NULL DEFAULT 300;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS reminder_interval_min INT NOT NULL DEFAULT 0;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS wake_time TIME NOT NULL DEFAULT '07:00:00';
-ALTER TABLE users ADD COLUMN IF NOT EXISTS sleep_time TIME NOT NULL DEFAULT '22:00:00';
-
--- Custom foods library (safe migration)
-CREATE TABLE IF NOT EXISTS custom_foods (
-    food_id    INT AUTO_INCREMENT PRIMARY KEY,
-    user_id    INT NOT NULL,
-    food_name  VARCHAR(100) NOT NULL,
-    calories   INT NOT NULL,
-    protein_g  DECIMAL(5,1) NOT NULL DEFAULT 0,
-    fat_g      DECIMAL(5,1) NOT NULL DEFAULT 0,
-    carbs_g    DECIMAL(5,1) NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_custom_food (user_id, food_name),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+-- Preset foods (global, user_id = NULL)
+INSERT IGNORE INTO foods (user_id, food_name, serving_size_g, calories, protein_g, fat_g, carbs_g) VALUES
+(NULL, 'White Rice', 158, 200, 4.0, 0.4, 45.0),
+(NULL, 'Boiled Egg', 50, 70, 6.0, 5.0, 0.6),
+(NULL, 'Apple', 182, 95, 0.5, 0.3, 25.0),
+(NULL, 'Milk', 244, 150, 8.0, 8.0, 12.0),
+(NULL, 'Chicken Breast', 100, 165, 31.0, 3.6, 0.0),
+(NULL, 'Banana', 118, 105, 1.3, 0.4, 27.0),
+(NULL, 'Bread', 30, 80, 3.0, 1.0, 15.0),
+(NULL, 'Oatmeal', 234, 150, 5.0, 3.0, 27.0);

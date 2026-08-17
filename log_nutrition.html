@@ -104,10 +104,10 @@
         <section class="glass-card-light" style="padding: 24px;">
           <h2 class="text-headline-md mb-6" style="color: #191c1e;">Quick Foods</h2>
           <div class="food-grid">
-            <?php foreach ($foods as $name => $f): ?>
-            <button class="preset-btn" data-action="food" data-food="<?= htmlspecialchars($name, ENT_QUOTES) ?>">
-              <span><?= htmlspecialchars($name) ?></span>
-              <span class="preset-btn__kcal"><?= $f['calories'] ?> kcal</span>
+            <?php foreach ($foods as $f): ?>
+            <button class="preset-btn" data-action="food" data-food="<?= htmlspecialchars($f['food_name'], ENT_QUOTES) ?>">
+              <span><?= htmlspecialchars($f['food_name']) ?></span>
+              <span class="preset-btn__kcal"><?= (int)$f['calories'] ?> kcal</span>
             </button>
             <?php endforeach; ?>
           </div>
