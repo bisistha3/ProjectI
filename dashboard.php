@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/foods.php';
 
 requireLogin();
 
@@ -41,51 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    // ── Log food (preset or custom) ───────────────────────────────────────────
+    // ── Log food (known food: name + qty; new food: name + qty + unit + nutrition) ──
     elseif ($action === 'food') {
-        $foodName  = trim($_POST['food_name']  ?? '');
-        $mealType  = trim($_POST['meal_type']  ?? 'snack');
-        $mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
-        if (!in_array($mealType, $mealTypes)) $mealType = 'snack';
-
-        // Resolve existing food (global preset or user's own) by name
-        $foodQ = $db->prepare('SELECT food_id, serving_size_g, calories, protein_g, fat_g, carbs_g
-                               FROM foods WHERE food_name=? AND (user_id IS NULL OR user_id=?)
-                               ORDER BY user_id DESC LIMIT 1');
-        $foodQ->execute([$foodName, $userId]);
-        $food = $foodQ->fetch();
-
-        if ($food) {
-            // Found — log one serving using the stored values
-            $foodId  = (int)$food['food_id'];
-            $cal     = (int)$food['calories'];
-            $protein = (float)$food['protein_g'];
-            $fat     = (float)$food['fat_g'];
-            $carbs   = (float)$food['carbs_g'];
-            $qtyG    = (float)$food['serving_size_g'];
-        } else {
-            // New custom entry — use user-provided values
-            $foodName = mb_substr($foodName, 0, 100);
-            $cal     = max(0, min(3000, (int)($_POST['calories'] ?? 0)));
-            $protein = max(0, min(400, (float)($_POST['protein_g']  ?? 0)));
-            $fat     = max(0, min(250, (float)($_POST['fat_g']      ?? 0)));
-            $carbs   = max(0, min(800, (float)($_POST['carbs_g']    ?? 0)));
-            if ($foodName === '' || $cal <= 0) {
-                echo json_encode(['ok' => false]);
-                exit;
-            }
-            // Auto-save to My Foods for one-click logging next time
-            $db->prepare('INSERT INTO foods (user_id, food_name, serving_size_g, calories, protein_g, fat_g, carbs_g)
-                          VALUES (?,?,?,?,?,?,?)')
-               ->execute([$userId, $foodName, 100, $cal, $protein, $fat, $carbs]);
-            $foodId = (int)$db->lastInsertId();
-            $qtyG   = 100;
-        }
-
-        // Snapshot the exact nutritional values at log time
-        $db->prepare('INSERT INTO food_logs (user_id, food_id, meal_type, qty_g, calories, protein_g, fat_g, carbs_g)
-                      VALUES (?,?,?,?,?,?,?,?)')
-           ->execute([$userId, $foodId, $mealType, $qtyG, $cal, $protein, $fat, $carbs]);
+        logFoodEntry($db, $userId, $_POST);
     }
 
     // ── Log exercise (MET-based calorie auto-calc) ────────────────────────────
@@ -318,7 +277,7 @@ $exerciseIcons = [
     'Yoga'           => 'self_improvement',
     'Gym / Strength' => 'fitness_center',
 ];
-$foods  = $db->prepare('SELECT food_name, serving_size_g, calories FROM foods WHERE user_id IS NULL ORDER BY food_name ASC');
+$foods  = $db->prepare('SELECT food_name, serving_qty, unit_type, calories FROM foods WHERE user_id IS NULL ORDER BY food_name ASC');
 $foods->execute();
 $foods  = $foods->fetchAll();
 require __DIR__ . '/dashboard.html';

@@ -100,9 +100,10 @@
           </div>
         </section>
 
-        <!-- Preset foods -->
+        <!-- Quick Foods -->
         <section class="glass-card-light" style="padding: 24px;">
           <h2 class="text-headline-md mb-6" style="color: #191c1e;">Quick Foods</h2>
+          <p style="font-size:11px;color:#3f4852;margin:-8px 0 12px;">Tap a food, enter the quantity, and log it.</p>
           <div class="food-grid">
             <?php foreach ($foods as $f): ?>
             <button class="preset-btn" data-action="food" data-food="<?= htmlspecialchars($f['food_name'], ENT_QUOTES) ?>">
@@ -141,7 +142,7 @@
         <!-- Custom food -->
         <section class="glass-card-light" style="padding: 24px;">
           <h2 class="text-headline-md mb-6" style="color: #191c1e;">Add Custom Food</h2>
-          <p style="font-size:11px;color:#3f4852;margin:-8px 0 12px;">Saved to My Foods automatically after adding — log it with one click next time.</p>
+          <p style="font-size:11px;color:#3f4852;margin:-8px 0 12px;">Fill in the food name, quantity and nutrition once — it's saved to My Foods and next time only the name and quantity are needed.</p>
           <div style="display:flex; flex-direction:column; gap:10px;">
             <div class="flex" style="display:flex; gap:8px;">
               <input class="input-field" id="log-food-name" type="text" placeholder="Food name" style="flex:1.4;">
@@ -150,6 +151,14 @@
                 <option value="lunch">Lunch</option>
                 <option value="dinner">Dinner</option>
                 <option value="snack" selected>Snack</option>
+              </select>
+            </div>
+            <div class="flex" style="display:flex; gap:8px;">
+              <input class="input-field" id="log-food-qty" type="number" min="0.1" step="0.1" placeholder="Quantity" style="flex:1.4;">
+              <select class="input-field" id="log-food-unit" style="flex:1;">
+                <option value="g">grams (g)</option>
+                <option value="piece">piece(s)</option>
+                <option value="ml">millilitres (ml)</option>
               </select>
             </div>
             <div class="flex" style="display:flex; gap:8px;">
@@ -177,7 +186,7 @@
                   <span class="material-symbols-outlined" style="font-size:18px;"><?= $foodIcons[$log['meal_type']] ?? 'cookie' ?></span>
                 </div>
                 <div>
-                  <p class="log-item__amount"><?= $log['val'] ?> kcal</p>
+                  <p class="log-item__amount"><?= formatQty((float)$log['qty'], $log['unit_type']) ?> · <?= $log['val'] ?> kcal</p>
                   <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?> · P <?= round((float)$log['protein_g'],1) ?> F <?= round((float)$log['fat_g'],1) ?> C <?= round((float)$log['carbs_g'],1) ?></p>
                 </div>
               </div>
@@ -196,11 +205,76 @@
     </div>
   </main>
 
+  <!-- Log Food modal -->
+  <div class="modal-overlay" id="food-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="food-modal-title">
+      <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 class="text-headline-md" id="food-modal-title" style="color:#191c1e;">Log Food</h2>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="food-modal__field">
+          <label class="food-modal__label" for="food-modal-name">Food name</label>
+          <input class="input-field" id="food-modal-name" type="text" maxlength="100" placeholder="Food name">
+        </div>
+
+        <div class="food-modal__row" style="display:flex; gap:8px;">
+          <div class="food-modal__field" style="flex:1.4;">
+            <label class="food-modal__label" for="food-modal-qty">Quantity</label>
+            <input class="input-field" id="food-modal-qty" type="number" min="0.1" step="0.1" placeholder="e.g. 150">
+          </div>
+          <div class="food-modal__field" style="flex:1;">
+            <label class="food-modal__label" for="food-modal-unit">Unit</label>
+            <select class="input-field" id="food-modal-unit">
+              <option value="g">grams (g)</option>
+              <option value="piece">piece(s)</option>
+              <option value="ml">millilitres (ml)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="food-modal__field">
+          <label class="food-modal__label" for="food-modal-meal">Meal</label>
+          <select class="input-field" id="food-modal-meal">
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack" selected>Snack</option>
+          </select>
+        </div>
+
+        <div id="food-modal-nutrition">
+          <p class="food-modal__label" style="margin-bottom:4px;">Nutrition <span style="color:#3f4852; font-size:11px;">(for the quantity entered above — saved for next time)</span></p>
+          <div class="flex" style="display:flex; gap:8px;">
+            <input class="input-field" id="food-modal-kcal" type="number" min="1" max="3000" placeholder="kcal" style="flex:1;">
+            <input class="input-field" id="food-modal-protein" type="number" min="0" step="0.1" placeholder="Protein g" style="flex:1;">
+            <input class="input-field" id="food-modal-fat" type="number" min="0" step="0.1" placeholder="Fat g" style="flex:1;">
+            <input class="input-field" id="food-modal-carbs" type="number" min="0" step="0.1" placeholder="Carbs g" style="flex:1;">
+          </div>
+        </div>
+
+        <p class="food-modal__error" id="food-modal-error" hidden></p>
+
+        <div class="flex" style="display:flex; gap:8px; justify-content:flex-end;">
+          <button class="btn-secondary" type="button" data-modal-close>Cancel</button>
+          <button class="btn-primary" id="btn-log-food-confirm" type="button">Log Food</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
   window.HEALTHFLOW_REMINDER = <?= json_encode([
       'enabled' => (bool)($user['reminder_enabled'] ?? 0),
       'time'    => $user['reminder_time'] ?? '20:00:00',
       'interval_min' => (int)($user['reminder_interval_min'] ?? 0),
+  ]); ?>;
+  window.HEALTHFLOW_FOODS = <?= json_encode([
+      ...array_map(fn($f) => ['unit' => $f['unit_type'], 'serving_qty' => (float)$f['serving_qty'], 'kcal' => (int)$f['calories']], $foods),
+      ...array_map(fn($cf) => ['unit' => $cf['unit_type'], 'serving_qty' => (float)$cf['serving_qty'], 'kcal' => (int)$cf['calories']], $customFoods),
   ]); ?>;
   </script>
   <script type="module" src="app.js"></script>
