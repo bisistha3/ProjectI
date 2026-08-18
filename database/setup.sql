@@ -91,7 +91,8 @@ CREATE TABLE IF NOT EXISTS foods (
     user_id INT NULL,
 
     food_name VARCHAR(100) NOT NULL,
-    serving_size_g DECIMAL(7,1) NOT NULL DEFAULT 100,
+    serving_qty DECIMAL(7,1) NOT NULL DEFAULT 100,
+    unit_type ENUM('g','piece','ml') NOT NULL DEFAULT 'g',
 
     calories INT NOT NULL,
     protein_g DECIMAL(5,1) NOT NULL DEFAULT 0,
@@ -123,7 +124,8 @@ CREATE TABLE IF NOT EXISTS food_logs (
         'snack'
     ) NOT NULL DEFAULT 'snack',
 
-    qty_g DECIMAL(7,1) NOT NULL DEFAULT 100,
+    qty DECIMAL(7,1) NOT NULL DEFAULT 100,
+    unit_type ENUM('g','piece','ml') NOT NULL DEFAULT 'g',
 
     calories INT NOT NULL,
     protein_g DECIMAL(5,1) NOT NULL DEFAULT 0,
@@ -171,13 +173,14 @@ CREATE TABLE IF NOT EXISTS exercise_logs (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'White Rice', 158, 200, 4.0, 0.4, 45.0
+SELECT NULL, 'White Rice', 158, 'g', 200, 4.0, 0.4, 45.0
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'White Rice' AND user_id IS NULL
 );
@@ -185,13 +188,14 @@ WHERE NOT EXISTS (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'Boiled Egg', 50, 70, 6.0, 5.0, 0.6
+SELECT NULL, 'Boiled Egg', 1, 'piece', 70, 6.0, 5.0, 0.6
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'Boiled Egg' AND user_id IS NULL
 );
@@ -199,13 +203,14 @@ WHERE NOT EXISTS (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'Apple', 182, 95, 0.5, 0.3, 25.0
+SELECT NULL, 'Apple', 1, 'piece', 95, 0.5, 0.3, 25.0
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'Apple' AND user_id IS NULL
 );
@@ -213,13 +218,14 @@ WHERE NOT EXISTS (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'Milk', 244, 150, 8.0, 8.0, 12.0
+SELECT NULL, 'Milk', 244, 'ml', 150, 8.0, 8.0, 12.0
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'Milk' AND user_id IS NULL
 );
@@ -227,13 +233,14 @@ WHERE NOT EXISTS (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'Chicken Breast', 100, 165, 31.0, 3.6, 0.0
+SELECT NULL, 'Chicken Breast', 100, 'g', 165, 31.0, 3.6, 0.0
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'Chicken Breast' AND user_id IS NULL
 );
@@ -241,13 +248,14 @@ WHERE NOT EXISTS (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'Banana', 118, 105, 1.3, 0.4, 27.0
+SELECT NULL, 'Banana', 1, 'piece', 105, 1.3, 0.4, 27.0
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'Banana' AND user_id IS NULL
 );
@@ -255,13 +263,14 @@ WHERE NOT EXISTS (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'Bread', 30, 80, 3.0, 1.0, 15.0
+SELECT NULL, 'Bread', 1, 'piece', 80, 3.0, 1.0, 15.0
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'Bread' AND user_id IS NULL
 );
@@ -269,13 +278,14 @@ WHERE NOT EXISTS (
 INSERT INTO foods (
     user_id,
     food_name,
-    serving_size_g,
+    serving_qty,
+    unit_type,
     calories,
     protein_g,
     fat_g,
     carbs_g
 )
-SELECT NULL, 'Oatmeal', 234, 150, 5.0, 3.0, 27.0
+SELECT NULL, 'Oatmeal', 234, 'g', 150, 5.0, 3.0, 27.0
 WHERE NOT EXISTS (
     SELECT 1 FROM foods WHERE food_name = 'Oatmeal' AND user_id IS NULL
 );
