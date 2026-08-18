@@ -1,48 +1,41 @@
-/* ---------- HealthFlow: Log Nutrition Module ---------- */
+/* ---------- HealthFlow: Log Exercise Module ---------- */
 
 (() => {
   const post = async (fd) => {
-    const res = await fetch('log_nutrition.php', { method: 'POST', body: fd });
+    const res = await fetch('log_exercise.php', { method: 'POST', body: fd });
     const data = await res.json();
     if (data && data.ok) location.reload();
   };
 
-  // Preset foods + saved My Foods (one-click)
-  document.querySelectorAll('[data-action="food"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const fd = new FormData();
-      fd.append('action', 'food');
-      fd.append('food_name', btn.dataset.food);
-      post(fd);
+  const errorBox = document.getElementById('log-exercise-error');
+  const durationInput = document.getElementById('log-exercise-duration');
+  const logBtn = document.getElementById('btn-log-exercise');
+  let selectedExercise = null;
+
+  const selectExercise = (btn) => {
+    selectedExercise = btn;
+    document.querySelectorAll('[data-action="exercise"]').forEach(b => {
+      b.classList.toggle('preset-btn--selected', b === btn);
     });
+    if (errorBox) errorBox.hidden = true;
+  };
+
+  document.querySelectorAll('[data-action="exercise"]').forEach(btn => {
+    btn.addEventListener('click', () => selectExercise(btn));
   });
 
-  // Remove saved custom food from My Foods
-  document.querySelectorAll('[data-delete-food]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      if (!confirm('Remove this food from My Foods?')) return;
-      const fd = new FormData();
-      fd.append('action', 'delete_custom_food');
-      fd.append('food_id', btn.dataset.deleteFood);
-      const res = await fetch('log_nutrition.php', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data && data.ok) location.reload();
-    });
-  });
-
-  // Custom food
-  document.getElementById('btn-log-food-custom')?.addEventListener('click', () => {
-    const name = document.getElementById('log-food-name').value.trim();
-    const kcal = document.getElementById('log-food-kcal').value;
-    if (!name || !kcal || parseInt(kcal, 10) <= 0) return;
+  const logExercise = () => {
+    if (!selectedExercise) {
+      if (errorBox) errorBox.hidden = false;
+      return;
+    }
     const fd = new FormData();
-    fd.append('action', 'food');
-    fd.append('food_name', name);
-    fd.append('meal_type', document.getElementById('log-food-meal').value);
-    fd.append('calories', kcal);
-    fd.append('protein_g', document.getElementById('log-food-protein').value || 0);
-    fd.append('fat_g', document.getElementById('log-food-fat').value || 0);
-    fd.append('carbs_g', document.getElementById('log-food-carbs').value || 0);
+    fd.append('action', 'exercise');
+    fd.append('exercise_type', selectedExercise.dataset.type);
+    fd.append('duration_min', durationInput?.value || 10);
     post(fd);
-  });
+  };
+
+  logBtn?.addEventListener('click', logExercise);
+  durationInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') logExercise(); });
 })();

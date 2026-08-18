@@ -323,9 +323,10 @@
             <?php endforeach; ?>
           </div>
           <div class="mt-8" style="display:flex; gap:8px; align-items:center;">
-            <input class="input-field" id="log-exercise-duration" type="number" min="1" max="600" placeholder="Minutes" value="30" style="flex:1;">
+            <input class="input-field" id="log-exercise-duration" type="number" min="1" max="600" placeholder="Minutes" value="10" style="flex:1;">
             <button class="btn-primary" id="btn-log-exercise" type="button">Log</button>
           </div>
+          <p class="field-error" id="log-exercise-error" hidden>Select an exercise type first, then click Log.</p>
           <p style="font-size:11px; color:#3f4852; margin-top:6px;">Calories burned auto-calculated from your weight (MET).</p>
         </section>
       </div>
@@ -592,20 +593,30 @@
 
     // Exercise
     let selectedExercise = null;
+    const exerciseError = document.getElementById('log-exercise-error');
     document.querySelectorAll('[data-action="exercise"]').forEach(btn => {
-      btn.addEventListener('click', () => { selectedExercise = btn; logExercise(btn); });
+      btn.addEventListener('click', () => {
+        selectedExercise = btn;
+        document.querySelectorAll('[data-action="exercise"]').forEach(b => {
+          b.classList.toggle('preset-btn--selected', b === btn);
+        });
+        if (exerciseError) exerciseError.hidden = true;
+      });
     });
-    document.getElementById('btn-log-exercise')?.addEventListener('click', () => {
-      if (selectedExercise) selectedExercise.click();
-    });
-    function logExercise(btn) {
-      const duration = document.getElementById('log-exercise-duration')?.value || 30;
+    const logExercise = () => {
+      if (!selectedExercise) {
+        if (exerciseError) exerciseError.hidden = false;
+        return;
+      }
+      const duration = document.getElementById('log-exercise-duration')?.value || 10;
       const fd = new FormData();
       fd.append('action', 'exercise');
-      fd.append('exercise_type', btn.dataset.type);
+      fd.append('exercise_type', selectedExercise.dataset.type);
       fd.append('duration_min', duration);
       post(fd);
-    }
+    };
+    document.getElementById('btn-log-exercise')?.addEventListener('click', logExercise);
+    document.getElementById('log-exercise-duration')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') logExercise(); });
   })();
   </script>
 </body>

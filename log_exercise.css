@@ -132,6 +132,8 @@ select.input-field { appearance: none; background-image: url("data:image/svg+xml
 
 .preset-btn:hover { border-color: #00696d; background: rgba(0, 167, 173, 0.08); }
 
+.preset-btn--selected { border-color: #00696d; background: rgba(0, 167, 173, 0.15); box-shadow: 0 0 0 2px rgba(0, 167, 173, 0.25); }
+
 .preset-btn:active { transform: scale(0.95); }
 
 .preset-btn__kcal { font-size: 10px; font-weight: 500; color: #3f4852; }
