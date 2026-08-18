@@ -17,7 +17,7 @@
     document.querySelectorAll('[data-action="exercise"]').forEach(b => {
       b.classList.toggle('preset-btn--selected', b === btn);
     });
-    if (errorBox) errorBox.hidden = true;
+    if (errorBox) errorBox.style.display = 'none';
   };
 
   document.querySelectorAll('[data-action="exercise"]').forEach(btn => {
@@ -26,7 +26,7 @@
 
   const logExercise = () => {
     if (!selectedExercise) {
-      if (errorBox) errorBox.hidden = false;
+      if (errorBox) errorBox.style.display = 'block';
       return;
     }
     const fd = new FormData();
