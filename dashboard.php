@@ -82,9 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     // ── Return updated today totals ───────────────────────────────────────────
     $totals = $db->prepare('
-        SELECT u.daily_goal_ml, u.daily_calorie_goal, u.daily_protein_goal_g,
-               u.daily_fat_goal_g, u.daily_carbs_goal_g, u.daily_exercise_goal_min,
-               u.daily_burn_goal_kcal,
+        SELECT g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
+           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
+           g.daily_burn_goal_kcal,
                COALESCE(w.ml, 0)   AS today_ml,
                COALESCE(f.kcal, 0) AS today_kcal,
                COALESCE(f.prot, 0) AS today_protein,
@@ -97,6 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                COALESCE(e.yoga, 0) AS today_yoga,
                COALESCE(e.gym, 0)  AS today_gym
         FROM users u
+        LEFT JOIN user_goals g ON g.user_id = u.user_id
         LEFT JOIN (SELECT user_id, SUM(amount_ml) AS ml FROM water_logs
                    WHERE user_id=? AND DATE(logged_at)=CURDATE() GROUP BY user_id) w
                ON w.user_id = u.user_id
@@ -149,9 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 // ── Load page data ────────────────────────────────────────────────────────────
 // User info + today totals for all three trackers
 $stmt = $db->prepare('
-    SELECT u.full_name, u.weight, u.daily_goal_ml, u.daily_calorie_goal, u.daily_protein_goal_g,
-           u.daily_fat_goal_g, u.daily_carbs_goal_g, u.daily_exercise_goal_min,
-           u.daily_burn_goal_kcal,
+    SELECT u.full_name, u.weight, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
+           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
+           g.daily_burn_goal_kcal,
            u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
            COALESCE(w.ml, 0)   AS today_ml,
            COALESCE(f.kcal, 0) AS today_kcal,
@@ -165,6 +166,7 @@ $stmt = $db->prepare('
            COALESCE(e.yoga, 0) AS today_yoga,
            COALESCE(e.gym, 0)  AS today_gym
     FROM users u
+    LEFT JOIN user_goals g ON g.user_id = u.user_id
     LEFT JOIN (SELECT user_id, SUM(amount_ml) AS ml FROM water_logs
                WHERE user_id=? AND DATE(logged_at)=CURDATE() GROUP BY user_id) w
            ON w.user_id = u.user_id

@@ -15,9 +15,12 @@ $type = $_GET['type'] ?? 'water';
 if (!in_array($type, ['water', 'food', 'exercise'], true)) $type = 'water';
 
 // ── User goals ─────────────────────────────────────────────────────────────
-$u = $db->prepare('SELECT full_name, daily_goal_ml, daily_calorie_goal, daily_protein_goal_g,
-                          daily_fat_goal_g, daily_carbs_goal_g, daily_exercise_goal_min,
-                          reminder_enabled, reminder_time, reminder_interval_min FROM users WHERE user_id=?');
+$u = $db->prepare('SELECT u.full_name, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
+                          g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
+                          u.reminder_enabled, u.reminder_time, u.reminder_interval_min
+                          FROM users u
+                          LEFT JOIN user_goals g ON g.user_id = u.user_id
+                          WHERE u.user_id=?');
 $u->execute([$userId]);
 $user     = $u->fetch();
 $goalMl   = (int)($user['daily_goal_ml'] ?? 2500);

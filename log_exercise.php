@@ -49,11 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 // ── Load page data ──────────────────────────────────────────────────────────
 $stmt = $db->prepare('
-    SELECT u.full_name, u.weight, u.daily_exercise_goal_min,
+    SELECT u.full_name, u.weight, g.daily_exercise_goal_min,
            u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
            COALESCE(e.min, 0)  AS today_min,
            COALESCE(e.burn, 0) AS today_burn
     FROM users u
+    LEFT JOIN user_goals g ON g.user_id = u.user_id
     LEFT JOIN (SELECT user_id, SUM(duration_min) AS min, SUM(calories_burned) AS burn
                FROM exercise_logs WHERE user_id=? AND DATE(logged_at)=CURDATE()
                GROUP BY user_id) e ON e.user_id = u.user_id

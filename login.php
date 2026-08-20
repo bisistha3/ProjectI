@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([':email' => trim($email)]);
             $user = $stmt->fetch();
 
-            if ($user && $user['password'] === $password) {
+            if ($user && $user['password'] === encodePassword($password)) {
                 // Check if email is verified
                 if ((int)$user['is_verified'] === 0) {
                     // Resend OTP and redirect to verification page

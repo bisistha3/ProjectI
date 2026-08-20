@@ -85,14 +85,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $db->prepare(
-            'UPDATE users SET full_name=?, weight=?, height=?, age=?, gender=?, daily_goal_ml=?,
-             daily_calorie_goal=?, daily_protein_goal_g=?, daily_fat_goal_g=?, daily_carbs_goal_g=?,
-             daily_exercise_goal_min=?, daily_burn_goal_kcal=?, reminder_enabled=?, reminder_time=?,
-             reminder_interval_min=?, wake_time=?, sleep_time=? WHERE user_id=?'
-        )->execute([$fullName, $weight, $height, $age, $gender, $goalMlIn,
-                    $calorieIn, $proteinIn, $fatIn, $carbsIn, $exerciseIn,
-                    $burnIn, $reminderEnabled, $reminderTime,
+            'UPDATE users SET full_name=?, weight=?, height=?, age=?, gender=?,
+             reminder_enabled=?, reminder_time=?, reminder_interval_min=?,
+             wake_time=?, sleep_time=? WHERE user_id=?'
+        )->execute([$fullName, $weight, $height, $age, $gender,
+                    $reminderEnabled, $reminderTime,
                     $reminderInterval, $wakeTime, $sleepTime, $userId]);
+
+        $db->prepare(
+            'UPDATE user_goals SET daily_goal_ml=?, daily_calorie_goal=?,
+             daily_protein_goal_g=?, daily_fat_goal_g=?, daily_carbs_goal_g=?,
+             daily_exercise_goal_min=?, daily_burn_goal_kcal=? WHERE user_id=?'
+        )->execute([$goalMlIn, $calorieIn, $proteinIn, $fatIn, $carbsIn,
+                    $exerciseIn, $burnIn, $userId]);
 
         $_SESSION['full_name'] = $fullName;
         $success = 'Settings saved successfully!';
@@ -100,11 +105,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ── Load current user data ───────────────────────────────────────────────
-$u = $db->prepare('SELECT full_name, email, age, weight, height, gender, daily_goal_ml,
-                          daily_calorie_goal, daily_protein_goal_g, daily_fat_goal_g,
-                          daily_carbs_goal_g, daily_exercise_goal_min, daily_burn_goal_kcal,
-                          reminder_enabled, reminder_time, reminder_interval_min, wake_time, sleep_time
-                          FROM users WHERE user_id=?');
+$u = $db->prepare('SELECT u.full_name, u.email, u.age, u.weight, u.height, u.gender,
+                          g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
+                          g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
+                          g.daily_burn_goal_kcal,
+                          u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
+                          u.wake_time, u.sleep_time
+                          FROM users u
+                          LEFT JOIN user_goals g ON g.user_id = u.user_id
+                          WHERE u.user_id=?');
 $u->execute([$userId]);
 $user      = $u->fetch();
 $fullName  = htmlspecialchars($user['full_name']  ?? '', ENT_QUOTES, 'UTF-8');

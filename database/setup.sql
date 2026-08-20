@@ -22,16 +22,6 @@ CREATE TABLE IF NOT EXISTS users (
     weight DECIMAL(5,1) DEFAULT NULL,
     height DECIMAL(5,1) DEFAULT NULL,
 
-    daily_goal_ml INT NOT NULL DEFAULT 2500,
-
-    daily_calorie_goal INT NOT NULL DEFAULT 2000,
-    daily_protein_goal_g INT NOT NULL DEFAULT 125,
-    daily_fat_goal_g INT NOT NULL DEFAULT 67,
-    daily_carbs_goal_g INT NOT NULL DEFAULT 225,
-
-    daily_exercise_goal_min INT NOT NULL DEFAULT 30,
-    daily_burn_goal_kcal INT NOT NULL DEFAULT 300,
-
     reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
     reminder_time TIME NOT NULL DEFAULT '20:00:00',
     reminder_interval_min INT NOT NULL DEFAULT 0,
@@ -42,6 +32,29 @@ CREATE TABLE IF NOT EXISTS users (
     is_verified TINYINT(1) NOT NULL DEFAULT 0,
 
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- =============================================
+-- 1b. USER GOALS TABLE (1:1 with users)
+-- =============================================
+
+CREATE TABLE IF NOT EXISTS user_goals (
+    user_id INT PRIMARY KEY,
+
+    daily_goal_ml INT NOT NULL DEFAULT 2500,
+
+    daily_calorie_goal INT NOT NULL DEFAULT 2000,
+    daily_protein_goal_g INT NOT NULL DEFAULT 125,
+    daily_fat_goal_g INT NOT NULL DEFAULT 67,
+    daily_carbs_goal_g INT NOT NULL DEFAULT 225,
+
+    daily_exercise_goal_min INT NOT NULL DEFAULT 30,
+    daily_burn_goal_kcal INT NOT NULL DEFAULT 300,
+
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 
@@ -298,6 +311,7 @@ WHERE NOT EXISTS (
 SHOW TABLES;
 
 DESCRIBE users;
+DESCRIBE user_goals;
 DESCRIBE email_otps;
 DESCRIBE water_logs;
 DESCRIBE foods;

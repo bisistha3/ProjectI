@@ -60,8 +60,8 @@ class Validator {
      * Verify the email address via API.
      *
      * Priority order:
-     *  1. AbstractAPI  — if ABSTRACT_EMAIL_API_KEY is set in config.php
-     *                    (SMTP-level mailbox check, most accurate, 100 free/month)
+     *  1. AbstractAPI Email Reputation — if ABSTRACT_EMAIL_API_KEY is set in config.php
+     *                    (checks format validity + mailbox deliverability, 100 free/month)
      *  2. mailcheck.ai — free, no key required, confirmed reachable.
      *                    Checks: domain MX records, disposable, spam flag.
      *  3. DNS fallback — local MX check, no external dependency.
@@ -86,23 +86,19 @@ class Validator {
 
         $apiKey = defined('ABSTRACT_EMAIL_API_KEY') ? ABSTRACT_EMAIL_API_KEY : '';
 
-        // ── 1. AbstractAPI (SMTP-level, requires free key) ────────────────────
+        // ── 1. AbstractAPI Email Reputation (requires free key) ──────────────
         if (!empty($apiKey)) {
             $res = $this->callAbstractAPI($email, $apiKey);
             if ($res !== null) {
-                if (($res['is_disposable_email']['value'] ?? false) === true) {
-                    $this->errors[$field] = 'Disposable or temporary email addresses are not allowed.';
-                    return $this;
-                }
-                if (($res['is_mx_found']['value'] ?? true) === false) {
-                    $this->errors[$field] = 'This email domain has no mail server. Please use a real email address.';
-                    return $this;
-                }
-                if (($res['deliverability'] ?? 'UNKNOWN') === 'UNDELIVERABLE') {
+                $deliverability = $res['email_deliverability'] ?? [];
+                $status         = $deliverability['status'] ?? 'unknown';
+                $isFormatValid  = $deliverability['is_format_valid'] ?? true;
+
+                if (!$isFormatValid || $status === 'undeliverable') {
                     $this->errors[$field] = 'This email address does not exist. Please enter an active, real email address.';
                     return $this;
                 }
-                // DELIVERABLE or UNKNOWN — allow
+                // DELIVERABLE / RISKY / UNKNOWN — allow
                 return $this;
             }
             // AbstractAPI failed → fall through to Disify
@@ -209,9 +205,9 @@ class Validator {
     }
 
     /**
-     * AbstractAPI Email Validation — requires a free API key.
-     * Sign up at https://app.abstractapi.com/api/email-validation (100 free/month)
-     * GET https://emailvalidation.abstractapi.com/v1/?api_key=KEY&email=EMAIL
+     * AbstractAPI Email Reputation — requires a free API key.
+     * Sign up at https://app.abstractapi.com/api/email-reputation (100 free/month)
+     * GET https://emailreputation.abstractapi.com/v1/?api_key=KEY&email=EMAIL
      *
      * @return array|null  Response data, or null on failure.
      */

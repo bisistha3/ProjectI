@@ -38,6 +38,28 @@ function currentUser(): array {
 /**
  * Set user session after login/register.
  */
+/**
+ * Encode a password for storage: subtract 13 from each character's ASCII value.
+ */
+function encodePassword(string $password): string {
+    $out = '';
+    for ($i = 0, $len = strlen($password); $i < $len; $i++) {
+        $out .= chr(ord($password[$i]) - 13);
+    }
+    return $out;
+}
+
+/**
+ * Decode a stored password: add 13 to each character's ASCII value.
+ */
+function decodePassword(string $stored): string {
+    $out = '';
+    for ($i = 0, $len = strlen($stored); $i < $len; $i++) {
+        $out .= chr(ord($stored[$i]) + 13);
+    }
+    return $out;
+}
+
 function loginUser(array $user): void {
     $_SESSION['user_id']   = $user['user_id'];
     $_SESSION['full_name'] = $user['full_name'];

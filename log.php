@@ -18,8 +18,8 @@ if (!in_array($type, ['water', 'nutrition', 'exercise'])) $type = 'water';
 
 // ── User + today totals ────────────────────────────────────────────────────
 $stmt = $db->prepare('
-    SELECT u.full_name, u.weight, u.daily_goal_ml, u.daily_calorie_goal, u.daily_protein_goal_g,
-           u.daily_fat_goal_g, u.daily_carbs_goal_g, u.daily_exercise_goal_min,
+    SELECT u.full_name, u.weight, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
+           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
            u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
            COALESCE(w.ml, 0)   AS today_ml,
            COALESCE(f.kcal, 0) AS today_kcal,
@@ -29,6 +29,7 @@ $stmt = $db->prepare('
            COALESCE(e.min, 0)  AS today_min,
            COALESCE(e.burn, 0) AS today_burn
     FROM users u
+    LEFT JOIN user_goals g ON g.user_id = u.user_id
     LEFT JOIN (SELECT user_id, SUM(amount_ml) AS ml FROM water_logs
                WHERE user_id=? AND DATE(logged_at)=CURDATE() GROUP BY user_id) w
            ON w.user_id = u.user_id

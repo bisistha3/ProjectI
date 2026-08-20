@@ -115,28 +115,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $stmt = $db->prepare('
                     INSERT INTO users (full_name, email, password, gender, age, weight, height,
-                                       daily_goal_ml, daily_calorie_goal, daily_protein_goal_g,
-                                       daily_fat_goal_g, daily_carbs_goal_g, daily_exercise_goal_min,
                                        is_verified)
-                    VALUES (:name, :email, :password, :gender, :age, :weight, :height,
-                            :goal, :kcal, :protein, :fat, :carbs, 30, 0)
+                    VALUES (:name, :email, :password, :gender, :age, :weight, :height, 0)
                 ');
                 $stmt->execute([
                     ':name'     => trim($name),
                     ':email'    => trim($email),
-                    ':password' => $password,
+                    ':password' => encodePassword($password),
                     ':gender'   => $gender,
                     ':age'      => (int)$age,
                     ':weight'   => (float)$weight,
                     ':height'   => (float)$height,
-                    ':goal'     => $regGoal,
-                    ':kcal'     => $nutri['calories'],
-                    ':protein'  => $nutri['protein_g'],
-                    ':fat'      => $nutri['fat_g'],
-                    ':carbs'    => $nutri['carbs_g'],
                 ]);
 
                 $userId = (int)$db->lastInsertId();
+
+                // ── Save personalised goals in their own table ───────────────
+                $db->prepare('
+                    INSERT INTO user_goals (user_id, daily_goal_ml, daily_calorie_goal,
+                                            daily_protein_goal_g, daily_fat_goal_g,
+                                            daily_carbs_goal_g, daily_exercise_goal_min,
+                                            daily_burn_goal_kcal)
+                    VALUES (?, ?, ?, ?, ?, ?, 30, 300)
+                ')->execute([
+                    $userId,
+                    $regGoal,
+                    $nutri['calories'],
+                    $nutri['protein_g'],
+                    $nutri['fat_g'],
+                    $nutri['carbs_g'],
+                ]);
 
                 // Generate OTP, save to DB, send email
                 $otp  = generateOtp();

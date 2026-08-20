@@ -57,9 +57,9 @@ define('MAIL_FROM_NAME', 'HealthFlow');
 define('OTP_EXPIRY_MINUTES', 15);  // How long the OTP code stays valid
 define('OTP_LENGTH',          6);  // Number of digits in the OTP
 
-// ─── AbstractAPI Email Validation (optional) ──────────────────────────────
-// Sign up free at https://app.abstractapi.com/api/email-validation
+// ─── AbstractAPI Email Reputation (optional) ──────────────────────────────
+// Sign up free at https://app.abstractapi.com/api/email-reputation
 // Free tier: 100 checks/month, no credit card required.
-define('ABSTRACT_EMAIL_API_KEY',     '');   // ← paste your key here (optional)
-define('ABSTRACT_EMAIL_API_URL',     'https://emailvalidation.abstractapi.com/v1/');
+define('ABSTRACT_EMAIL_API_KEY',     '77bf053d156942cca457e34a5c1cb04a');   // ← paste your key here (optional)
+define('ABSTRACT_EMAIL_API_URL',     'https://emailreputation.abstractapi.com/v1/');
 define('ABSTRACT_EMAIL_API_TIMEOUT', 5);

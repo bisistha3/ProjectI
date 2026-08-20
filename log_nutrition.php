@@ -41,14 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 // ── Load page data ──────────────────────────────────────────────────────────
 $stmt = $db->prepare('
-    SELECT u.full_name, u.daily_calorie_goal, u.daily_protein_goal_g,
-           u.daily_fat_goal_g, u.daily_carbs_goal_g,
+    SELECT u.full_name, g.daily_calorie_goal, g.daily_protein_goal_g,
+           g.daily_fat_goal_g, g.daily_carbs_goal_g,
            u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
            COALESCE(f.kcal, 0) AS today_kcal,
            COALESCE(f.prot, 0) AS today_protein,
            COALESCE(f.fat, 0)  AS today_fat,
            COALESCE(f.carb, 0) AS today_carbs
     FROM users u
+    LEFT JOIN user_goals g ON g.user_id = u.user_id
     LEFT JOIN (SELECT user_id, SUM(calories) AS kcal, SUM(protein_g) AS prot,
                       SUM(fat_g) AS fat, SUM(carbs_g) AS carb
                FROM food_logs WHERE user_id=? AND DATE(logged_at)=CURDATE()

@@ -62,5 +62,36 @@ $db->exec("UPDATE foods SET unit_type = 'piece' WHERE user_id IS NULL AND food_n
 $db->exec("UPDATE foods SET unit_type = 'ml', serving_qty = 244 WHERE user_id IS NULL AND food_name = 'Milk'");
 $out[] = 'OK: backfilled preset food units';
 
+// ── user_goals: extract goals from users into their own table ──────────────
+$db->exec("
+    CREATE TABLE IF NOT EXISTS user_goals (
+        user_id INT PRIMARY KEY,
+        daily_goal_ml INT NOT NULL DEFAULT 2500,
+        daily_calorie_goal INT NOT NULL DEFAULT 2000,
+        daily_protein_goal_g INT NOT NULL DEFAULT 125,
+        daily_fat_goal_g INT NOT NULL DEFAULT 67,
+        daily_carbs_goal_g INT NOT NULL DEFAULT 225,
+        daily_exercise_goal_min INT NOT NULL DEFAULT 30,
+        daily_burn_goal_kcal INT NOT NULL DEFAULT 300,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    )
+");
+$db->exec("
+    INSERT IGNORE INTO user_goals
+        (user_id, daily_goal_ml, daily_calorie_goal, daily_protein_goal_g,
+         daily_fat_goal_g, daily_carbs_goal_g, daily_exercise_goal_min, daily_burn_goal_kcal)
+    SELECT user_id, daily_goal_ml, daily_calorie_goal, daily_protein_goal_g,
+           daily_fat_goal_g, daily_carbs_goal_g, daily_exercise_goal_min, daily_burn_goal_kcal
+    FROM users
+");
+$out[] = 'OK: user_goals created and backfilled';
+
+foreach (['daily_goal_ml', 'daily_calorie_goal', 'daily_protein_goal_g', 'daily_fat_goal_g',
+          'daily_carbs_goal_g', 'daily_exercise_goal_min', 'daily_burn_goal_kcal'] as $goalCol) {
+    if ($hasCol('users', $goalCol)) {
+        $alter("ALTER TABLE users DROP COLUMN {$goalCol}");
+    }
+}
+
 header('Content-Type: text/plain; charset=utf-8');
 echo implode(PHP_EOL, $out);
