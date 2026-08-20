@@ -1,19 +1,12 @@
 <?php
-/**
- * HealthFlow — Database Migration
- * Adds quantity units (g / piece / ml) to existing installs.
- *
- * Run once from the browser or CLI:
- *   http://localhost/final/ProjectI/database/migrate.php
- *   php database/migrate.php
- *
- * Idempotent: safe to run multiple times.
- */
+// Schema migrations for foods and user_goals
+
 require_once __DIR__ . '/../includes/db.php';
 
 $db  = getDB();
 $out = [];
 
+// Check if a column exists
 $hasCol = function (string $table, string $col) use ($db): bool {
     $stmt = $db->prepare('
         SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
@@ -23,6 +16,7 @@ $hasCol = function (string $table, string $col) use ($db): bool {
     return (int)$stmt->fetchColumn() > 0;
 };
 
+// Run ALTER and record the result
 $alter = function (string $sql) use ($db, &$out) {
     try {
         $db->exec($sql);
@@ -32,37 +26,37 @@ $alter = function (string $sql) use ($db, &$out) {
     }
 };
 
-// ── foods: rename serving_size_g → serving_qty ──────────────────────────────
+// Rename foods serving_size_g to serving_qty
 if ($hasCol('foods', 'serving_size_g') && !$hasCol('foods', 'serving_qty')) {
     $alter('ALTER TABLE foods CHANGE COLUMN serving_size_g serving_qty DECIMAL(7,1) NOT NULL DEFAULT 100');
 } elseif (!$hasCol('foods', 'serving_qty')) {
     $alter('ALTER TABLE foods ADD COLUMN serving_qty DECIMAL(7,1) NOT NULL DEFAULT 100 AFTER food_name');
 }
 
-// ── foods: add unit_type ─────────────────────────────────────────────────────
+// Add unit_type column to foods
 if (!$hasCol('foods', 'unit_type')) {
     $alter("ALTER TABLE foods ADD COLUMN unit_type ENUM('g','piece','ml') NOT NULL DEFAULT 'g' AFTER serving_qty");
     $db->exec("UPDATE foods SET unit_type = 'g' WHERE unit_type = 'g'");
 }
 
-// ── food_logs: rename qty_g → qty ───────────────────────────────────────────
+// Rename food_logs qty_g to qty
 if ($hasCol('food_logs', 'qty_g') && !$hasCol('food_logs', 'qty')) {
     $alter('ALTER TABLE food_logs CHANGE COLUMN qty_g qty DECIMAL(7,1) NOT NULL DEFAULT 100');
 } elseif (!$hasCol('food_logs', 'qty')) {
     $alter('ALTER TABLE food_logs ADD COLUMN qty DECIMAL(7,1) NOT NULL DEFAULT 100 AFTER meal_type');
 }
 
-// ── food_logs: add unit_type ─────────────────────────────────────────────────
+// Add unit_type column to food_logs
 if (!$hasCol('food_logs', 'unit_type')) {
     $alter("ALTER TABLE food_logs ADD COLUMN unit_type ENUM('g','piece','ml') NOT NULL DEFAULT 'g' AFTER qty");
 }
 
-// ── Backfill known preset foods with sensible units (existing installs) ─────
+// Backfill preset food units
 $db->exec("UPDATE foods SET unit_type = 'piece' WHERE user_id IS NULL AND food_name IN ('Boiled Egg','Apple','Banana','Bread')");
 $db->exec("UPDATE foods SET unit_type = 'ml', serving_qty = 244 WHERE user_id IS NULL AND food_name = 'Milk'");
 $out[] = 'OK: backfilled preset food units';
 
-// ── user_goals: extract goals from users into their own table ──────────────
+// Create user_goals table
 $db->exec("
     CREATE TABLE IF NOT EXISTS user_goals (
         user_id INT PRIMARY KEY,
@@ -76,6 +70,7 @@ $db->exec("
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )
 ");
+// Backfill user_goals from users
 $db->exec("
     INSERT IGNORE INTO user_goals
         (user_id, daily_goal_ml, daily_calorie_goal, daily_protein_goal_g,
@@ -86,6 +81,7 @@ $db->exec("
 ");
 $out[] = 'OK: user_goals created and backfilled';
 
+// Drop legacy goal columns from users
 foreach (['daily_goal_ml', 'daily_calorie_goal', 'daily_protein_goal_g', 'daily_fat_goal_g',
           'daily_carbs_goal_g', 'daily_exercise_goal_min', 'daily_burn_goal_kcal'] as $goalCol) {
     if ($hasCol('users', $goalCol)) {

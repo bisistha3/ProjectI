@@ -1,20 +1,15 @@
 <?php
-/**
- * HealthFlow — Log Exercise Module
- * Handles exercise logging (AJAX POST action=exercise, MET-based kcal calc)
- * and renders the exercise page.
- */
+// Exercise logging: log workouts, view today's stats
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 
+// Require login
 requireLogin();
 
 $db     = getDB();
 $userId = (int)$_SESSION['user_id'];
 
-/**
- * MET values (generic) for calorie burn: kcal = MET × weight(kg) × hours.
- */
+// MET values per exercise type
 function metValue(string $type): float {
     return match($type) {
         'Walking'        => 3.5,
@@ -25,7 +20,7 @@ function metValue(string $type): float {
     };
 }
 
-// ── Handle AJAX POST actions ───────────────────────────────────────────────
+// Handle AJAX action (exercise log)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
 
@@ -47,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// ── Load page data ──────────────────────────────────────────────────────────
+// Load user data and today's stats
 $stmt = $db->prepare('
     SELECT u.full_name, u.weight, g.daily_exercise_goal_min,
            u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
@@ -76,6 +71,7 @@ $exerciseIcons = [
 ];
 $exerciseTypes = array_keys($exerciseIcons);
 
+// Load today's recent exercise logs
 $recent = $db->prepare('
     SELECT log_id, duration_min AS val, exercise_type AS title, calories_burned AS burn, logged_at
     FROM exercise_logs WHERE user_id=? AND DATE(logged_at)=CURDATE()

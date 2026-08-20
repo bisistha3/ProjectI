@@ -1,9 +1,5 @@
 <?php
-/**
- * HealthFlow — Log Page (water / nutrition / exercise)
- * One shared page; the ?type= parameter selects the logging section.
- * Logging POSTs go to dashboard.php (AJAX, action=water|food|exercise).
- */
+// Log page — water, nutrition, and exercise tabs.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/foods.php';
@@ -16,7 +12,7 @@ $userId = (int)$_SESSION['user_id'];
 $type = $_GET['type'] ?? 'water';
 if (!in_array($type, ['water', 'nutrition', 'exercise'])) $type = 'water';
 
-// ── User + today totals ────────────────────────────────────────────────────
+// Load today totals for the page
 $stmt = $db->prepare('
     SELECT u.full_name, u.weight, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
            g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
@@ -63,7 +59,7 @@ $todayBurn = (int)($user['today_burn'] ?? 0);
 $weightKg  = (float)($user['weight'] ?? 70) ?: 70;
 $macroPct  = fn($eaten, $goal) => $goal > 0 ? min(100, round($eaten / $goal * 100)) : 0;
 
-// ── Recent logs for the selected type ──────────────────────────────────────
+// Load today's recent logs per tab
 if ($type === 'water') {
     $recent = $db->prepare('
         SELECT log_id, amount_ml AS val, drink_type AS title, logged_at
@@ -90,9 +86,7 @@ if ($type === 'water') {
 }
 $recentLogs = $recent->fetchAll();
 
-/**
- * MET values (generic) for calorie burn: kcal = MET × weight(kg) × hours.
- */
+// MET value for an exercise type
 function metValue(string $type): float {
     return match($type) {
         'Walking'        => 3.5,
@@ -103,12 +97,12 @@ function metValue(string $type): float {
     };
 }
 
-// Preset foods (global library from the foods table)
+// Default foods for the food picker
 $foodsQ = $db->prepare('SELECT food_name, serving_qty, unit_type, calories FROM foods WHERE user_id IS NULL ORDER BY food_name ASC');
 $foodsQ->execute();
 $foods = $foodsQ->fetchAll();
 
-// User's saved custom foods (My Foods library, one-click logging)
+// Custom foods for this user
 $cfQ = $db->prepare('SELECT food_id, food_name, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g
                      FROM foods WHERE user_id=? ORDER BY created_at DESC');
 $cfQ->execute([$userId]);
@@ -135,12 +129,11 @@ $exerciseIcons = [
 ];
 $exerciseTypes = array_keys($exerciseIcons);
 
-// ── Handle AJAX POST actions ───────────────────────────────────────────────
+// Handle AJAX quick-log actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     $action = $_POST['action'];
 
-    // ── Water logging ────────────────────────────────────────────────────────
     if ($action === 'water') {
         $amountMl  = (int)$_POST['amount_ml'];
         $drinkType = trim($_POST['drink_type'] ?? 'Water');
@@ -154,13 +147,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    // ── Food logging (known food: name + qty; new food: name + qty + unit + nutrition) ──
     if ($action === 'food') {
         echo json_encode(logFoodEntry($db, $userId, $_POST));
         exit;
     }
 
-    // ── Delete a saved custom food from My Foods ────────────────────────────
     if ($action === 'delete_custom_food') {
         $foodId = (int)($_POST['food_id'] ?? 0);
         if ($foodId > 0) {
@@ -171,7 +162,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // ── Exercise logging (MET-based kcal) ───────────────────────────────────
     if ($action === 'exercise') {
         $exType   = trim($_POST['exercise_type'] ?? '');
         $duration = max(1, min(600, (int)($_POST['duration_min'] ?? 0)));

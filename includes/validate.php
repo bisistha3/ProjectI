@@ -1,15 +1,10 @@
 <?php
-/**
- * HealthFlow — Input Validation Helper
- * Server-side validation for all form fields.
- */
+// Chained input validation with field error messages.
 
 class Validator {
     private array $errors = [];
 
-    /**
-     * Validate a required field is not empty.
-     */
+    // Require non-empty value.
     public function required(string $field, string $value, string $label = ''): self {
         if (trim($value) === '') {
             $this->errors[$field] = ($label ?: ucfirst($field)) . ' is required.';
@@ -17,16 +12,12 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Validate a person's name:
-     * - Cannot start with a number
-     * - Only letters, spaces, apostrophes and hyphens
-     */
+    // Validate person name (letters, spaces, apostrophes, hyphens only).
     public function name(string $field, string $value, string $label = 'Name'): self {
         $val = trim($value);
 
         if (isset($this->errors[$field])) {
-            return $this; // skip if a previous rule already failed
+            return $this;
         }
 
         if ($val !== '' && is_numeric(substr($val, 0, 1))) {
@@ -41,9 +32,7 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Validate email format using a regex.
-     */
+    // Basic email format check.
     public function email(string $field, string $value): self {
         $email = trim($value);
 
@@ -56,29 +45,14 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Verify the email address via API.
-     *
-     * Priority order:
-     *  1. AbstractAPI Email Reputation — if ABSTRACT_EMAIL_API_KEY is set in config.php
-     *                    (checks format validity + mailbox deliverability, 100 free/month)
-     *  2. mailcheck.ai — free, no key required, confirmed reachable.
-     *                    Checks: domain MX records, disposable, spam flag.
-     *  3. DNS fallback — local MX check, no external dependency.
-     *
-     * NOTE: Gmail / Outlook / Yahoo block all external SMTP probes to
-     * protect user privacy. No API on earth can verify a specific mailbox
-     * at those providers without actually sending an email. The checks below
-     * will catch: fake domains, disposable services, and known spam domains.
-     */
+    // Validate domain deliverability (API → Disify → DNS).
     public function emailDomain(string $field, string $value): self {
         if (isset($this->errors[$field])) {
-            return $this; // skip if format already failed
+            return $this;
         }
 
         $email = strtolower(trim($value));
 
-        // Load config once
         if (!defined('ABSTRACT_EMAIL_API_KEY')) {
             $cfg = __DIR__ . '/config.php';
             if (file_exists($cfg)) require_once $cfg;
@@ -86,7 +60,6 @@ class Validator {
 
         $apiKey = defined('ABSTRACT_EMAIL_API_KEY') ? ABSTRACT_EMAIL_API_KEY : '';
 
-        // ── 1. AbstractAPI Email Reputation (requires free key) ──────────────
         if (!empty($apiKey)) {
             $res = $this->callAbstractAPI($email, $apiKey);
             if ($res !== null) {
@@ -98,39 +71,29 @@ class Validator {
                     $this->errors[$field] = 'This email address does not exist. Please enter an active, real email address.';
                     return $this;
                 }
-                // DELIVERABLE / RISKY / UNKNOWN — allow
                 return $this;
             }
-            // AbstractAPI failed → fall through to Disify
         }
 
-        // ── 2. Disify (free, no key, no registration required) ───────────────
-        // Response: { format, domain, disposable, dns, whitelist, confidence }
-        //   dns         → false = no MX records (domain can't receive mail)
-        //   disposable  → true  = known throwaway/temp email provider
         $res = $this->callDisify($email);
         if ($res !== null) {
             if (!empty($res['disposable'])) {
                 $this->errors[$field] = 'Disposable or temporary email addresses are not allowed.';
                 return $this;
             }
-            // dns: false means the domain has no mail server (fake/non-existent domain)
             if (isset($res['dns']) && $res['dns'] === false) {
                 $this->errors[$field] = 'This email domain cannot receive mail. Please use a real email address (e.g. Gmail, Outlook, Yahoo).';
                 return $this;
             }
-            // Passed API checks
             return $this;
         }
 
-        // ── 3. DNS fallback (no external dependency) ──────────────────────────
         $domain = explode('@', $email, 2)[1] ?? '';
         if (empty($domain)) {
             $this->errors[$field] = 'Please enter a valid email address.';
             return $this;
         }
 
-        // Disposable blocklist
         $blocked = [
             'mailinator.com','guerrillamail.com','guerrillamail.net','guerrillamail.org',
             'guerrillamail.biz','guerrillamail.de','guerrillamail.info','sharklasers.com',
@@ -163,17 +126,7 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Disify — free email domain verifier, no API key required.
-     * GET https://www.disify.com/api/email/{email}
-     * Returns JSON: { format, domain, disposable, dns, whitelist, confidence }
-     *
-     *  dns         → false means no MX records  (fake/dead domain)
-     *  disposable  → true  means throwaway inbox
-     *  whitelist   → true  means known trusted provider
-     *
-     * @return array|null  Parsed response, or null on network failure.
-     */
+    // Check disposable email via Disify.
     private function callDisify(string $email): ?array {
         if (!function_exists('curl_init')) return null;
 
@@ -185,9 +138,9 @@ class Validator {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => 8,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_FOLLOWLOCATION => true,   // follow HTTPS redirect
+            CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_MAXREDIRS      => 3,
-            CURLOPT_SSL_VERIFYPEER => false,  // Disify SSL cert is valid but XAMPP may lack CA bundle
+            CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
             CURLOPT_HTTPHEADER     => ['Accept: application/json'],
         ]);
@@ -200,23 +153,16 @@ class Validator {
         if ($curlErr !== 0 || $httpCode !== 200 || !$response) return null;
 
         $data = json_decode($response, true);
-        // Disify returns { "format": bool, "dns": bool, "disposable": bool, ... }
         return (is_array($data) && array_key_exists('dns', $data)) ? $data : null;
     }
 
-    /**
-     * AbstractAPI Email Reputation — requires a free API key.
-     * Sign up at https://app.abstractapi.com/api/email-reputation (100 free/month)
-     * GET https://emailreputation.abstractapi.com/v1/?api_key=KEY&email=EMAIL
-     *
-     * @return array|null  Response data, or null on failure.
-     */
+    // Check deliverability via Abstract Email Reputation API.
     private function callAbstractAPI(string $email, string $apiKey): ?array {
         if (!function_exists('curl_init')) return null;
 
         $baseUrl = defined('ABSTRACT_EMAIL_API_URL')
             ? ABSTRACT_EMAIL_API_URL
-            : 'https://emailvalidation.abstractapi.com/v1/';
+            : 'https://emailreputation.abstractapi.com/v1/';
         $timeout = defined('ABSTRACT_EMAIL_API_TIMEOUT') ? (int)ABSTRACT_EMAIL_API_TIMEOUT : 5;
 
         $url = $baseUrl . '?' . http_build_query(['api_key' => $apiKey, 'email' => $email]);
@@ -244,9 +190,7 @@ class Validator {
         return is_array($data) ? $data : null;
     }
 
-    /**
-     * Validate minimum length.
-     */
+    // Enforce minimum string length.
     public function minLength(string $field, string $value, int $min, string $label = ''): self {
         if (mb_strlen(trim($value)) < $min) {
             $this->errors[$field] = ($label ?: ucfirst($field)) . " must be at least {$min} characters.";
@@ -254,9 +198,7 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Validate maximum length.
-     */
+    // Enforce maximum string length.
     public function maxLength(string $field, string $value, int $max, string $label = ''): self {
         if (mb_strlen(trim($value)) > $max) {
             $this->errors[$field] = ($label ?: ucfirst($field)) . " must be at most {$max} characters.";
@@ -264,10 +206,7 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Validate password strength:
-     * - min 8 chars, at least 1 uppercase, 1 lowercase, 1 digit
-     */
+    // Password rules: min 8 chars, uppercase, lowercase, digit.
     public function password(string $field, string $value): self {
         $val = trim($value);
         if (mb_strlen($val) < 8) {
@@ -282,12 +221,10 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Validate a numeric value within range.
-     */
+    // Check numeric value is within a min/max range.
     public function numericRange(string $field, $value, float $min, float $max, string $label = ''): self {
         $val = trim($value);
-        if ($val === '') return $this; // skip if empty (use required() to enforce)
+        if ($val === '') return $this;
         if (!is_numeric($val)) {
             $this->errors[$field] = ($label ?: ucfirst($field)) . ' must be a number.';
         } elseif ((float)$val < $min || (float)$val > $max) {
@@ -296,9 +233,7 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Validate value is one of allowed options.
-     */
+    // Check value is one of the allowed options.
     public function inList(string $field, string $value, array $allowed, string $label = ''): self {
         if (!in_array(trim($value), $allowed, true)) {
             $this->errors[$field] = ($label ?: ucfirst($field)) . ' has an invalid value.';
@@ -306,23 +241,17 @@ class Validator {
         return $this;
     }
 
-    /**
-     * Check if validation passed.
-     */
+    // True when no errors were recorded.
     public function passes(): bool {
         return empty($this->errors);
     }
 
-    /**
-     * Get all errors.
-     */
+    // All field errors.
     public function errors(): array {
         return $this->errors;
     }
 
-    /**
-     * Get first error message.
-     */
+    // First recorded error message.
     public function firstError(): string {
         return reset($this->errors) ?: '';
     }

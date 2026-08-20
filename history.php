@@ -1,8 +1,5 @@
 <?php
-/**
- * HealthFlow — History Page (server-side rendered)
- * Supports ?type=water|food|exercise views.
- */
+// History — streaks, weekly data, and metrics.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 
@@ -14,7 +11,6 @@ $userId = (int)$_SESSION['user_id'];
 $type = $_GET['type'] ?? 'water';
 if (!in_array($type, ['water', 'food', 'exercise'], true)) $type = 'water';
 
-// ── User goals ─────────────────────────────────────────────────────────────
 $u = $db->prepare('SELECT u.full_name, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
                           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
                           u.reminder_enabled, u.reminder_time, u.reminder_interval_min
@@ -33,7 +29,7 @@ $goalCarbs = (int)($user['daily_carbs_goal_g']    ?? 225);
 $goalMin   = (int)($user['daily_exercise_goal_min'] ?? 30);
 $fullName  = htmlspecialchars($user['full_name'] ?? $_SESSION['full_name'], ENT_QUOTES, 'UTF-8');
 
-// ── Water streak (all views — water-based) ──────────────────────────────────
+// Calculate water streak
 $streakQ = $db->prepare('
     SELECT DATE(logged_at) AS day FROM water_logs
     WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC
@@ -51,10 +47,9 @@ $metrics = [];
 $weekRaw = [];
 $tableRows = [];
 $calData  = [];
-$chartValue = 0; // which column drives the 7-day chart
+$chartValue = 0;
 
 if ($type === 'water') {
-    // ── Last 7 days data ──────────────────────────────────────────────────────
     $weekly = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml
         FROM water_logs
@@ -63,9 +58,8 @@ if ($type === 'water') {
         ORDER BY day ASC
     ');
     $weekly->execute([$userId]);
-    $weekRaw = $weekly->fetchAll(PDO::FETCH_KEY_PAIR); // [date => ml]
+    $weekRaw = $weekly->fetchAll(PDO::FETCH_KEY_PAIR);
 
-    // Metrics
     $metricsQ = $db->prepare('
         SELECT
             ROUND(AVG(daily_total)/1000, 1)   AS avg_l,
@@ -81,7 +75,6 @@ if ($type === 'water') {
     $metrics = $metricsQ->fetch();
     $chartValue = 'ml';
 
-    // Table rows
     $tableQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml,
                MAX(drink_type) AS top_source
@@ -93,7 +86,6 @@ if ($type === 'water') {
     $tableQ->execute([$userId]);
     $tableRows = $tableQ->fetchAll();
 
-    // Current month streak calendar
     $calQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml
         FROM water_logs
@@ -104,7 +96,6 @@ if ($type === 'water') {
     $calData = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 } elseif ($type === 'food') {
-    // ── Last 7 days food data ─────────────────────────────────────────────────
     $weekly = $db->prepare('
         SELECT DATE(logged_at) AS day,
                SUM(calories) AS total_kcal, SUM(protein_g) AS prot,
@@ -125,7 +116,6 @@ if ($type === 'water') {
         ];
     }
 
-    // Metrics
     $metricsQ = $db->prepare('
         SELECT
             ROUND(AVG(daily_kcal), 0)     AS avg_kcal,
@@ -146,7 +136,6 @@ if ($type === 'water') {
     $metrics = $metricsQ->fetch();
     $chartValue = 'kcal';
 
-    // Table rows (last 7 days)
     $tableQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(calories) AS total_kcal,
                SUM(protein_g) AS prot, SUM(fat_g) AS fat, SUM(carbs_g) AS carbs,
@@ -159,8 +148,7 @@ if ($type === 'water') {
     $tableQ->execute([$userId]);
     $tableRows = $tableQ->fetchAll();
 
-} else { // exercise
-    // ── Last 7 days exercise data ────────────────────────────────────────────
+} else {
     $weekly = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min,
                SUM(calories_burned) AS total_burn, COUNT(*) AS sessions
@@ -178,7 +166,6 @@ if ($type === 'water') {
         ];
     }
 
-    // Metrics
     $metricsQ = $db->prepare('
         SELECT
             ROUND(AVG(daily_min), 0)   AS avg_min,
@@ -197,7 +184,6 @@ if ($type === 'water') {
     $metrics = $metricsQ->fetch();
     $chartValue = 'min';
 
-    // Table rows (last 7 days)
     $tableQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min,
                SUM(calories_burned) AS total_burn, COUNT(*) AS sessions,
@@ -211,21 +197,24 @@ if ($type === 'water') {
     $tableRows = $tableQ->fetchAll();
 }
 
-// ── Build 7-day array for the bar chart ─────────────────────────────────────
+// Build week chart data
 $weekDays = [];
 for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $raw  = $weekRaw[$date] ?? [];
 
-    if ($type === 'water') {
+// Water weekly data, metrics, and table
+if ($type === 'water') {
         $val  = (int)($raw ?? 0);
         $goal = $goalMl;
         $pct  = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
-    } elseif ($type === 'food') {
+// Food weekly data, metrics, and table
+} elseif ($type === 'food') {
         $val  = (int)($raw['kcal'] ?? 0);
         $goal = $goalKcal;
         $pct  = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
-    } else {
+// Exercise weekly data, metrics, and table
+} else {
         $val  = (int)($raw['min'] ?? 0);
         $goal = $goalMin;
         $pct  = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
@@ -241,7 +230,7 @@ for ($i = 6; $i >= 0; $i--) {
     ];
 }
 
-// Metric labels per type
+// Metric cards metadata
     $metricMeta = [
         'water'   => ['avg' => ['lbl' => 'Avg. Daily Intake', 'val' => $metrics['avg_l']  ?? '0.0', 'unit' => 'L',
                             'icon' => 'water_ph', 'color' => '#00696d'],

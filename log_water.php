@@ -1,8 +1,5 @@
 <?php
-/**
- * HealthFlow — Log Water Module
- * Handles water logging (AJAX POST action=water) and renders the water page.
- */
+// Water logging page and AJAX handler.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 
@@ -11,7 +8,7 @@ requireLogin();
 $db     = getDB();
 $userId = (int)$_SESSION['user_id'];
 
-// ── Handle AJAX POST actions ───────────────────────────────────────────────
+// Handle water log AJAX action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
 
@@ -32,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// ── Load page data ──────────────────────────────────────────────────────────
+// Load today's water totals
 $stmt = $db->prepare('
     SELECT u.full_name, u.weight, g.daily_goal_ml,
            u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
@@ -61,6 +58,7 @@ $drinkIcons = [
     'Other'        => 'water_bottle',
 ];
 
+// Recent water logs for today
 $recent = $db->prepare('
     SELECT log_id, amount_ml AS val, drink_type AS title, logged_at
     FROM water_logs WHERE user_id=? AND DATE(logged_at)=CURDATE()

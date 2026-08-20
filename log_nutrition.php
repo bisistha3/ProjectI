@@ -1,30 +1,25 @@
 <?php
-/**
- * HealthFlow — Log Nutrition Module
- * Handles food logging (AJAX POST action=food), saved custom foods (My Foods)
- * and renders the nutrition page.
- */
+// Nutrition logging: log foods, view today's intake
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/foods.php';
 
+// Require login
 requireLogin();
 
 $db     = getDB();
 $userId = (int)$_SESSION['user_id'];
 
-// ── Handle AJAX POST actions ───────────────────────────────────────────────
+// Handle AJAX actions (log food, delete custom food)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     $action = $_POST['action'];
 
-    // ── Log food (known food: name + qty; new food: name + qty + unit + nutrition) ──
     if ($action === 'food') {
         echo json_encode(logFoodEntry($db, $userId, $_POST));
         exit;
     }
 
-    // ── Delete a saved custom food from the user's library ──────────────────
     if ($action === 'delete_custom_food') {
         $foodId = (int)($_POST['food_id'] ?? 0);
         if ($foodId > 0) {
@@ -39,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// ── Load page data ──────────────────────────────────────────────────────────
+// Load user data and today's intake
 $stmt = $db->prepare('
     SELECT u.full_name, g.daily_calorie_goal, g.daily_protein_goal_g,
            g.daily_fat_goal_g, g.daily_carbs_goal_g,
@@ -77,16 +72,17 @@ $foodIcons = [
     'snack'     => 'cookie',
 ];
 
+// Load food options and custom foods
 $foodsQ = $db->prepare('SELECT food_name, serving_qty, unit_type, calories FROM foods WHERE user_id IS NULL ORDER BY food_name ASC');
 $foodsQ->execute();
 $foods = $foodsQ->fetchAll();
 
-// User's saved custom foods (My Foods library, one-click logging)
 $cfQ = $db->prepare('SELECT food_id, food_name, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g
                      FROM foods WHERE user_id=? ORDER BY created_at DESC');
 $cfQ->execute([$userId]);
 $customFoods = $cfQ->fetchAll();
 
+// Load today's recent food logs
 $recent = $db->prepare('
     SELECT fl.log_id, fl.calories AS val, f.food_name AS title, fl.meal_type,
            fl.protein_g, fl.fat_g, fl.carbs_g, fl.qty, fl.unit_type, fl.logged_at

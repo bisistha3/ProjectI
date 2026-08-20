@@ -1,16 +1,12 @@
 <?php
-/**
- * HealthFlow — Login Handler
- * Handles both GET (show form) and POST (process login).
- */
+// User login with password check
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/validate.php';
 require_once __DIR__ . '/includes/mailer.php';
 
-
-// Redirect if already logged in
+// Redirect logged-in users
 if (isLoggedIn()) {
     header('Location: dashboard.php');
     exit;
@@ -24,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $old['email'] = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
 
-    // Validate
+    // Validate input
     $v = new Validator();
     $v->required('email', $email, 'Email')
       ->email('email', $email)
@@ -33,17 +29,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$v->passes()) {
         $errors = $v->errors();
     } else {
-        // Look up user
         try {
             $db = getDB();
+            // Find user by email
             $stmt = $db->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
             $stmt->execute([':email' => trim($email)]);
             $user = $stmt->fetch();
 
+            // Password stored ASCII-shifted -13 via encodePassword()
             if ($user && $user['password'] === encodePassword($password)) {
-                // Check if email is verified
                 if ((int)$user['is_verified'] === 0) {
-                    // Resend OTP and redirect to verification page
                     $otp  = generateOtp();
                     saveOtp($db, (int)$user['user_id'], $otp);
                     $sent = sendOtpEmail($user['email'], $user['full_name'], $otp);

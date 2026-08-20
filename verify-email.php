@@ -1,13 +1,10 @@
 <?php
-/**
- * HealthFlow — Email OTP Verification Page
- * User must enter the 6-digit code sent to their email to activate their account.
- */
+// Email verification with OTP entry and resend
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/mailer.php';
 
-// Must have a pending verification in session
+// Require pending verification
 if (empty($_SESSION['pending_verify_user_id'])) {
     header('Location: register.php');
     exit;
@@ -20,15 +17,13 @@ $error   = '';
 $info    = getFlash('info', '');
 $warning = getFlash('warning', '');
 
-// ── Handle form submissions ───────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? 'verify';
 
-    // ── Resend OTP ────────────────────────────────────────────────────────────
+    // Resend OTP
     if ($action === 'resend') {
         try {
             $db = getDB();
-            // Fetch user name for the email
             $u = $db->prepare('SELECT full_name, email FROM users WHERE user_id = :id');
             $u->execute([':id' => $userId]);
             $user = $u->fetch();
@@ -46,12 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (Exception $e) {
             $error = 'Something went wrong. Please try again.';
         }
-        // Fall through to render page with the updated messages
     }
 
-    // ── Verify OTP ────────────────────────────────────────────────────────────
+    // Verify submitted OTP
     if ($action === 'verify') {
-        // Collect 6 individual digit inputs into one code string
         $digits = [];
         for ($i = 1; $i <= 6; $i++) {
             $digits[] = preg_replace('/\D/', '', $_POST["digit_$i"] ?? '');
@@ -64,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $db = getDB();
 
-                // Look up a valid, unused OTP
                 $stmt = $db->prepare('
                     SELECT id FROM email_otps
                     WHERE user_id = :uid
@@ -80,15 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$row) {
                     $error = 'Invalid or expired code. Please try again or request a new one.';
                 } else {
-                    // Mark OTP as used
                     $db->prepare('UPDATE email_otps SET used = 1 WHERE id = :id')
                        ->execute([':id' => $row['id']]);
 
-                    // Activate the account
                     $db->prepare('UPDATE users SET is_verified = 1 WHERE user_id = :uid')
                        ->execute([':uid' => $userId]);
 
-                    // Clear pending session data
                     unset(
                         $_SESSION['pending_verify_user_id'],
                         $_SESSION['pending_verify_email']
@@ -105,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Mask email for display: s***@gmail.com
+// Mask email for display
 function maskEmail(string $email): string {
     [$local, $domain] = explode('@', $email, 2) + ['', ''];
     $visible = substr($local, 0, min(2, strlen($local)));

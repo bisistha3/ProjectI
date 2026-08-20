@@ -1,8 +1,5 @@
 <?php
-/**
- * HealthFlow — Dashboard
- * Fully server-side rendered. One POST action per tracker for AJAX quick-log.
- */
+// Dashboard — today's totals and quick-log actions.
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/foods.php';
@@ -12,9 +9,7 @@ requireLogin();
 $db     = getDB();
 $userId = (int)$_SESSION['user_id'];
 
-/**
- * MET values (generic) for calorie burn: kcal = MET × weight(kg) × hours.
- */
+// MET value for an exercise type
 function metValue(string $type): float {
     return match($type) {
         'Walking'        => 3.5,
@@ -25,12 +20,12 @@ function metValue(string $type): float {
     };
 }
 
-// ── Handle AJAX POST actions ───────────────────────────────────────────────
+// Handle AJAX quick-log actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     $action = $_POST['action'];
 
-    // ── Log water ─────────────────────────────────────────────────────────────
+    // Log water
     if ($action === 'water') {
         $amountMl  = (int)$_POST['amount_ml'];
         $drinkType = trim($_POST['drink_type'] ?? 'Water');
@@ -42,12 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    // ── Log food (known food: name + qty; new food: name + qty + unit + nutrition) ──
+    // Log food
     elseif ($action === 'food') {
         logFoodEntry($db, $userId, $_POST);
     }
 
-    // ── Log exercise (MET-based calorie auto-calc) ────────────────────────────
+    // Log exercise
     elseif ($action === 'exercise') {
         $exType    = trim($_POST['exercise_type'] ?? '');
         $duration  = max(1, min(600, (int)($_POST['duration_min'] ?? 0)));
@@ -60,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
            ->execute([$userId, $exType, $duration, $burned]);
     }
 
-    // ── Delete a saved custom food from the user's library ──────────────────
+    // Delete custom food
     elseif ($action === 'delete_custom_food') {
         $foodId = (int)($_POST['food_id'] ?? 0);
         if ($foodId > 0) {
@@ -69,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    // ── Delete an individual log entry (id + type, scoped to user) ──────────
+    // Delete a log entry
     elseif ($action === 'delete_log') {
         $logType = $_POST['log_type'] ?? '';
         $logId   = (int)($_POST['log_id'] ?? 0);
@@ -80,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
-    // ── Return updated today totals ───────────────────────────────────────────
+    // Reload today totals for the response
     $totals = $db->prepare('
         SELECT g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
            g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
@@ -147,8 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     exit;
 }
 
-// ── Load page data ────────────────────────────────────────────────────────────
-// User info + today totals for all three trackers
+// Load today totals for the page
 $stmt = $db->prepare('
     SELECT u.full_name, u.weight, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
            g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
@@ -211,7 +205,6 @@ $todayBurn = (int)($user['today_burn'] ?? 0);
 $goalBurn  = (int)($user['daily_burn_goal_kcal'] ?? 300);
 $burnPct   = $goalBurn > 0 ? min(100, round($todayBurn / $goalBurn * 100)) : 0;
 
-// Per-activity minutes today (Walking / Running / Yoga / Gym)
 $activityToday = [
     'Walking'        => (int)($user['today_walk'] ?? 0),
     'Running'        => (int)($user['today_run']  ?? 0),
@@ -219,13 +212,12 @@ $activityToday = [
     'Gym / Strength' => (int)($user['today_gym']  ?? 0),
 ];
 
-// Reminder config for the front-end toast
 $reminderEnabled = (int)($user['reminder_enabled'] ?? 0);
 $reminderTime    = $user['reminder_time'] ?? '20:00:00';
 $reminderInt     = (int)($user['reminder_interval_min'] ?? 0);
 $weightKg        = (float)($user['weight'] ?? 70) ?: 70;
 
-// Recent logs (today, merged water + food + exercise, last 8)
+// Recent logs for today
 $recentQ = $db->prepare('
     SELECT * FROM (
         SELECT log_id, user_id, amount_ml AS val, drink_type AS title, NULL AS kcal, NULL AS prot,
@@ -244,7 +236,7 @@ $recentQ = $db->prepare('
 $recentQ->execute([$userId]);
 $recentLogs = $recentQ->fetchAll();
 
-// Streak (water-based)
+// Calculate water streak
 $streakQ = $db->prepare('
     SELECT DATE(logged_at) AS day FROM water_logs
     WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC
@@ -258,7 +250,6 @@ foreach ($days as $day) {
     else break;
 }
 
-// Icon maps
 $drinkIcons = [
     'Water'        => 'water_drop',
     'Juice'        => 'local_drink',
@@ -279,6 +270,7 @@ $exerciseIcons = [
     'Yoga'           => 'self_improvement',
     'Gym / Strength' => 'fitness_center',
 ];
+// Default foods for the quick-add picker
 $foods  = $db->prepare('SELECT food_name, serving_qty, unit_type, calories FROM foods WHERE user_id IS NULL ORDER BY food_name ASC');
 $foods->execute();
 $foods  = $foods->fetchAll();

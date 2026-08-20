@@ -1,8 +1,5 @@
 <?php
-/**
- * HealthFlow — Register Handler
- * Handles both GET (show form) and POST (create account + send OTP).
- */
+// User registration with email verification
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/config.php';
@@ -10,7 +7,7 @@ require_once __DIR__ . '/includes/validate.php';
 require_once __DIR__ . '/includes/calculator.php';
 require_once __DIR__ . '/includes/mailer.php';
 
-// Redirect if already logged in
+// Redirect logged-in users
 if (isLoggedIn()) {
     header('Location: dashboard.php');
     exit;
@@ -35,7 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $weight   = $_POST['weight'] ?? '';
     $height   = $_POST['height'] ?? '';
 
-    // Preserve old values for repopulating form on error
     $old = [
         'name'   => htmlspecialchars($name, ENT_QUOTES, 'UTF-8'),
         'email'  => htmlspecialchars($email, ENT_QUOTES, 'UTF-8'),
@@ -45,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'height' => htmlspecialchars($height, ENT_QUOTES, 'UTF-8'),
     ];
 
-    // Validate all fields
+    // Validate input
     $v = new Validator();
     $v->required('name', $name, 'Full Name')
       ->minLength('name', $name, 2, 'Full Name')
@@ -83,10 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($existing) {
                 if ((int)$existing['is_verified'] === 1) {
-                    // Fully verified account already exists
                     $errors['email'] = 'An account with this email already exists.';
                 } else {
-                    // Unverified account â€” resend a fresh OTP
+                    // Resend OTP for unverified account
                     $userId = (int)$existing['user_id'];
                     $otp    = generateOtp();
                     saveOtp($db, $userId, $otp);
@@ -105,14 +100,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
             } else {
-                // New account — insert as UNVERIFIED
-
-                // ── Calculate personalised goals at registration ───────────────
-                // Water: BMI formula (medium activity assumed at signup).
-                // Nutrition: Mifflin-St Jeor TDEE → calorie + macro split.
+                // Calculate default goals
                 $regGoal   = calcWaterGoal((float)$weight, (float)$height, $gender, 'medium');
                 $nutri     = calcNutritionGoals((float)$weight, (float)$height, (int)$age, $gender, 'medium');
 
+                // Insert new user
                 $stmt = $db->prepare('
                     INSERT INTO users (full_name, email, password, gender, age, weight, height,
                                        is_verified)
@@ -130,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $userId = (int)$db->lastInsertId();
 
-                // ── Save personalised goals in their own table ───────────────
+                // Insert calculated daily goals
                 $db->prepare('
                     INSERT INTO user_goals (user_id, daily_goal_ml, daily_calorie_goal,
                                             daily_protein_goal_g, daily_fat_goal_g,
@@ -146,12 +138,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $nutri['carbs_g'],
                 ]);
 
-                // Generate OTP, save to DB, send email
+                // Send verification email
                 $otp  = generateOtp();
                 saveOtp($db, $userId, $otp);
                 $sent = sendOtpEmail(trim($email), trim($name), $otp);
 
-                // Store pending verification in session
                 $_SESSION['pending_verify_user_id'] = $userId;
                 $_SESSION['pending_verify_email']   = trim($email);
 

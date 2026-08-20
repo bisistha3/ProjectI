@@ -1,14 +1,10 @@
 <?php
-/**
- * HealthFlow — Shared Food Functions
- * Centralized food operations for global and user-specific foods.
- *
- * Units: g (weighable), piece (countable), ml (liquid).
- * A food stores nutrition per `serving_qty` of its `unit_type`.
- */
+// Food catalog helpers and food log entry handling.
 
+// Allowed serving unit types.
 const FOOD_UNITS = ['g', 'piece', 'ml'];
 
+// Display label for a unit type.
 function unitLabel(string $unit): string {
     return match ($unit) {
         'piece' => 'piece',
@@ -17,11 +13,13 @@ function unitLabel(string $unit): string {
     };
 }
 
+// Format a quantity with its unit for display.
 function formatQty(float $qty, string $unit): string {
     $q = $qty == (int)$qty ? (string)(int)$qty : rtrim(rtrim(number_format($qty, 1, '.', ''), '0'), '.');
     return $unit === 'piece' ? $q . ' piece' . ($q == 1 ? '' : 's') : $q . ' ' . $unit;
 }
 
+// All foods the user can pick from (shared defaults + own).
 function getAvailableFoods(PDO $db, int $userId): array {
     $stmt = $db->prepare('
         SELECT food_id, food_name, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g,
@@ -34,6 +32,7 @@ function getAvailableFoods(PDO $db, int $userId): array {
     return $stmt->fetchAll();
 }
 
+// Fetch a single food if owned by or shared with the user.
 function getFoodById(PDO $db, int $foodId, int $userId): ?array {
     $stmt = $db->prepare('
         SELECT food_id, food_name, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g,
@@ -46,6 +45,7 @@ function getFoodById(PDO $db, int $foodId, int $userId): ?array {
     return $food ?: null;
 }
 
+// Insert a new user-defined food and return its id.
 function createUserFood(PDO $db, int $userId, array $data): int {
     $stmt = $db->prepare('
         INSERT INTO foods (user_id, food_name, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g)
@@ -64,6 +64,7 @@ function createUserFood(PDO $db, int $userId, array $data): int {
     return (int)$db->lastInsertId();
 }
 
+// Scale food macros by quantity.
 function calculateMacros(array $food, float $qty): array {
     $ratio = (float)$food['serving_qty'] > 0 ? $qty / (float)$food['serving_qty'] : 0;
     return [
@@ -74,6 +75,7 @@ function calculateMacros(array $food, float $qty): array {
     ];
 }
 
+// User's own custom foods, newest first.
 function getUserCustomFoods(PDO $db, int $userId): array {
     $stmt = $db->prepare('
         SELECT food_id, food_name, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g, created_at
@@ -85,22 +87,14 @@ function getUserCustomFoods(PDO $db, int $userId): array {
     return $stmt->fetchAll();
 }
 
+// Delete a user-owned food.
 function deleteUserFood(PDO $db, int $foodId, int $userId): bool {
     $stmt = $db->prepare('DELETE FROM foods WHERE food_id = ? AND user_id = ?');
     $stmt->execute([$foodId, $userId]);
     return $stmt->rowCount() > 0;
 }
 
-/**
- * Log a food entry with quantity + unit.
- *
- * Known food (global preset or the user's own): only name + qty are required,
- * nutrition is taken from the saved food and scaled by qty / serving_qty.
- * New food: name + qty + unit + nutrition are required; it is auto-saved to
- * My Foods (serving_qty = entered qty) so next time only name + qty are asked.
- *
- * Returns ['ok' => true] or ['ok' => false, 'error' => string].
- */
+// Log a food entry: use a known food or create a new one.
 function logFoodEntry(PDO $db, int $userId, array $post): array {
     $foodName = trim((string)($post['food_name'] ?? ''));
     $mealType = trim((string)($post['meal_type'] ?? 'snack'));
@@ -115,7 +109,6 @@ function logFoodEntry(PDO $db, int $userId, array $post): array {
         return ['ok' => false, 'error' => 'Food name and a valid quantity are required.'];
     }
 
-    // Resolve existing food (global preset or user's own) by name
     $foodQ = $db->prepare('SELECT food_id, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g
                            FROM foods WHERE food_name=? AND (user_id IS NULL OR user_id=?)
                            ORDER BY user_id DESC LIMIT 1');
@@ -123,12 +116,10 @@ function logFoodEntry(PDO $db, int $userId, array $post): array {
     $food = $foodQ->fetch();
 
     if ($food) {
-        // Known food — use saved values, scale by quantity, unit is locked
         $foodId = (int)$food['food_id'];
         $unit   = $food['unit_type'];
         $macros = calculateMacros($food, $qty);
     } else {
-        // New food — require nutrition details, save to My Foods for next time
         $foodName = mb_substr($foodName, 0, 100);
         $cal     = max(0, min(3000, (int)($post['calories'] ?? 0)));
         $protein = max(0, min(400, (float)($post['protein_g'] ?? 0)));
@@ -149,7 +140,6 @@ function logFoodEntry(PDO $db, int $userId, array $post): array {
         ];
     }
 
-    // Snapshot the exact nutritional values at log time
     $db->prepare('INSERT INTO food_logs (user_id, food_id, meal_type, qty, unit_type, calories, protein_g, fat_g, carbs_g)
                   VALUES (?,?,?,?,?,?,?,?,?)')
        ->execute([
