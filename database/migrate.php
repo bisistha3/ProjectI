@@ -36,7 +36,6 @@ if ($hasCol('foods', 'serving_size_g') && !$hasCol('foods', 'serving_qty')) {
 // Add unit_type column to foods
 if (!$hasCol('foods', 'unit_type')) {
     $alter("ALTER TABLE foods ADD COLUMN unit_type ENUM('g','piece','ml') NOT NULL DEFAULT 'g' AFTER serving_qty");
-    $db->exec("UPDATE foods SET unit_type = 'g' WHERE unit_type = 'g'");
 }
 
 // Rename food_logs qty_g to qty
@@ -51,7 +50,7 @@ if (!$hasCol('food_logs', 'unit_type')) {
     $alter("ALTER TABLE food_logs ADD COLUMN unit_type ENUM('g','piece','ml') NOT NULL DEFAULT 'g' AFTER qty");
 }
 
-// Backfill preset food units
+// Backfill preset food units (244 ml = one US cup of milk; keep names in sync with setup.sql)
 $db->exec("UPDATE foods SET unit_type = 'piece' WHERE user_id IS NULL AND food_name IN ('Boiled Egg','Apple','Banana','Bread')");
 $db->exec("UPDATE foods SET unit_type = 'ml', serving_qty = 244 WHERE user_id IS NULL AND food_name = 'Milk'");
 $out[] = 'OK: backfilled preset food units';

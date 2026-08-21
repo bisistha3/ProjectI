@@ -1,7 +1,5 @@
-/* ---------- Client-Side Form Validation (Login & Register) ---------- */
 export function initFormHandlers() {
 
-  // --- Validation helpers ---
   function showError(input, msg) {
     input.classList.add('input-field--error');
     input.classList.remove('input-field--success');
@@ -59,7 +57,7 @@ export function initFormHandlers() {
     return /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/.test(email);
   }
 
-  // --- Validators (matching PHP rules exactly) ---
+  // Validators (matching PHP rules exactly)
   function validateName(value) {
     const v = value.trim();
     if (!v) return { valid: true }; // empty handled on blur/submit
@@ -112,7 +110,6 @@ export function initFormHandlers() {
 
   
 
-  // --- Debounce helper ---
   function debounce(fn, ms) {
     let timeoutId;
     return (...args) => {
@@ -121,7 +118,6 @@ export function initFormHandlers() {
     };
   }
 
-  // --- Core validation function ---
   function validateField(input, validator, checkRequired = false) {
     const value = input.value;
     const result = validator(value);
@@ -149,7 +145,7 @@ export function initFormHandlers() {
     return label ? label.textContent.replace('*', '').trim() : 'Field';
   }
 
-  // --- Attach real-time validation to all input fields ---
+  // Attach real-time validation to all input fields
   const validators = {
     name:     validateName,
     email:    validateEmail,
@@ -164,15 +160,12 @@ export function initFormHandlers() {
     const validator = validators[key];
     if (!validator) return;
 
-    // Real-time validation on input (debounced)
     const debouncedValidate = debounce(() => validateField(input, validator), 300);
     input.addEventListener('input', debouncedValidate);
 
-    // Required check on blur
     input.addEventListener('blur', () => validateField(input, validator, true));
   });
 
-  // === LOGIN FORM ===
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
@@ -190,7 +183,6 @@ export function initFormHandlers() {
     });
   }
 
-  // === REGISTER FORM ===
   const registerForm = document.getElementById('register-form');
   if (registerForm) {
     registerForm.addEventListener('submit', (e) => {

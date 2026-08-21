@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $drinkType = trim($_POST['drink_type'] ?? 'Water');
         $allowed   = ['Water', 'Juice', 'Tea', 'Coffee', 'Sports Drink', 'Other'];
         if (!in_array($drinkType, $allowed)) $drinkType = 'Water';
+        // reject implausible entries (>5 L in one go)
         if ($amountMl > 0 && $amountMl <= 5000) {
             $db->prepare('INSERT INTO water_logs (user_id, amount_ml, drink_type) VALUES (?,?,?)')
                ->execute([$userId, $amountMl, $drinkType]);
@@ -45,10 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     // Log exercise
     elseif ($action === 'exercise') {
         $exType    = trim($_POST['exercise_type'] ?? '');
-        $duration  = max(1, min(600, (int)($_POST['duration_min'] ?? 0)));
+        $duration  = max(1, min(600, (int)($_POST['duration_min'] ?? 0))); // clamp to 1–600 min instead of rejecting bad input
         $weightQ   = $db->prepare('SELECT weight FROM users WHERE user_id=?');
         $weightQ->execute([$userId]);
         $weightKg  = (float)($weightQ->fetch()['weight'] ?? 70);
+        // kcal = MET × weight(kg) × duration(hrs)
         $burned    = (int)round(metValue($exType) * $weightKg * ($duration / 60));
         $db->prepare('INSERT INTO exercise_logs (user_id, exercise_type, duration_min, calories_burned)
                       VALUES (?,?,?,?)')
@@ -215,9 +217,11 @@ $activityToday = [
 $reminderEnabled = (int)($user['reminder_enabled'] ?? 0);
 $reminderTime    = $user['reminder_time'] ?? '20:00:00';
 $reminderInt     = (int)($user['reminder_interval_min'] ?? 0);
-$weightKg        = (float)($user['weight'] ?? 70) ?: 70;
+$weightKg        = (float)($user['weight'] ?? 70) ?: 70; // ?: also guards against a stored weight of 0, not just a missing value
 
 // Recent logs for today
+// Note: all UNION branches share one column shape, so meal_type rides in the 'kcal'
+// slot of the food branch (used as the icon key in dashboard.html).
 $recentQ = $db->prepare('
     SELECT * FROM (
         SELECT log_id, user_id, amount_ml AS val, drink_type AS title, NULL AS kcal, NULL AS prot,
@@ -237,6 +241,7 @@ $recentQ->execute([$userId]);
 $recentLogs = $recentQ->fetchAll();
 
 // Calculate water streak
+// Counts back from today only — an unlogged today resets the visible streak to 0.
 $streakQ = $db->prepare('
     SELECT DATE(logged_at) AS day FROM water_logs
     WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC

@@ -1,6 +1,5 @@
 import { initGoalCalculator } from './goal-calculator.js';
 
-/* ---------- Settings Actions ---------- */
 export function initSettingsActions() {
   const saveBtn = document.getElementById('btn-save-settings');
   const resetBtn = document.getElementById('btn-reset-settings');
@@ -24,7 +23,6 @@ export function initSettingsActions() {
 
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      // Reset form fields
       const weightInput = document.getElementById('setting-weight');
       const activitySelect = document.getElementById('setting-activity');
       const nameInput = document.getElementById('profile-name');
@@ -44,10 +42,8 @@ export function initSettingsActions() {
         cb.checked = true;
       });
 
-      // Recalculate goal
       initGoalCalculator();
 
-      // Visual feedback
       const originalText = resetBtn.innerHTML;
       resetBtn.innerHTML = `
         <span class="material-symbols-outlined" style="font-size: 18px;">check</span>

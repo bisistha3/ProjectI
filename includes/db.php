@@ -1,12 +1,10 @@
 <?php
-// PDO database helpers
 
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'healthflow');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
-// Create and return a PDO connection
 function getDB(): PDO {
     $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4';
 

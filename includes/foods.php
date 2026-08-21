@@ -15,6 +15,7 @@ function unitLabel(string $unit): string {
 
 // Format a quantity with its unit for display.
 function formatQty(float $qty, string $unit): string {
+    // strip trailing zeros, then the leftover decimal point ("2.50" -> "2.5")
     $q = $qty == (int)$qty ? (string)(int)$qty : rtrim(rtrim(number_format($qty, 1, '.', ''), '0'), '.');
     return $unit === 'piece' ? $q . ' piece' . ($q == 1 ? '' : 's') : $q . ' ' . $unit;
 }
@@ -109,6 +110,7 @@ function logFoodEntry(PDO $db, int $userId, array $post): array {
         return ['ok' => false, 'error' => 'Food name and a valid quantity are required.'];
     }
 
+    // Prefer the user's own food over the shared preset on name collision (NULL sorts last in DESC).
     $foodQ = $db->prepare('SELECT food_id, serving_qty, unit_type, calories, protein_g, fat_g, carbs_g
                            FROM foods WHERE food_name=? AND (user_id IS NULL OR user_id=?)
                            ORDER BY user_id DESC LIMIT 1');

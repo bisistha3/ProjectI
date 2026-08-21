@@ -4,7 +4,6 @@
 class Validator {
     private array $errors = [];
 
-    // Require non-empty value.
     public function required(string $field, string $value, string $label = ''): self {
         if (trim($value) === '') {
             $this->errors[$field] = ($label ?: ucfirst($field)) . ' is required.';
@@ -32,7 +31,6 @@ class Validator {
         return $this;
     }
 
-    // Basic email format check.
     public function email(string $field, string $value): self {
         $email = trim($value);
 
@@ -126,7 +124,6 @@ class Validator {
         return $this;
     }
 
-    // Check disposable email via Disify.
     private function callDisify(string $email): ?array {
         if (!function_exists('curl_init')) return null;
 
@@ -190,7 +187,6 @@ class Validator {
         return is_array($data) ? $data : null;
     }
 
-    // Enforce minimum string length.
     public function minLength(string $field, string $value, int $min, string $label = ''): self {
         if (mb_strlen(trim($value)) < $min) {
             $this->errors[$field] = ($label ?: ucfirst($field)) . " must be at least {$min} characters.";
@@ -198,7 +194,6 @@ class Validator {
         return $this;
     }
 
-    // Enforce maximum string length.
     public function maxLength(string $field, string $value, int $max, string $label = ''): self {
         if (mb_strlen(trim($value)) > $max) {
             $this->errors[$field] = ($label ?: ucfirst($field)) . " must be at most {$max} characters.";
@@ -221,7 +216,6 @@ class Validator {
         return $this;
     }
 
-    // Check numeric value is within a min/max range.
     public function numericRange(string $field, $value, float $min, float $max, string $label = ''): self {
         $val = trim($value);
         if ($val === '') return $this;
@@ -233,7 +227,6 @@ class Validator {
         return $this;
     }
 
-    // Check value is one of the allowed options.
     public function inList(string $field, string $value, array $allowed, string $label = ''): self {
         if (!in_array(trim($value), $allowed, true)) {
             $this->errors[$field] = ($label ?: ucfirst($field)) . ' has an invalid value.';
@@ -241,17 +234,14 @@ class Validator {
         return $this;
     }
 
-    // True when no errors were recorded.
     public function passes(): bool {
         return empty($this->errors);
     }
 
-    // All field errors.
     public function errors(): array {
         return $this->errors;
     }
 
-    // First recorded error message.
     public function firstError(): string {
         return reset($this->errors) ?: '';
     }

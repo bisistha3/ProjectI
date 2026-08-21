@@ -12,6 +12,7 @@ import { initChartToggle, initCalendarNav, initBarTooltips } from './js/history.
  * Buttons carry data-delete-type (water|food|exercise) and data-delete-id.
  */
 function initLogDelete() {
+  // delegated on document so buttons rendered/re-rendered by PHP need no per-row binding
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-delete-type]');
     if (!btn) return;

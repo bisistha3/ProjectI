@@ -123,6 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $userId = (int)$db->lastInsertId();
 
                 // Insert calculated daily goals
+                // (exercise minutes / burn kcal have no calculator formula yet — seeded defaults 30 min, 300 kcal)
                 $db->prepare('
                     INSERT INTO user_goals (user_id, daily_goal_ml, daily_calorie_goal,
                                             daily_protein_goal_g, daily_fat_goal_g,

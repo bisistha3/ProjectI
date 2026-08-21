@@ -1,4 +1,3 @@
-/* ---------- Goal Calculator (Settings) — BMI water + Mifflin-St Jeor nutrition ---------- */
 export function initGoalCalculator() {
   const weightInput  = document.getElementById('setting-weight');
   const heightInput  = document.getElementById('setting-height');
@@ -10,7 +9,6 @@ export function initGoalCalculator() {
   const hiddenGoal   = document.getElementById('daily-goal-ml');
   const goalMode     = document.getElementById('goal-mode');
 
-  // Nutrition recommendation elements
   const recCalories  = document.getElementById('rec-calories');
   const recProtein   = document.getElementById('rec-protein');
   const recFat       = document.getElementById('rec-fat');
@@ -25,14 +23,12 @@ export function initGoalCalculator() {
   const genderMale   = document.getElementById('setting-gender-male');
   const genderFemale = document.getElementById('setting-gender-female');
 
-  // Custom goal toggle
   const switchEl     = document.getElementById('custom-goal-switch');
   const knobEl       = document.getElementById('custom-goal-knob');
   const toggleLabel  = document.getElementById('custom-toggle-label');
   const customArea   = document.getElementById('custom-goal-area');
   const customInput  = document.getElementById('custom-goal-input');
 
-  // Gender toggle slider for the goal card
   const gSlider      = document.getElementById('goal-gender-slider');
   const gLabelMale   = document.getElementById('goal-label-male');
   const gLabelFemale = document.getElementById('goal-label-female');
@@ -41,14 +37,12 @@ export function initGoalCalculator() {
 
   function round5(n) { return Math.round(n / 5) * 5; }
 
-  // ── BMI-based water calculation ────────────────────────────────────────────
   function calcBmi() {
     const w = parseFloat(weightInput.value) || 70;
     const h = parseFloat(heightInput.value)  || 170;
     const gender   = genderFemale?.checked ? 'female' : 'male';
     const activity = activitySel?.value || 'medium';
 
-    // BMI
     const bmi = w / ((h / 100) ** 2);
 
     // Multiplier and category based on BMI
@@ -64,18 +58,15 @@ export function initGoalCalculator() {
     // Gender adjustment: women need ~10% less water than men
     if (gender === 'female') goal = Math.round(goal * 0.9);
 
-    // Activity bonus
     const bonus = { low: 0, medium: 500, high: 1000 }[activity] ?? 500;
     goal = Math.max(1500, Math.min(5000, goal + bonus));
 
-    // Update BMI display
     if (bmiValue)    bmiValue.textContent    = bmi.toFixed(1);
     if (bmiCategory) {
       bmiCategory.textContent = catLabel;
       bmiCategory.style.color = catColor;
     }
 
-    // Update recommendation banner
     goalDisplay.textContent = (goal / 1000).toFixed(1) + 'L / Day';
 
     // Only update hidden field if NOT in custom mode
@@ -84,7 +75,7 @@ export function initGoalCalculator() {
     }
   }
 
-  // ── Mifflin-St Jeor nutrition calculation (mirror of includes/calculator.php) ──
+  // Mifflin-St Jeor nutrition calculation (mirror of includes/calculator.php)
   function calcNutrition() {
     const w = parseFloat(weightInput.value) || 70;
     const h = parseFloat(heightInput.value)  || 170;
@@ -110,7 +101,7 @@ export function initGoalCalculator() {
     if (recCarbs)    recCarbs.textContent    = carbs + 'g';
   }
 
-  // ── Custom goal toggle switch (water) ──────────────────────────────────────
+  // Custom goal toggle switch (water)
   let isCustom = false;
   if (switchEl) {
     switchEl.addEventListener('click', () => {
@@ -133,7 +124,7 @@ export function initGoalCalculator() {
     });
   }
 
-  // ── Custom nutrition toggle switch ─────────────────────────────────────────
+  // Custom nutrition toggle switch
   let isNutriCustom = false;
   if (nutriSwitch) {
     nutriSwitch.addEventListener('click', () => {
@@ -155,14 +146,13 @@ export function initGoalCalculator() {
     });
   }
 
-  // Sync custom input → hidden field
   if (customInput) {
     customInput.addEventListener('input', () => {
       if (hiddenGoal) hiddenGoal.value = customInput.value;
     });
   }
 
-  // ── Gender toggle in goal card ────────────────────────────────────────────
+  // Gender toggle in goal card
   if (genderMale && genderFemale && gSlider && gLabelMale && gLabelFemale) {
     [genderMale, genderFemale].forEach(radio => {
       radio.addEventListener('change', () => {
@@ -175,12 +165,11 @@ export function initGoalCalculator() {
     });
   }
 
-  // ── Event listeners ───────────────────────────────────────────────────────
   weightInput.addEventListener('input',  () => { calcBmi(); calcNutrition(); });
   heightInput.addEventListener('input',  () => { calcBmi(); calcNutrition(); });
   if (ageInput)     ageInput.addEventListener('input', calcNutrition);
   if (activitySel)  activitySel.addEventListener('change', () => { calcBmi(); calcNutrition(); });
 
-  calcBmi();       // Initial calculation on page load
+  calcBmi();
   calcNutrition();
 }

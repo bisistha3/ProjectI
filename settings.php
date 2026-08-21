@@ -27,8 +27,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Parse reminder settings
     $reminderEnabled  = isset($_POST['reminder_enabled']) ? 1 : 0;
     $reminderInterval = (int)($_POST['reminder_interval_min'] ?? 0);
+    // 0 = "custom daily time" mode (not off); only fixed hourly options are allowed otherwise.
     if (!in_array($reminderInterval, [0, 60, 120, 180], true)) $reminderInterval = 0;
     $reminderTime    = trim($_POST['reminder_time'] ?? '20:00');
+    // Accept only strict 24h HH:MM (invalid input falls back to default), then pad to HH:MM:SS for MySQL's TIME column.
     if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $reminderTime)) $reminderTime = '20:00';
     $reminderTime    .= ':00';
 

@@ -1,5 +1,3 @@
-/* ---------- HealthFlow: Log Nutrition Module ---------- */
-
 (() => {
   const post = async (fd) => {
     const res = await fetch('log_nutrition.php', { method: 'POST', body: fd });
@@ -8,7 +6,7 @@
     return data;
   };
 
-  /* ---------- Log Food modal ---------- */
+  // Log Food modal
 
   const modal        = document.getElementById('food-modal');
   const nameInput    = document.getElementById('food-modal-name');

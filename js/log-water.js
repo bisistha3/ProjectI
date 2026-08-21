@@ -1,5 +1,3 @@
-/* ---------- HealthFlow: Log Water Module ---------- */
-
 (() => {
   const post = async (fd) => {
     const res = await fetch('log_water.php', { method: 'POST', body: fd });
@@ -7,7 +5,6 @@
     if (data && data.ok) location.reload();
   };
 
-  // Quick buttons (250ml / 500ml / 750ml)
   document.querySelectorAll('[data-action="water"]').forEach(btn => {
     btn.addEventListener('click', () => {
       const fd = new FormData();
@@ -18,7 +15,6 @@
     });
   });
 
-  // Custom amount
   document.getElementById('btn-log-water-custom')?.addEventListener('click', () => {
     const amount = document.getElementById('log-water-amount').value;
     if (!amount || parseInt(amount, 10) <= 0) return;

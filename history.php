@@ -30,6 +30,7 @@ $goalMin   = (int)($user['daily_exercise_goal_min'] ?? 30);
 $fullName  = htmlspecialchars($user['full_name'] ?? $_SESSION['full_name'], ENT_QUOTES, 'UTF-8');
 
 // Calculate water streak
+// Counts back from today only — an unlogged today resets the visible streak to 0.
 $streakQ = $db->prepare('
     SELECT DATE(logged_at) AS day FROM water_logs
     WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC
@@ -60,6 +61,7 @@ if ($type === 'water') {
     $weekly->execute([$userId]);
     $weekRaw = $weekly->fetchAll(PDO::FETCH_KEY_PAIR);
 
+    // Averages cover logged days only; days with no entries count as nothing.
     $metricsQ = $db->prepare('
         SELECT
             ROUND(AVG(daily_total)/1000, 1)   AS avg_l,
@@ -75,6 +77,7 @@ if ($type === 'water') {
     $metrics = $metricsQ->fetch();
     $chartValue = 'ml';
 
+    // MIN/MAX over text picks one arbitrary value as a placeholder label — not the actual most-logged item.
     $tableQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml,
                MAX(drink_type) AS top_source
@@ -116,6 +119,7 @@ if ($type === 'water') {
         ];
     }
 
+    // Averages cover logged days only; days with no entries count as nothing.
     $metricsQ = $db->prepare('
         SELECT
             ROUND(AVG(daily_kcal), 0)     AS avg_kcal,
@@ -136,6 +140,7 @@ if ($type === 'water') {
     $metrics = $metricsQ->fetch();
     $chartValue = 'kcal';
 
+    // MIN/MAX over text picks one arbitrary value as a placeholder label — not the actual most-logged item.
     $tableQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(calories) AS total_kcal,
                SUM(protein_g) AS prot, SUM(fat_g) AS fat, SUM(carbs_g) AS carbs,
@@ -166,6 +171,7 @@ if ($type === 'water') {
         ];
     }
 
+    // Averages cover logged days only; days with no entries count as nothing.
     $metricsQ = $db->prepare('
         SELECT
             ROUND(AVG(daily_min), 0)   AS avg_min,
@@ -184,6 +190,7 @@ if ($type === 'water') {
     $metrics = $metricsQ->fetch();
     $chartValue = 'min';
 
+    // MIN/MAX over text picks one arbitrary value as a placeholder label — not the actual most-logged item.
     $tableQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min,
                SUM(calories_burned) AS total_burn, COUNT(*) AS sessions,
@@ -198,23 +205,21 @@ if ($type === 'water') {
 }
 
 // Build week chart data
+// $weekRaw holds a scalar per day for water (FETCH_KEY_PAIR) but an array for food/exercise.
 $weekDays = [];
 for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $raw  = $weekRaw[$date] ?? [];
 
-// Water weekly data, metrics, and table
-if ($type === 'water') {
+    if ($type === 'water') {
         $val  = (int)($raw ?? 0);
         $goal = $goalMl;
         $pct  = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
-// Food weekly data, metrics, and table
-} elseif ($type === 'food') {
+    } elseif ($type === 'food') {
         $val  = (int)($raw['kcal'] ?? 0);
         $goal = $goalKcal;
         $pct  = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
-// Exercise weekly data, metrics, and table
-} else {
+    } else {
         $val  = (int)($raw['min'] ?? 0);
         $goal = $goalMin;
         $pct  = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;

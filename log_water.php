@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $drinkType = trim($_POST['drink_type'] ?? 'Water');
         $allowed   = ['Water', 'Juice', 'Tea', 'Coffee', 'Sports Drink', 'Other'];
         if (!in_array($drinkType, $allowed)) $drinkType = 'Water';
+        // reject implausible entries (>5 L in one go)
         if ($amountMl > 0 && $amountMl <= 5000) {
             $db->prepare('INSERT INTO water_logs (user_id, amount_ml, drink_type) VALUES (?,?,?)')
                ->execute([$userId, $amountMl, $drinkType]);

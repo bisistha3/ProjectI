@@ -58,6 +58,7 @@ function sendMailSmtp(string $toAddr, string $toName, string $subject, string $h
 
         $read();
         $send("EHLO " . (gethostname() ?: 'localhost'));
+        // SMTP multiline replies end at the first line whose 4th char is a space (dash = continued).
         while (($line = fgets($sock, 4096)) !== false) {
             if (substr($line, 3, 1) === ' ') break;
         }
@@ -86,6 +87,7 @@ function sendMailSmtp(string $toAddr, string $toName, string $subject, string $h
         $read();
         $send("DATA");
         $read();
+        // the lone "." terminates the SMTP DATA payload
         $send("$headers\r\n\r\n$body\r\n.");
         $dataResp = $read();
         $send("QUIT");

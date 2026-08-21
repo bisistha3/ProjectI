@@ -34,7 +34,6 @@
       <section class="flex flex-col gap-4">
         <h2 class="section-label">Account Information</h2>
 
-        <!-- Full Name -->
         <div>
           <label class="text-label-md text-on-surface" for="name">Full Name <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
           <div class="input-group">
@@ -56,7 +55,6 @@
           <?php endif; ?>
         </div>
 
-        <!-- Email -->
         <div>
           <label class="text-label-md text-on-surface" for="reg-email">Email Address <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
           <div class="input-group">
@@ -79,7 +77,6 @@
           <?php endif; ?>
         </div>
 
-        <!-- Password -->
         <div>
           <label class="text-label-md text-on-surface" for="reg-password">Password <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
           <div class="input-group">
@@ -129,7 +126,6 @@
 
         <!-- Age, Weight, Height Grid -->
         <div class="grid-3 mt-2">
-          <!-- Age -->
           <div class="flex flex-col gap-2">
             <label class="text-label-md text-on-surface" for="age">Age <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
             <input
@@ -147,7 +143,6 @@
               <span class="field-error"><?= htmlspecialchars($errors['age']) ?></span>
             <?php endif; ?>
           </div>
-          <!-- Weight -->
           <div class="flex flex-col gap-2">
             <label class="text-label-md text-on-surface" for="weight">
               Weight <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span> <span class="text-on-surface-variant" style="font-weight: 400;">kg</span>
@@ -167,7 +162,6 @@
               <span class="field-error"><?= htmlspecialchars($errors['weight']) ?></span>
             <?php endif; ?>
           </div>
-          <!-- Height -->
           <div class="flex flex-col gap-2">
             <label class="text-label-md text-on-surface" for="height">
               Height <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span> <span class="text-on-surface-variant" style="font-weight: 400;">cm</span>

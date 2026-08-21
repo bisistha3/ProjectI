@@ -1,5 +1,3 @@
-/* ---------- HealthFlow: Log Exercise Module ---------- */
-
 (() => {
   const post = async (fd) => {
     const res = await fetch('log_exercise.php', { method: 'POST', body: fd });

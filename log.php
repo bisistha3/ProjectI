@@ -56,7 +56,7 @@ $todayCb   = round((float)($user['today_carbs'] ?? 0), 1);
 $goalMin   = (int)($user['daily_exercise_goal_min'] ?? 30);
 $todayMin  = (int)($user['today_min'] ?? 0);
 $todayBurn = (int)($user['today_burn'] ?? 0);
-$weightKg  = (float)($user['weight'] ?? 70) ?: 70;
+$weightKg  = (float)($user['weight'] ?? 70) ?: 70; // ?: also guards against a stored weight of 0, not just a missing value
 $macroPct  = fn($eaten, $goal) => $goal > 0 ? min(100, round($eaten / $goal * 100)) : 0;
 
 // Load today's recent logs per tab
@@ -139,6 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $drinkType = trim($_POST['drink_type'] ?? 'Water');
         $allowed   = ['Water', 'Juice', 'Tea', 'Coffee', 'Sports Drink', 'Other'];
         if (!in_array($drinkType, $allowed)) $drinkType = 'Water';
+        // reject implausible entries (>5 L in one go)
         if ($amountMl > 0 && $amountMl <= 5000) {
             $db->prepare('INSERT INTO water_logs (user_id, amount_ml, drink_type) VALUES (?,?,?)')
                ->execute([$userId, $amountMl, $drinkType]);
@@ -164,7 +165,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($action === 'exercise') {
         $exType   = trim($_POST['exercise_type'] ?? '');
-        $duration = max(1, min(600, (int)($_POST['duration_min'] ?? 0)));
+        $duration = max(1, min(600, (int)($_POST['duration_min'] ?? 0))); // clamp to 1–600 min instead of rejecting bad input
+        // kcal = MET × weight(kg) × duration(hrs)
         $burned   = (int)round(metValue($exType) * $weightKg * ($duration / 60));
         $db->prepare('INSERT INTO exercise_logs (user_id, exercise_type, duration_min, calories_burned)
                       VALUES (?,?,?,?)')

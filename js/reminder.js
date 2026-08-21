@@ -14,7 +14,7 @@ export function initReminderToggle() {
 
   const showTimeArea = () => {
     const on       = checkbox.checked;
-    const isCustom = !interval || Number(interval.value) === 0;
+    const isCustom = !interval || Number(interval.value) === 0; // 0 = "custom daily time" mode, not disabled
     if (timeArea) timeArea.style.display = on && isCustom ? '' : 'none';
   };
   const refresh = () => {
@@ -64,6 +64,7 @@ export function initReminderToast() {
       </div>
     `;
     document.body.appendChild(toast);
+    // wait a frame so the browser paints the hidden state before transitioning in
     requestAnimationFrame(() => {
       toast.style.opacity = '1';
       toast.style.transform = 'translateX(-50%) translateY(0)';
@@ -72,7 +73,7 @@ export function initReminderToast() {
     const remove = () => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateX(-50%) translateY(20px)';
-      setTimeout(() => toast.remove(), 400);
+      setTimeout(() => toast.remove(), 400); // must match the 0.4s exit transition above
     };
     toast.querySelector('#reminder-goto')?.addEventListener('click', () => {
       if (onceKey) localStorage.setItem(onceKey, '1');
@@ -104,6 +105,7 @@ export function initReminderToast() {
   const reminderAt = new Date(now);
   reminderAt.setHours(h || 20, m || 0, 0, 0);
 
+  // fire-and-forget: only shows if the time already passed today; no future scheduling
   if (now < reminderAt) return;
   showToast(onceKey);
 }

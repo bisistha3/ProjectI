@@ -5,12 +5,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Check if logged in
 function isLoggedIn(): bool {
     return isset($_SESSION['user_id']);
 }
 
-// Redirect to login if not logged in
 function requireLogin(): void {
     if (!isLoggedIn()) {
         header('Location: login.php');
@@ -18,7 +16,6 @@ function requireLogin(): void {
     }
 }
 
-// Return session user data
 function currentUser(): array {
     return [
         'user_id'   => $_SESSION['user_id'] ?? null,
@@ -45,26 +42,22 @@ function decodePassword(string $stored): string {
     return $out;
 }
 
-// Store user in session
 function loginUser(array $user): void {
     $_SESSION['user_id']   = $user['user_id'];
     $_SESSION['full_name'] = $user['full_name'];
     $_SESSION['email']     = $user['email'];
 }
 
-// Destroy session and go to login
 function logout(): void {
     session_destroy();
     header('Location: login.php');
     exit;
 }
 
-// Store one-time flash message
 function setFlash(string $key, $value): void {
     $_SESSION['_flash'][$key] = $value;
 }
 
-// Read and clear flash message
 function getFlash(string $key, $default = null) {
     $value = $_SESSION['_flash'][$key] ?? $default;
     unset($_SESSION['_flash'][$key]);

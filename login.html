@@ -11,7 +11,6 @@
 <body class="auth-layout">
 
   <main class="auth-card" style="max-width: 448px;">
-    <!-- Brand -->
     <div class="sidebar__brand mb-2">
       <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 30px;">monitor_heart</span>
       HealthFlow
@@ -40,7 +39,6 @@
 
     <!-- Login Form -->
     <form id="login-form" class="w-full flex flex-col gap-5" method="POST" action="login.php" novalidate>
-      <!-- Email -->
       <div class="flex flex-col gap-1">
         <label class="text-label-md text-on-surface" for="email">Email Address <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
         <div class="input-group">
@@ -61,7 +59,6 @@
         <?php endif; ?>
       </div>
 
-      <!-- Password -->
       <div class="flex flex-col gap-1">
         <div class="flex justify-between items-center">
           <label class="text-label-md text-on-surface" for="password">Password <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
@@ -87,7 +84,6 @@
         <?php endif; ?>
       </div>
 
-      <!-- Sign In Button -->
       <button class="btn-primary w-full mt-2" type="submit" id="btn-signin">
         Sign in
         <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>

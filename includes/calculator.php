@@ -5,6 +5,7 @@
 function calcWaterGoal(float $weight, float $height, string $gender, string $activity = 'medium'): int {
     $heightM = $height / 100;
     $bmi     = ($heightM > 0) ? $weight / ($heightM ** 2) : 22.0;
+    // Higher BMI → lower ml/kg multiplier, so absolute intake stays safe for heavier users.
     if      ($bmi < 18.5) $mult = 40;
     elseif  ($bmi < 25.0) $mult = 35;
     elseif  ($bmi < 30.0) $mult = 30;
@@ -37,6 +38,7 @@ function calcTdee(float $weight, float $height, int $age, string $gender, string
 // Calorie + macro split from TDEE
 function calcNutritionGoals(float $weight, float $height, int $age, string $gender, string $activity = 'medium'): array {
     $tdee      = calcTdee($weight, $height, $age, $gender, $activity);
+    // 25/30/45% macro split, converted at 4/9/4 kcal per gram, rounded to the nearest 5.
     $calories  = (int)round($tdee / 5) * 5;
     $protein   = (int)round(($calories * 0.25) / 4 / 5) * 5;
     $fat       = (int)round(($calories * 0.30) / 9 / 5) * 5;

@@ -1,4 +1,3 @@
-/* ---------- Chart Toggle (History) ---------- */
 export function initChartToggle() {
   const toggleBtns = document.querySelectorAll('.chart-toggle__btn');
   if (toggleBtns.length === 0) return;
@@ -11,7 +10,6 @@ export function initChartToggle() {
   });
 }
 
-/* ---------- Calendar Navigation (History) ---------- */
 export function initCalendarNav() {
   const prevBtn = document.getElementById('cal-prev');
   const nextBtn = document.getElementById('cal-next');
@@ -26,7 +24,6 @@ export function initCalendarNav() {
 
   function update() {
     monthLabel.textContent = months[currentIndex];
-    // subtle animation
     monthLabel.style.opacity = '0';
     monthLabel.style.transition = 'opacity 0.2s';
     requestAnimationFrame(() => { monthLabel.style.opacity = '1'; });
@@ -43,7 +40,6 @@ export function initCalendarNav() {
   });
 }
 
-/* ---------- Bar Chart Tooltips (History) ---------- */
 export function initBarTooltips() {
   const bars = document.querySelectorAll('.bar-col');
   if (bars.length === 0) return;
@@ -61,7 +57,6 @@ export function initBarTooltips() {
     const bar = col.querySelector('.bar');
     if (!bar) return;
 
-    // Create tooltip
     const tooltip = document.createElement('div');
     tooltip.textContent = shown + unit;
     tooltip.style.cssText = `

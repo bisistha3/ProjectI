@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Mask email for display
 function maskEmail(string $email): string {
+    // union-with-empty guards malformed emails (no "@"); min/max clamp very short local parts.
     [$local, $domain] = explode('@', $email, 2) + ['', ''];
     $visible = substr($local, 0, min(2, strlen($local)));
     return $visible . str_repeat('*', max(0, strlen($local) - 2)) . '@' . $domain;
