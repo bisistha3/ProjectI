@@ -46,11 +46,11 @@ define('MAIL_ENCRYPTION', 'tls');             // 'tls' | 'ssl' | ''
 // ─── Gmail SMTP (App Password) ───────────────────────────────────────────
 // MAIL_USER = your Gmail address
 // MAIL_PASS = 16-character App Password (myaccount.google.com/apppasswords)
-define('MAIL_USER', 'kritanniraula@gmail.com');
-define('MAIL_PASS', 'gvtx vqah qucq rtvn');
+define('MAIL_USER', 'healthflow03@gmail.com');
+define('MAIL_PASS', 'wxai ilnu wovr difz');
 
 // ─── From Address (shown in recipient's inbox) ────────────────────────────
-define('MAIL_FROM_ADDR', 'kritanniraula@gmail.com'); // change to a real address in production
+define('MAIL_FROM_ADDR', 'healthflow03@gmail.com'); // change to a real address in production
 define('MAIL_FROM_NAME', 'HealthFlow');
 
 // ─── OTP Settings ─────────────────────────────────────────────────────────
