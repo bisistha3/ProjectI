@@ -108,6 +108,25 @@ select.input-field { appearance: none; background-image: url("data:image/svg+xml
 
 .btn-primary:hover .material-symbols-outlined { transform: translateX(4px); }
 
+.btn-danger { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px; 
+  background-color: #ba1a1a; 
+  color: #ffffff; 
+  font-size: 14px; 
+  font-weight: 600; 
+  padding: 12px 24px; 
+  border-radius: 9999px; 
+  border: none; 
+  cursor: pointer; 
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+}
+.btn-danger:hover { background-color: #9b1616; }
+.btn-danger:active { transform: scale(0.97); }
+
 .btn-gradient { display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(to right, #00696d, #00a7ad); color: #ffffff; font-size: 20px; font-weight: 600; line-height: 28px; padding: 12px 24px; border-radius: 9999px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 105, 109, 0.25); transition: box-shadow 0.2s, transform 0.15s; }
 
 .btn-gradient:hover { box-shadow: 0 6px 20px rgba(0, 105, 109, 0.35); }

@@ -6,6 +6,7 @@ import { initSettingsActions } from './js/settings-actions.js';
 import { initFormHandlers }   from './js/forms.js';
 import { initReminderToggle, initReminderToast } from './js/reminder.js';
 import { initChartToggle, initCalendarNav, initBarTooltips } from './js/history.js';
+import { showConfirm } from './js/confirm-modal.js';
 
 /**
  * Generic handler for individual log deletion (dashboard "Today's Log" and log pages).
@@ -20,7 +21,15 @@ function initLogDelete() {
     const id   = btn.dataset.deleteId;
     if (!type || !id) return;
 
-    if (!confirm('Delete this log entry?')) return;
+    const logItem = btn.closest('.log-item');
+    const amount = logItem?.querySelector('.log-item__amount')?.textContent?.trim();
+    const desc = logItem?.querySelector('.log-item__desc')?.textContent?.trim();
+    const typeLabel = { water: 'drink', food: 'meal', exercise: 'workout' }[type] || 'entry';
+    const parts = [amount, desc].filter(Boolean);
+    const message = `Delete this ${typeLabel}${parts.length ? ` (${parts.join(' \u00b7 ')})` : ''}?`;
+
+    const confirmed = await showConfirm({ message, variant: 'danger' });
+    if (!confirmed) return;
 
     btn.disabled = true;
     try {

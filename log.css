@@ -252,6 +252,41 @@ select.input-field { appearance: none; background-image: url("data:image/svg+xml
 
 .food-modal__error { color: #ba1a1a; font-size: 13px; margin: 0; }
 
-.btn-secondary { background: rgba(0,0,0,0.05); border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 14px; color: #191c1e; cursor: pointer; }
+.btn-secondary { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px; 
+  background: rgba(0,0,0,0.05); 
+  color: #191c1e; 
+  font-size: 14px; 
+  font-weight: 600; 
+  padding: 12px 24px; 
+  border-radius: 9999px; 
+  border: none; 
+  cursor: pointer; 
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+}
 
 .btn-secondary:hover { background: rgba(0,0,0,0.09); }
+.btn-secondary:active { transform: scale(0.97); }
+
+.btn-danger { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 8px; 
+  background-color: #ba1a1a; 
+  color: #ffffff; 
+  font-size: 14px; 
+  font-weight: 600; 
+  padding: 12px 24px; 
+  border-radius: 9999px; 
+  border: none; 
+  cursor: pointer; 
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; 
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); 
+}
+.btn-danger:hover { background-color: #9b1616; }
+.btn-danger:active { transform: scale(0.97); }

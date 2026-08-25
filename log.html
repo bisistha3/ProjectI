@@ -439,6 +439,7 @@
   </script>
   <script type="module" src="app.js"></script>
   <script type="module">
+  import { showConfirm } from './js/confirm-modal.js';
   // Logging AJAX — POST to log.php, refresh page on success (simplest reliable refresh).
   (() => {
     const post = async (fd) => {
@@ -581,7 +582,12 @@
     // Remove saved custom food from My Foods
     document.querySelectorAll('[data-delete-food]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if (!confirm('Remove this food from My Foods?')) return;
+        const foodName = btn.closest('.preset-btn--custom')?.querySelector('.preset-btn__main span')?.textContent;
+        const confirmed = await showConfirm({
+          message: `Remove "${foodName}" from My Foods?`,
+          variant: 'danger'
+        });
+        if (!confirmed) return;
         const fd = new FormData();
         fd.append('action', 'delete_custom_food');
         fd.append('food_id', btn.dataset.deleteFood);
@@ -619,5 +625,17 @@
     document.getElementById('log-exercise-duration')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') logExercise(); });
   })();
   </script>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="confirm-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <h2 class="text-headline-md" id="confirm-title" style="color:#191c1e;">Confirm</h2>
+      <p class="text-body-md" id="confirm-message" style="color:#3f4852; margin:16px 0;"></p>
+      <div class="flex" style="display:flex; gap:8px; justify-content:flex-end; margin-top:24px;">
+        <button class="btn-secondary" type="button" data-confirm-cancel>Cancel</button>
+        <button class="btn-primary" id="confirm-ok" type="button">Confirm</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
