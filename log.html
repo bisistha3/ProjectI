@@ -135,6 +135,11 @@
                 </div>
                 <div class="log-item__actions">
                   <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                  <button class="log-item__edit" type="button" data-edit-type="water" data-edit-id="<?= (int)$log['log_id'] ?>"
+                          data-amount="<?= (int)$log['val'] ?>" data-drink="<?= htmlspecialchars($log['title']) ?>"
+                          title="Edit entry" aria-label="Edit entry">
+                    <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                  </button>
                   <button class="log-item__delete" type="button" data-delete-type="water" data-delete-id="<?= (int)$log['log_id'] ?>"
                           title="Delete entry" aria-label="Delete entry">
                     <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
@@ -284,6 +289,11 @@
                 </div>
                 <div class="log-item__actions">
                   <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                  <button class="log-item__edit" type="button" data-edit-type="food" data-edit-id="<?= (int)$log['log_id'] ?>"
+                          data-meal="<?= htmlspecialchars($log['meal_type']) ?>" data-qty="<?= (float)$log['qty'] ?>" data-unit="<?= htmlspecialchars($log['unit_type']) ?>"
+                          title="Edit entry" aria-label="Edit entry">
+                    <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                  </button>
                   <button class="log-item__delete" type="button" data-delete-type="food" data-delete-id="<?= (int)$log['log_id'] ?>"
                           title="Delete entry" aria-label="Delete entry">
                     <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
@@ -351,6 +361,11 @@
                 </div>
                 <div class="log-item__actions">
                   <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                  <button class="log-item__edit" type="button" data-edit-type="exercise" data-edit-id="<?= (int)$log['log_id'] ?>"
+                          data-exercise="<?= htmlspecialchars($log['title']) ?>" data-duration="<?= (int)$log['val'] ?>"
+                          title="Edit entry" aria-label="Edit entry">
+                    <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                  </button>
                   <button class="log-item__delete" type="button" data-delete-type="exercise" data-delete-id="<?= (int)$log['log_id'] ?>"
                           title="Delete entry" aria-label="Delete entry">
                     <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
@@ -625,6 +640,106 @@
     document.getElementById('log-exercise-duration')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') logExercise(); });
   })();
   </script>
+
+  <!-- Water Edit Modal -->
+  <div class="modal-overlay" id="edit-water-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-water-title">
+      <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 class="text-headline-md" id="edit-water-title" style="color:#191c1e;">Edit Water Entry</h2>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <form id="edit-water-form">
+        <div class="flex" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <div class="input-group" style="flex:1; min-width:140px;">
+            <span class="material-symbols-outlined icon-left">local_drink</span>
+            <input class="input-field input-field--icon" id="edit-water-amount" type="number" min="1" max="5000" step="1" required>
+          </div>
+          <select class="input-field" id="edit-water-drink" style="width:auto; min-width:130px;" required>
+            <option>Water</option><option>Juice</option><option>Tea</option><option>Coffee</option><option>Sports Drink</option><option>Other</option>
+          </select>
+        </div>
+        <p class="field-error" id="edit-water-error" style="display:none;"></p>
+        <div class="flex" style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+          <button class="btn-secondary" type="button" data-modal-close>Cancel</button>
+          <button class="btn-primary" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Food Edit Modal -->
+  <div class="modal-overlay" id="edit-food-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-food-title">
+      <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 class="text-headline-md" id="edit-food-title" style="color:#191c1e;">Edit Food Entry</h2>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <form id="edit-food-form">
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label class="food-modal__label" for="edit-food-meal">Meal</label>
+            <select class="input-field" id="edit-food-meal" required>
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="snack">Snack</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1.4;">
+              <label class="food-modal__label" for="edit-food-qty">Quantity</label>
+              <input class="input-field" id="edit-food-qty" type="number" min="0.1" step="0.1" required>
+            </div>
+            <div style="flex:1;">
+              <label class="food-modal__label" for="edit-food-unit">Unit</label>
+              <select class="input-field" id="edit-food-unit" required>
+                <option value="g">grams (g)</option>
+                <option value="piece">piece(s)</option>
+                <option value="ml">millilitres (ml)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <p class="field-error" id="edit-food-error" style="display:none;"></p>
+        <div class="flex" style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+          <button class="btn-secondary" type="button" data-modal-close>Cancel</button>
+          <button class="btn-primary" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Exercise Edit Modal -->
+  <div class="modal-overlay" id="edit-exercise-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-exercise-title">
+      <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 class="text-headline-md" id="edit-exercise-title" style="color:#191c1e;">Edit Exercise Entry</h2>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <form id="edit-exercise-form">
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label class="food-modal__label" for="edit-exercise-type">Activity</label>
+            <select class="input-field" id="edit-exercise-type" required>
+              <option value="Walking">Walking</option>
+              <option value="Running">Running</option>
+              <option value="Yoga">Yoga</option>
+              <option value="Gym / Strength">Gym / Strength</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <label class="food-modal__label" for="edit-exercise-duration" style="flex:1;">Duration (minutes)</label>
+            <input class="input-field" id="edit-exercise-duration" type="number" min="1" max="600" required style="flex:1;">
+          </div>
+        </div>
+        <p class="field-error" id="edit-exercise-error" style="display:none;"></p>
+        <div class="flex" style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+          <button class="btn-secondary" type="button" data-modal-close>Cancel</button>
+          <button class="btn-primary" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Delete Confirmation Modal -->
   <div class="modal-overlay" id="confirm-modal" hidden>

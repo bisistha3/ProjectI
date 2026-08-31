@@ -201,6 +201,18 @@ select.input-field { appearance: none; background-image: url("data:image/svg+xml
 
 .log-item__delete:disabled { opacity: 0.3; cursor: not-allowed; }
 
+/* Edit button - match delete button style */
+.log-item__edit { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: none; border-radius: 8px; background: transparent; color: #3f4852; cursor: pointer; opacity: 0.55; transition: background-color 0.2s, color 0.2s, opacity 0.2s; }
+
+.log-item__edit:hover { background: rgba(0, 167, 173, 0.12); color: #00696d; opacity: 1; }
+
+.log-item__edit:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Field error for edit modals */
+.field-error { display: block; font-size: 12px; font-weight: 500; color: #ba1a1a; margin-top: 8px; padding-left: 2px; }
+
+.field-error[hidden] { display: none; }
+
 /* Log avatar variants by tracker type */
 .log-item__avatar--water { background: rgba(0, 167, 173, 0.15); color: #00696d; }
 

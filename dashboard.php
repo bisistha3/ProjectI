@@ -77,6 +77,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
+    // Edit a log entry
+    elseif ($action === 'edit_log') {
+        $logType = $_POST['log_type'] ?? '';
+        $logId   = (int)($_POST['log_id'] ?? 0);
+        $tables  = ['water' => 'water_logs', 'food' => 'food_logs', 'exercise' => 'exercise_logs'];
+        
+        $ok = false;
+        $error = null;
+        
+        if ($logId > 0 && isset($tables[$logType])) {
+            $table = $tables[$logType];
+            
+            if ($logType === 'water') {
+                $amountMl  = (int)($_POST['amount_ml'] ?? 0);
+                $drinkType = trim($_POST['drink_type'] ?? 'Water');
+                $allowed   = ['Water', 'Juice', 'Tea', 'Coffee', 'Sports Drink', 'Other'];
+                if (!in_array($drinkType, $allowed)) $drinkType = 'Water';
+                if ($amountMl > 0 && $amountMl <= 5000) {
+                    $stmt = $db->prepare("UPDATE $table SET amount_ml=?, drink_type=? WHERE log_id=? AND user_id=?");
+                    $stmt->execute([$amountMl, $drinkType, $logId, $userId]);
+                    $ok = $stmt->rowCount() > 0;
+                    $error = $ok ? null : 'Entry not found or access denied';
+                } else {
+                    $error = 'Invalid amount (1-5000ml)';
+                }
+            }
+            elseif ($logType === 'food') {
+                $mealType = trim($_POST['meal_type'] ?? 'snack');
+                $qty      = (float)($_POST['qty'] ?? 0);
+                $unit     = $_POST['unit_type'] ?? 'g';
+                $validMeals = ['breakfast', 'lunch', 'dinner', 'snack'];
+                $validUnits = ['g', 'piece', 'ml'];
+                if ($qty > 0 && $qty <= 100000 && in_array($mealType, $validMeals) && in_array($unit, $validUnits)) {
+                    $foodQ = $db->prepare('
+                        SELECT f.calories, f.protein_g, f.fat_g, f.carbs_g, f.serving_qty, f.unit_type
+                        FROM food_logs fl JOIN foods f ON f.food_id = fl.food_id
+                        WHERE fl.log_id=? AND fl.user_id=?
+                    ');
+                    $foodQ->execute([$logId, $userId]);
+                    $food = $foodQ->fetch();
+                    if ($food) {
+                        $ratio = (float)$food['serving_qty'] > 0 ? $qty / (float)$food['serving_qty'] : 0;
+                        $cal   = (int)round($food['calories'] * $ratio);
+                        $prot  = round($food['protein_g'] * $ratio, 1);
+                        $fat   = round($food['fat_g'] * $ratio, 1);
+                        $carb  = round($food['carbs_g'] * $ratio, 1);
+                        $stmt = $db->prepare("UPDATE $table SET meal_type=?, qty=?, unit_type=?, calories=?, protein_g=?, fat_g=?, carbs_g=? WHERE log_id=? AND user_id=?");
+                        $stmt->execute([$mealType, $qty, $unit, $cal, $prot, $fat, $carb, $logId, $userId]);
+                        $ok = $stmt->rowCount() > 0;
+                        $error = $ok ? null : 'Entry not found or access denied';
+                    } else {
+                        $error = 'Linked food not found';
+                    }
+                } else {
+                    $error = 'Invalid quantity, meal type, or unit';
+                }
+            }
+            elseif ($logType === 'exercise') {
+                $exType   = trim($_POST['exercise_type'] ?? '');
+                $duration = max(1, min(600, (int)($_POST['duration_min'] ?? 0)));
+                $validExercises = ['Walking', 'Running', 'Yoga', 'Gym / Strength'];
+                if ($duration >= 1 && $duration <= 600 && in_array($exType, $validExercises)) {
+                    $weightQ  = $db->prepare('SELECT weight FROM users WHERE user_id=?');
+                    $weightQ->execute([$userId]);
+                    $weightKg = (float)($weightQ->fetch()['weight'] ?? 70);
+                    $burned   = (int)round(metValue($exType) * $weightKg * ($duration / 60));
+                    $stmt = $db->prepare("UPDATE $table SET exercise_type=?, duration_min=?, calories_burned=? WHERE log_id=? AND user_id=?");
+                    $stmt->execute([$exType, $duration, $burned, $logId, $userId]);
+                    $ok = $stmt->rowCount() > 0;
+                    $error = $ok ? null : 'Entry not found or access denied';
+                } else {
+                    $error = 'Invalid exercise type or duration (1-600 min)';
+                }
+            }
+        } else {
+            $error = 'Invalid log type or ID';
+        }
+        
+        echo json_encode(['ok' => $ok, 'error' => $error]);
+        exit;
+    }
+
     // Reload today totals for the response
     $totals = $db->prepare('
         SELECT g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
@@ -222,17 +304,18 @@ $weightKg        = (float)($user['weight'] ?? 70) ?: 70; // ?: also guards again
 // Recent logs for today
 // Note: all UNION branches share one column shape, so meal_type rides in the 'kcal'
 // slot of the food branch (used as the icon key in dashboard.html).
+// Added qty and unit_type for food edit functionality.
 $recentQ = $db->prepare('
     SELECT * FROM (
         SELECT log_id, user_id, amount_ml AS val, drink_type AS title, NULL AS kcal, NULL AS prot,
-               NULL AS fatg, NULL AS carb, 0 AS burn, "water" AS type, logged_at FROM water_logs
+               NULL AS fatg, NULL AS carb, 0 AS burn, NULL AS qty, NULL AS unit_type, "water" AS type, logged_at FROM water_logs
         UNION ALL
         SELECT fl.log_id, fl.user_id, fl.calories AS val, f.food_name AS title, fl.meal_type AS kcal, fl.protein_g AS prot,
-               fl.fat_g AS fatg, fl.carbs_g AS carb, 0 AS burn, "food" AS type, fl.logged_at
+               fl.fat_g AS fatg, fl.carbs_g AS carb, 0 AS burn, fl.qty, fl.unit_type, "food" AS type, fl.logged_at
         FROM food_logs fl JOIN foods f ON f.food_id = fl.food_id
         UNION ALL
         SELECT log_id, user_id, duration_min AS val, exercise_type AS title, NULL AS kcal, NULL AS prot,
-               NULL AS fatg, NULL AS carb, calories_burned AS burn, "exercise" AS type, logged_at FROM exercise_logs
+               NULL AS fatg, NULL AS carb, calories_burned AS burn, NULL AS qty, NULL AS unit_type, "exercise" AS type, logged_at FROM exercise_logs
     ) merged
     WHERE user_id=? AND DATE(logged_at)=CURDATE()
     ORDER BY logged_at DESC LIMIT 8

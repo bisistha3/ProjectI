@@ -125,6 +125,11 @@
               </div>
               <div class="log-item__actions">
                 <span class="log-item__time"><?= date('h:i A', strtotime($log['logged_at'])) ?></span>
+                <button class="log-item__edit" type="button" data-edit-type="water" data-edit-id="<?= (int)$log['log_id'] ?>"
+                        data-amount="<?= (int)$log['val'] ?>" data-drink="<?= htmlspecialchars($log['title']) ?>"
+                        title="Edit entry" aria-label="Edit entry">
+                  <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                </button>
                 <button class="log-item__delete" type="button" data-delete-type="water" data-delete-id="<?= (int)$log['log_id'] ?>"
                         title="Delete entry" aria-label="Delete entry">
                   <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
@@ -147,6 +152,32 @@
   </script>
   <script type="module" src="app.js"></script>
   <script type="module" src="js/log-water.js"></script>
+
+  <!-- Water Edit Modal -->
+  <div class="modal-overlay" id="edit-water-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-water-title">
+      <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 class="text-headline-md" id="edit-water-title" style="color:#191c1e;">Edit Water Entry</h2>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <form id="edit-water-form">
+        <div class="flex" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <div class="input-group" style="flex:1; min-width:140px;">
+            <span class="material-symbols-outlined icon-left">local_drink</span>
+            <input class="input-field input-field--icon" id="edit-water-amount" type="number" min="1" max="5000" step="1" required>
+          </div>
+          <select class="input-field" id="edit-water-drink" style="width:auto; min-width:130px;" required>
+            <option>Water</option><option>Juice</option><option>Tea</option><option>Coffee</option><option>Sports Drink</option><option>Other</option>
+          </select>
+        </div>
+        <p class="field-error" id="edit-water-error" style="display:none;"></p>
+        <div class="flex" style="display:flex; gap:8px; justify-content:flex-end; margin-top:16px;">
+          <button class="btn-secondary" type="button" data-modal-close>Cancel</button>
+          <button class="btn-primary" type="submit">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Delete Confirmation Modal -->
   <div class="modal-overlay" id="confirm-modal" hidden>
