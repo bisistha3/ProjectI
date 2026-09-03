@@ -156,7 +156,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
         } catch (Exception $e) {
-            $errors['general'] = 'Something went wrong. Please try again.';
+            error_log('Registration failed: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+            $errors['general'] = 'Something went wrong: ' . $e->getMessage();
         }
     }
 }
