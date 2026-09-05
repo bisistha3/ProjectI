@@ -8,8 +8,8 @@ requireLogin();
 $db     = getDB();
 $userId = (int)$_SESSION['user_id'];
 
-$type = $_GET['type'] ?? 'water';
-if (!in_array($type, ['water', 'food', 'exercise'], true)) $type = 'water';
+$type = $_GET['type'] ?? 'all';
+if (!in_array($type, ['water', 'food', 'exercise', 'all'], true)) $type = 'all';
 
 $u = $db->prepare('SELECT u.full_name, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
                           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
@@ -29,20 +29,26 @@ $goalCarbs = (int)($user['daily_carbs_goal_g']    ?? 225);
 $goalMin   = (int)($user['daily_exercise_goal_min'] ?? 30);
 $fullName  = htmlspecialchars($user['full_name'] ?? $_SESSION['full_name'], ENT_QUOTES, 'UTF-8');
 
-// Calculate water streak
+// Streaks per type (water, food, exercise).
 // Counts back from today only — an unlogged today resets the visible streak to 0.
-$streakQ = $db->prepare('
-    SELECT DATE(logged_at) AS day FROM water_logs
-    WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC
-');
-$streakQ->execute([$userId]);
-$days   = $streakQ->fetchAll(PDO::FETCH_COLUMN);
-$streak = 0;
-$check  = new DateTime('today');
-foreach ($days as $day) {
-    if ($day === $check->format('Y-m-d')) { $streak++; $check->modify('-1 day'); }
-    else break;
+$streakTables = ['water' => 'water_logs', 'food' => 'food_logs', 'exercise' => 'exercise_logs'];
+$streaks = ['water' => 0, 'food' => 0, 'exercise' => 0];
+foreach ($streakTables as $skey => $stable) {
+    $streakQ = $db->prepare(
+        "SELECT DATE(logged_at) AS day FROM $stable WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC"
+    );
+    $streakQ->execute([$userId]);
+    $sdays = $streakQ->fetchAll(PDO::FETCH_COLUMN);
+    $check = new DateTime('today');
+    foreach ($sdays as $day) {
+        if ($day === $check->format('Y-m-d')) { $streaks[$skey]++; $check->modify('-1 day'); }
+        else break;
+    }
 }
+$streak = $streaks['water'];
+
+// Per-type daily goal, used by the streak calendar dots.
+$calGoals = ['water' => $goalMl, 'food' => $goalKcal, 'exercise' => $goalMin];
 
 $metrics = [];
 $weekRaw = [];
@@ -77,6 +83,17 @@ if ($type === 'water') {
     $metrics = $metricsQ->fetch();
     $chartValue = 'ml';
 
+    // Week totals for the water summary strip.
+    $wstatQ = $db->prepare('
+        SELECT SUM(amount_ml) AS ml, COUNT(*) AS n
+        FROM water_logs
+        WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+    ');
+    $wstatQ->execute([$userId]);
+    $wstat = $wstatQ->fetch();
+    $metrics['week_ml'] = (int)($wstat['ml'] ?? 0);
+    $metrics['week_n']  = (int)($wstat['n'] ?? 0);
+
     // MIN/MAX over text picks one arbitrary value as a placeholder label — not the actual most-logged item.
     $tableQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml,
@@ -96,7 +113,7 @@ if ($type === 'water') {
         GROUP BY DATE(logged_at)
     ');
     $calQ->execute([$userId]);
-    $calData = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
+    $calData['water'] = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 } elseif ($type === 'food') {
     $weekly = $db->prepare('
@@ -153,7 +170,16 @@ if ($type === 'water') {
     $tableQ->execute([$userId]);
     $tableRows = $tableQ->fetchAll();
 
-} else {
+    $calQ = $db->prepare('
+        SELECT DATE(logged_at) AS day, SUM(calories) AS total_kcal
+        FROM food_logs
+        WHERE user_id=? AND YEAR(logged_at)=YEAR(CURDATE()) AND MONTH(logged_at)=MONTH(CURDATE())
+        GROUP BY DATE(logged_at)
+    ');
+    $calQ->execute([$userId]);
+    $calData['food'] = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
+
+} elseif ($type === 'exercise') {
     $weekly = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min,
                SUM(calories_burned) AS total_burn, COUNT(*) AS sessions
@@ -202,6 +228,138 @@ if ($type === 'water') {
     ');
     $tableQ->execute([$userId]);
     $tableRows = $tableQ->fetchAll();
+
+    $calQ = $db->prepare('
+        SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min
+        FROM exercise_logs
+        WHERE user_id=? AND YEAR(logged_at)=YEAR(CURDATE()) AND MONTH(logged_at)=MONTH(CURDATE())
+        GROUP BY DATE(logged_at)
+    ');
+    $calQ->execute([$userId]);
+    $calData['exercise'] = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
+} else { // ---- ALL: combined water + food + exercise ----
+    // Last-7-day daily aggregates per type.
+    $wQ = $db->prepare('
+        SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml, COUNT(*) AS entries
+        FROM water_logs
+        WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE(logged_at)
+    ');
+    $wQ->execute([$userId]);
+    $waterByDay = [];
+    foreach ($wQ->fetchAll() as $r) $waterByDay[$r['day']] = $r;
+
+    $fQ = $db->prepare('
+        SELECT DATE(logged_at) AS day, SUM(calories) AS total_kcal,
+               SUM(protein_g) AS prot, SUM(fat_g) AS fat, SUM(carbs_g) AS carbs,
+               COUNT(*) AS entries
+        FROM food_logs
+        WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE(logged_at)
+    ');
+    $fQ->execute([$userId]);
+    $foodByDay = [];
+    foreach ($fQ->fetchAll() as $r) $foodByDay[$r['day']] = $r;
+
+    $eQ = $db->prepare('
+        SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min,
+               SUM(calories_burned) AS total_burn, COUNT(*) AS entries
+        FROM exercise_logs
+        WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE(logged_at)
+    ');
+    $eQ->execute([$userId]);
+    $exByDay = [];
+    foreach ($eQ->fetchAll() as $r) $exByDay[$r['day']] = $r;
+
+    // Merge by date. The chart covers all 7 days; the table lists logged days only.
+    $weekRaw = [];
+    $tableRows = [];
+    $weekMl = $weekKcal = $weekMin = $weekBurn = 0;
+    $weekProt = $weekFat = $weekCarbs = 0.0;
+    for ($i = 6; $i >= 0; $i--) {
+        $date = date('Y-m-d', strtotime("-$i days"));
+        $w = $waterByDay[$date] ?? null;
+        $f = $foodByDay[$date] ?? null;
+        $e = $exByDay[$date] ?? null;
+
+        $ml   = (int)($w['total_ml'] ?? 0);
+        $kcal = (int)($f['total_kcal'] ?? 0);
+        $min  = (int)($e['total_min'] ?? 0);
+        $burn = (int)($e['total_burn'] ?? 0);
+        $weekRaw[$date] = ['water_ml' => $ml, 'food_kcal' => $kcal, 'ex_min' => $min];
+
+        $weekMl += $ml; $weekKcal += $kcal; $weekMin += $min; $weekBurn += $burn;
+        $weekProt  += (float)($f['prot'] ?? 0);
+        $weekFat   += (float)($f['fat'] ?? 0);
+        $weekCarbs += (float)($f['carbs'] ?? 0);
+
+        if (!$w && !$f && !$e) continue;
+        $tableRows[] = [
+            'day'       => $date,
+            'water_ml'  => $ml,
+            'food_kcal' => $kcal,
+            'ex_min'    => $min,
+            'water_pct' => $goalMl   > 0 ? min(100, round($ml / $goalMl * 100)) : 0,
+            'food_pct'  => $goalKcal > 0 ? min(100, round($kcal / $goalKcal * 100)) : 0,
+            'ex_pct'    => $goalMin  > 0 ? min(100, round($min / $goalMin * 100)) : 0,
+            'goals_met' => ($ml >= $goalMl ? 1 : 0) + ($kcal >= $goalKcal ? 1 : 0) + ($min >= $goalMin ? 1 : 0),
+        ];
+    }
+    // Table shows newest first.
+    $tableRows = array_reverse($tableRows);
+
+    // All-time headline metrics.
+    $nQ = $db->prepare('SELECT (SELECT COUNT(*) FROM water_logs WHERE user_id=?)
+                             + (SELECT COUNT(*) FROM food_logs WHERE user_id=?)
+                             + (SELECT COUNT(*) FROM exercise_logs WHERE user_id=?) AS total_logs');
+    $nQ->execute([$userId, $userId, $userId]);
+    $totalLogs = (int)$nQ->fetchColumn();
+
+    $aQ = $db->prepare('SELECT COUNT(*) FROM (
+                             SELECT DATE(logged_at) AS day FROM water_logs WHERE user_id=?
+                             UNION
+                             SELECT DATE(logged_at) FROM food_logs WHERE user_id=?
+                             UNION
+                             SELECT DATE(logged_at) FROM exercise_logs WHERE user_id=?
+                         ) d');
+    $aQ->execute([$userId, $userId, $userId]);
+    $activeDays = (int)$aQ->fetchColumn();
+
+    // A "perfect day" meets all three daily goals.
+    $pQ = $db->prepare('SELECT COUNT(*) FROM (
+                             SELECT days.day
+                             FROM (
+                                 SELECT DATE(logged_at) AS day FROM water_logs WHERE user_id=?
+                                 UNION
+                                 SELECT DATE(logged_at) FROM food_logs WHERE user_id=?
+                                 UNION
+                                 SELECT DATE(logged_at) FROM exercise_logs WHERE user_id=?
+                             ) days
+                             LEFT JOIN (SELECT DATE(logged_at) AS day, SUM(amount_ml) AS ml
+                                        FROM water_logs WHERE user_id=? GROUP BY DATE(logged_at)) w ON w.day = days.day
+                             LEFT JOIN (SELECT DATE(logged_at) AS day, SUM(calories) AS kcal
+                                        FROM food_logs WHERE user_id=? GROUP BY DATE(logged_at)) f ON f.day = days.day
+                             LEFT JOIN (SELECT DATE(logged_at) AS day, SUM(duration_min) AS mn
+                                        FROM exercise_logs WHERE user_id=? GROUP BY DATE(logged_at)) e ON e.day = days.day
+                             WHERE COALESCE(w.ml, 0) >= ? AND COALESCE(f.kcal, 0) >= ? AND COALESCE(e.mn, 0) >= ?
+                         ) p');
+    $pQ->execute([$userId, $userId, $userId, $userId, $userId, $userId, $goalMl, $goalKcal, $goalMin]);
+    $perfectDays = (int)$pQ->fetchColumn();
+
+    $metrics = [
+        'active_days'  => $activeDays,
+        'total_logs'   => $totalLogs,
+        'perfect_days' => $perfectDays,
+        'week_ml'      => $weekMl,
+        'week_kcal'    => $weekKcal,
+        'week_min'     => $weekMin,
+        'week_burn'    => $weekBurn,
+        'week_prot'    => round($weekProt, 1),
+        'week_fat'     => round($weekFat, 1),
+        'week_carbs'   => round($weekCarbs, 1),
+    ];
+    $chartValue = 'all';
 }
 
 // Build week chart data
@@ -211,7 +369,26 @@ for ($i = 6; $i >= 0; $i--) {
     $date = date('Y-m-d', strtotime("-$i days"));
     $raw  = $weekRaw[$date] ?? [];
 
-    if ($type === 'water') {
+    if ($type === 'all') {
+        // $weekRaw holds a per-type array for 'all'; each bar scales to its own goal.
+        $w = (int)($raw['water_ml'] ?? 0);
+        $f = (int)($raw['food_kcal'] ?? 0);
+        $e = (int)($raw['ex_min'] ?? 0);
+        $weekDays[] = [
+            'date'      => $date,
+            'label'     => date('D', strtotime($date)),
+            'water_ml'  => $w,
+            'food_kcal' => $f,
+            'ex_min'    => $e,
+            'pcts'      => [
+                'water'    => $goalMl   > 0 ? min(100, round($w / $goalMl * 100)) : 0,
+                'food'     => $goalKcal > 0 ? min(100, round($f / $goalKcal * 100)) : 0,
+                'exercise' => $goalMin  > 0 ? min(100, round($e / $goalMin * 100)) : 0,
+            ],
+            'is_today'  => $date === date('Y-m-d'),
+        ];
+        continue;
+    } elseif ($type === 'water') {
         $val  = (int)($raw ?? 0);
         $goal = $goalMl;
         $pct  = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
@@ -255,5 +432,11 @@ for ($i = 6; $i >= 0; $i--) {
                             'icon' => 'calendar_month', 'color' => '#86c963'],
                       'total' => ['lbl' => 'Total Activity', 'val' => $metrics['total_min'] ?? '0', 'unit' => 'min',
                             'icon' => 'bar_chart', 'color' => '#445f56']],
+        'all'     => ['avg' => ['lbl' => 'Active Days', 'val' => $metrics['active_days'] ?? '0', 'unit' => 'days',
+                            'icon' => 'event_available', 'color' => '#00696d'],
+                      'best' => ['lbl' => 'Total Logs', 'val' => number_format((float)($metrics['total_logs'] ?? 0)), 'unit' => 'logs',
+                            'icon' => 'receipt_long', 'color' => '#f97316'],
+                      'total' => ['lbl' => 'Perfect Days', 'val' => $metrics['perfect_days'] ?? '0', 'unit' => 'days',
+                            'icon' => 'emoji_events', 'color' => '#445f56']],
     ];
 require __DIR__ . '/history.html';

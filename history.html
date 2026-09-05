@@ -56,6 +56,9 @@
 
     <!-- Type Tabs -->
     <div class="chart-toggle" style="display:flex; gap:8px; margin-bottom:4px;">
+      <a href="history.php?type=all" class="chart-toggle__btn <?= $type === 'all' ? 'chart-toggle__btn--active' : '' ?>">
+        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">grid_view</span> All
+      </a>
       <a href="history.php?type=water" class="chart-toggle__btn <?= $type === 'water' ? 'chart-toggle__btn--active' : '' ?>">
         <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">water_drop</span> Water
       </a>
@@ -101,6 +104,29 @@
       </div>
     </section>
 
+    <!-- Water summary strip -->
+    <?php if ($type === 'water'): ?>
+    <section class="glass-card chart-card" style="padding:20px; border-radius:16px; margin-top:24px;">
+      <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
+        <div class="stat-card">
+          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">water_drop</span>
+          <p class="stat-card__label">Water This Week</p>
+          <p class="stat-card__value"><?= number_format(($metrics['week_ml'] ?? 0) / 1000, 1) ?> <span style="font-size:12px;">L</span></p>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">receipt_long</span>
+          <p class="stat-card__label">Logs This Week</p>
+          <p class="stat-card__value"><?= (int)($metrics['week_n'] ?? 0) ?> <span style="font-size:12px;">entries</span></p>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">track_changes</span>
+          <p class="stat-card__label">Daily Goal</p>
+          <p class="stat-card__value"><?= $goalLabel ?></p>
+        </div>
+      </div>
+    </section>
+    <?php endif; ?>
+
     <!-- Food macro summary -->
     <?php if ($type === 'food'): ?>
     <section class="glass-card chart-card" style="padding:20px; border-radius:16px; margin-top:24px;">
@@ -142,6 +168,64 @@
     </section>
     <?php endif; ?>
 
+    <!-- All summary: week totals across types -->
+    <?php if ($type === 'all'): ?>
+    <section class="glass-card chart-card" style="padding:20px; border-radius:16px; margin-top:24px;">
+      <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
+        <div class="stat-card">
+          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">water_drop</span>
+          <p class="stat-card__label">Water This Week</p>
+          <p class="stat-card__value"><?= number_format(($metrics['week_ml'] ?? 0) / 1000, 1) ?> <span style="font-size:12px;">L</span></p>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined" style="color:#f97316; margin-bottom:8px; font-variation-settings:'FILL' 1;">restaurant</span>
+          <p class="stat-card__label">Food This Week</p>
+          <p class="stat-card__value"><?= number_format((float)($metrics['week_kcal'] ?? 0)) ?> <span style="font-size:12px;">kcal</span></p>
+          <p class="stat-card__sub">P <?= $metrics['week_prot'] ?? '0.0' ?>g &middot; F <?= $metrics['week_fat'] ?? '0.0' ?>g &middot; C <?= $metrics['week_carbs'] ?? '0.0' ?>g</p>
+        </div>
+        <div class="stat-card">
+          <span class="material-symbols-outlined" style="color:#10b981; margin-bottom:8px; font-variation-settings:'FILL' 1;">directions_run</span>
+          <p class="stat-card__label">Exercise This Week</p>
+          <p class="stat-card__value"><?= (int)($metrics['week_min'] ?? 0) ?> <span style="font-size:12px;">min</span></p>
+          <p class="stat-card__sub"><?= number_format((float)($metrics['week_burn'] ?? 0)) ?> kcal burned</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- All weekly overview: grouped bars, one per type, each scaled to its own goal -->
+    <section class="glass-card chart-card" style="margin-top:24px;">
+      <div class="chart-card__header">
+        <h3 class="text-headline-md" style="color:#191c1e;">Last 7 Days &mdash; All Activities</h3>
+        <span class="text-label-md text-on-surface-variant" style="font-size:12px;">% of daily goal</span>
+      </div>
+      <div class="bar-chart">
+        <div class="bar-chart__goal-line"></div>
+        <?php foreach ($weekDays as $d): ?>
+        <div class="bar-col <?= $d['is_today'] ? 'bar-col--active' : '' ?>">
+          <div class="bar-group">
+            <div class="bar bar--water <?= $d['pcts']['water'] >= 100 ? 'bar--filled' : '' ?>"
+                 style="height:<?= max(2, $d['pcts']['water']) ?>%;"
+                 title="Water: <?= number_format($d['water_ml'] / 1000, 1) ?>L (<?= $d['pcts']['water'] ?>% of <?= $goalLabel ?>)"></div>
+            <div class="bar bar--food <?= $d['pcts']['food'] >= 100 ? 'bar--filled' : '' ?>"
+                 style="height:<?= max(2, $d['pcts']['food']) ?>%;"
+                 title="Food: <?= number_format($d['food_kcal']) ?> kcal (<?= $d['pcts']['food'] ?>% of <?= number_format($goalKcal) ?> kcal)"></div>
+            <div class="bar bar--exercise <?= $d['pcts']['exercise'] >= 100 ? 'bar--filled' : '' ?>"
+                 style="height:<?= max(2, $d['pcts']['exercise']) ?>%;"
+                 title="Exercise: <?= $d['ex_min'] ?> min (<?= $d['pcts']['exercise'] ?>% of <?= $goalMin ?> min)"></div>
+          </div>
+          <span class="bar-label" <?= $d['is_today'] ? 'style="color:#00696d;"' : '' ?>><?= $d['label'] ?></span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+      <div class="chart-legend" style="gap:16px; flex-wrap:wrap;">
+        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--water"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Water &middot; <?= $goalLabel ?></span></span>
+        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--food"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Food &middot; <?= number_format($goalKcal) ?> kcal</span></span>
+        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--exercise"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Exercise &middot; <?= $goalMin ?> min</span></span>
+      </div>
+    </section>
+    <?php endif; ?>
+
+    <?php if ($type !== 'all'): ?>
     <!-- Charts Section -->
     <section class="charts-grid">
       <!-- Weekly Bar Chart -->
@@ -172,8 +256,7 @@
         </div>
       </div>
 
-      <!-- Streak Calendar (water only) -->
-      <?php if ($type === 'water'): ?>
+      <!-- Streak Calendar -->
       <div class="glass-card calendar-card">
         <div class="calendar-card__header">
           <h3 class="text-headline-md" style="color:#191c1e;">Streak Calendar</h3>
@@ -190,14 +273,15 @@
           for ($i = 0; $i < $firstDay; $i++) echo '<span class="cal-day cal-day--faded"></span>';
           for ($d = 1; $d <= $daysInMonth; $d++) {
               $dateStr = date('Y-m') . '-' . str_pad($d, 2, '0', STR_PAD_LEFT);
-              $ml      = (int)($calData[$dateStr] ?? 0);
+              $dayVal   = (int)(($calData[$type] ?? [])[$dateStr] ?? 0);
+              $typeGoal = ($calGoals[$type] ?? 0) > 0 ? $calGoals[$type] : 1;
               $isFuture= $d > $today;
               $isToday = $d === $today;
-              $metGoal = $ml >= $goalMl;
+              $metGoal = $dayVal >= $typeGoal;
               if ($isFuture)    $cls = 'cal-day__dot--future';
               elseif ($isToday) $cls = $metGoal ? 'cal-day__dot--filled' : 'cal-day__dot--today';
               elseif ($metGoal) $cls = 'cal-day__dot--filled';
-              elseif ($ml > 0)  $cls = 'cal-day__dot--missed';
+              elseif ($dayVal > 0)  $cls = 'cal-day__dot--missed';
               else              $cls = 'cal-day__dot--missed';
               echo "<span class=\"cal-day\"><div class=\"cal-day__dot $cls\">$d</div></span>";
           }
@@ -208,15 +292,69 @@
             <span class="material-symbols-outlined" style="color:#00696d;font-variation-settings:'FILL' 1;">local_fire_department</span>
             <div>
               <p class="text-label-md" style="color:#191c1e;">Current Streak</p>
-              <p style="font-size:10px;color:#3f4852;"><?= $streak ?> day<?= $streak !== 1 ? 's' : '' ?> in a row</p>
+              <p style="font-size:10px;color:#3f4852;"><?= $streaks[$type] ?> day<?= $streaks[$type] !== 1 ? 's' : '' ?> in a row</p>
             </div>
           </div>
-          <span class="text-headline-md text-primary"><?= str_pad($streak, 2, '0', STR_PAD_LEFT) ?></span>
+          <span class="text-headline-md text-primary"><?= str_pad($streaks[$type], 2, '0', STR_PAD_LEFT) ?></span>
         </div>
       </div>
-      <?php endif; ?>
     </section>
+    <?php endif; ?>
 
+    <?php if ($type === 'all'): ?>
+    <!-- Combined Daily Log Table: one row per day across all types -->
+    <section class="glass-card table-card">
+      <h3 class="text-headline-md mb-6" style="color:#191c1e;">Daily Log: Last 7 Days</h3>
+      <div class="table-wrapper">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>DATE</th>
+              <th>WATER</th>
+              <th>FOOD</th>
+              <th>EXERCISE</th>
+              <th style="text-align:right;">STATUS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php if (empty($tableRows)): ?>
+            <tr><td colspan="5" style="text-align:center;color:#3f4852;padding:32px;">
+              Nothing logged yet &mdash; log water, food, or exercise to see it here!
+            </td></tr>
+            <?php else: ?>
+            <?php foreach ($tableRows as $row):
+              $isToday = $row['day'] === date('Y-m-d');
+              $dateLabel = $isToday ? 'Today, ' . date('M j', strtotime($row['day'])) : date('M j', strtotime($row['day']));
+              $g = (int)$row['goals_met'];
+              if ($isToday)      { $statusCls = 'status-badge--progress'; $status = 'In Progress'; }
+              elseif ($g >= 3)   { $statusCls = 'status-badge--exceeded'; $status = 'Perfect Day'; }
+              elseif ($g === 2)  { $statusCls = 'status-badge--met';      $status = '2 of 3 Goals'; }
+              elseif ($g === 1)  { $statusCls = 'status-badge--progress'; $status = '1 of 3 Goals'; }
+              else               { $statusCls = 'status-badge--missed';   $status = 'Missed'; }
+            ?>
+            <tr>
+              <td class="font-semibold" style="color:#191c1e;"><?= htmlspecialchars($dateLabel) ?></td>
+              <td>
+                <div><?= number_format($row['water_ml'] / 1000, 1) ?>L</div>
+                <div class="progress-track progress-track--sm"><div class="progress-fill progress-fill--water" style="width:<?= $row['water_pct'] ?>%;"></div></div>
+              </td>
+              <td>
+                <div><?= number_format($row['food_kcal']) ?> kcal</div>
+                <div class="progress-track progress-track--sm"><div class="progress-fill progress-fill--food" style="width:<?= $row['food_pct'] ?>%;"></div></div>
+              </td>
+              <td>
+                <div><?= (int)$row['ex_min'] ?> min</div>
+                <div class="progress-track progress-track--sm"><div class="progress-fill progress-fill--exercise" style="width:<?= $row['ex_pct'] ?>%;"></div></div>
+              </td>
+              <td style="text-align:right;"><span class="status-badge <?= $statusCls ?>"><?= $status ?></span></td>
+            </tr>
+            <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <?php else: ?>
     <!-- Daily Log Table -->
     <section class="glass-card table-card">
       <h3 class="text-headline-md mb-6" style="color:#191c1e;">Daily Log: Last 7 Days</h3>
@@ -234,6 +372,7 @@
               <th>CALORIES</th>
               <th style="width:25%;">GOAL PROGRESS</th>
               <th>PROTEIN / FAT / CARBS</th>
+              <th style="text-align:right;">STATUS</th>
               <?php else: ?>
               <th>MINUTES</th>
               <th style="width:25%;">GOAL PROGRESS</th>
@@ -270,10 +409,10 @@
               }
               $pct = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
 
-              if ($isToday)                { $statusCls = 'status-badge--progress'; $status = 'In Progress'; $barCls = 'progress-fill--primary'; $showStatus = true; }
-              elseif ($val >= $goal * 1.1) { $statusCls = 'status-badge--exceeded'; $status = 'Exceeded';    $barCls = 'progress-fill--exceeded'; $showStatus = true; }
-              elseif ($val >= $goal)       { $statusCls = 'status-badge--met';      $status = 'Met Goal';    $barCls = 'progress-fill--success'; $showStatus = true; }
-              else                         { $statusCls = 'status-badge--missed';   $status = 'Missed';      $barCls = 'progress-fill--error';   $showStatus = $type !== 'food'; }
+              if ($isToday)                { $statusCls = 'status-badge--progress'; $status = 'In Progress'; $barCls = 'progress-fill--primary'; }
+              elseif ($val >= $goal * 1.1) { $statusCls = 'status-badge--exceeded'; $status = 'Exceeded';    $barCls = 'progress-fill--exceeded'; }
+              elseif ($val >= $goal)       { $statusCls = 'status-badge--met';      $status = 'Met Goal';    $barCls = 'progress-fill--success'; }
+              else                         { $statusCls = 'status-badge--missed';   $status = 'Missed';      $barCls = 'progress-fill--error'; }
             ?>
             <tr>
               <td class="font-semibold" style="color:#191c1e;"><?= htmlspecialchars($dateLabel) ?></td>
@@ -284,9 +423,7 @@
                 </div>
               </td>
               <td><?= htmlspecialchars($extra) ?></td>
-              <?php if ($type !== 'food'): ?>
               <td style="text-align:right;"><span class="status-badge <?= $statusCls ?>"><?= $status ?></span></td>
-              <?php endif; ?>
             </tr>
             <?php endforeach; ?>
             <?php endif; ?>
@@ -294,6 +431,7 @@
         </table>
       </div>
     </section>
+    <?php endif; ?>
   </main>
 
   <footer class="app-footer">

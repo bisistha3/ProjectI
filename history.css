@@ -252,6 +252,56 @@
 
 .sidebar-overlay.active { display: block; }
 
+/* ---------- All Tab: stat cards (also styles the food/exercise summaries) ---------- */
+.stat-card { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 140px; }
+
+.stat-card__label { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; color: #3f4852; margin-bottom: 4px; }
+
+.stat-card__value { font-size: 28px; line-height: 1.2; font-weight: 700; color: #191c1e; }
+
+.stat-card__sub { font-size: 12px; color: #3f4852; margin-top: 4px; }
+
+/* ---------- All Tab: grouped bars (one per type, each scaled to its own goal) ---------- */
+.bar-group { display: flex; align-items: flex-end; justify-content: center; gap: 6px; width: 100%; flex: 1 1 auto; min-height: 0; }
+
+.bar-group .bar { width: 100%; max-width: 26px; }
+
+.bar--water { background-color: rgba(0, 105, 109, 0.2); }
+
+.bar--water:hover, .bar--water.bar--filled { background-color: #00696d; box-shadow: 0 0 15px rgba(0, 167, 173, 0.2); }
+
+.bar--food { background-color: rgba(249, 115, 22, 0.2); }
+
+.bar--food:hover, .bar--food.bar--filled { background-color: #f97316; box-shadow: 0 0 15px rgba(249, 115, 22, 0.25); }
+
+.bar--food:hover::after { background: linear-gradient(to top, #f97316, transparent); }
+
+.bar--exercise { background-color: rgba(16, 185, 129, 0.2); }
+
+.bar--exercise:hover, .bar--exercise.bar--filled { background-color: #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.25); }
+
+.bar--exercise:hover::after { background: linear-gradient(to top, #10b981, transparent); }
+
+.legend-dot--water { background-color: #00696d; }
+
+.legend-dot--food { background-color: #f97316; }
+
+.legend-dot--exercise { background-color: #10b981; }
+
+/* ---------- All Tab: per-type progress fills in the combined table ---------- */
+.progress-track--sm { height: 6px; margin-top: 6px; max-width: 140px; }
+
+.progress-fill--water { background-color: #00696d; }
+
+.progress-fill--food { background-color: #f97316; }
+
+.progress-fill--exercise { background-color: #10b981; }
+
+@media (max-width: 768px) {
+  .bar-group { gap: 3px; }
+  .bar-group .bar { max-width: 18px; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
