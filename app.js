@@ -7,6 +7,7 @@ import { initFormHandlers }   from './js/forms.js';
 import { initReminderToggle, initReminderToast } from './js/reminder.js';
 import { initChartToggle, initCalendarNav, initBarTooltips } from './js/history.js';
 import { showConfirm } from './js/confirm-modal.js';
+import { initDailyGoalPrompt } from './js/daily-goal-prompt.js';
 
 /**
  * Generic handler for individual log editing (log pages).
@@ -207,4 +208,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initChartToggle();
   initCalendarNav();
   initBarTooltips();
+  initDailyGoalPrompt();
 });

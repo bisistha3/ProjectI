@@ -12,6 +12,23 @@
 .text-headline-lg-responsive { font-size: 24px; line-height: 32px; font-weight: 700; }
 @media (min-width: 769px) { .text-headline-lg-responsive { font-size: 32px; line-height: 40px; font-weight: 700; letter-spacing: -0.01em; } }
 
+/* ---------- Component: Form Fields & Buttons (shared) ---------- */
+.input-field { width: 100%; background-color: #f2f4f6; border: 1px solid #bec7d4; border-radius: 0.5rem; padding: 10px 12px; font-size: 14px; line-height: 20px; color: #191c1e; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+.input-field::placeholder { color: #bec7d4; }
+.input-field:focus { border-color: #00696d; box-shadow: 0 0 0 2px rgba(1, 105, 109, 0.15); }
+.input-field--error { border-color: #ba1a1a !important; box-shadow: 0 0 0 2px rgba(186, 26, 26, 0.12); }
+
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: #00696d; color: #ffffff; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 9999px; border: none; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.btn-primary:hover { background-color: #00a7ad; color: #00373a; }
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background-color: transparent; color: #3f4852; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 9999px; border: 1px solid #bec7d4; cursor: pointer; transition: background-color 0.2s, box-shadow 0.2s, transform 0.15s; }
+.btn-secondary:hover { background-color: rgba(0, 0, 0, 0.05); }
+.btn-secondary:active { transform: scale(0.97); }
+
+.field-error { font-size: 12px; font-weight: 600; color: #ba1a1a; margin-top: 8px; }
+
 /* ---------- Component: Sidebar ---------- */
 .sidebar { width: 240px; height: 100vh; position: fixed; left: 0; top: 0; border-right: 1px solid rgba(190, 199, 212, 0.3); background-color: #ffffff; display: flex; flex-direction: column; gap: 24px; padding: 20px; z-index: 50; transition: transform 0.3s ease; }
 
@@ -124,6 +141,13 @@
 
 .log-item__avatar--exercise { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 
+/* ---------- Component: Modal ---------- */
+.modal-overlay { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, 0.45); }
+.modal-overlay[hidden] { display: none; }
+.modal-card { width: 100%; max-width: 420px; max-height: 92vh; overflow-y: auto; background: #ffffff; border-radius: 16px; padding: 24px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25); }
+.modal-close { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: none; border-radius: 8px; background: transparent; color: #3f4852; cursor: pointer; }
+.modal-close:hover { background: rgba(0, 0, 0, 0.06); }
+
 /* ---------- Mobile Hamburger ---------- */
 .hamburger { display: none; position: fixed; top: 16px; left: 16px; z-index: 60; width: 40px; height: 40px; border-radius: 0.5rem; background: #ffffff; border: 1px solid #bec7d4; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.08); color: #191c1e; }
 
@@ -166,3 +190,53 @@
 }
 .btn-danger:hover { background-color: #9b1616; }
 .btn-danger:active { transform: scale(0.97); }
+
+/* ---------- Component: Daily Goal Prompt Modal ---------- */
+.daily-goal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.daily-goal-field {
+  background: #f2f4f6;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.daily-goal-field__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.daily-goal-field__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3f4852;
+  letter-spacing: 0.02em;
+}
+
+.daily-goal-field .input-field {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+@media (max-width: 480px) {
+  .daily-goal-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 360px) {
+  .daily-goal-grid {
+    grid-template-columns: 1fr;
+  }
+}

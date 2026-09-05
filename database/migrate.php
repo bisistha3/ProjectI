@@ -88,5 +88,10 @@ foreach (['daily_goal_ml', 'daily_calorie_goal', 'daily_protein_goal_g', 'daily_
     }
 }
 
+// Add daily_goals_prompted_at column to track first login of the day
+if (!$hasCol('users', 'daily_goals_prompted_at')) {
+    $alter('ALTER TABLE users ADD COLUMN daily_goals_prompted_at DATETIME DEFAULT NULL AFTER is_verified');
+}
+
 header('Content-Type: text/plain; charset=utf-8');
 echo implode(PHP_EOL, $out);

@@ -234,6 +234,18 @@
       'interval_min' => $reminderInt,
   ]); ?>;
   </script>
+  <script>
+  window.SHOW_DAILY_GOAL_PROMPT = <?= $showDailyGoalPrompt ? 'true' : 'false' ?>;
+  window.DAILY_GOALS_DEFAULTS = {
+    daily_goal_ml: <?= (int)$goalMl ?>,
+    daily_calorie_goal: <?= (int)$goalKcal ?>,
+    daily_protein_goal_g: <?= (int)$goalP ?>,
+    daily_fat_goal_g: <?= (int)$goalFt ?>,
+    daily_carbs_goal_g: <?= (int)$goalCb ?>,
+    daily_exercise_goal_min: <?= (int)$goalMin ?>,
+    daily_burn_goal_kcal: <?= (int)$goalBurn ?>
+  };
+  </script>
   <script type="module" src="app.js"></script>
 
   <!-- Water Edit Modal -->
@@ -345,6 +357,82 @@
         <button class="btn-secondary" type="button" data-confirm-cancel>Cancel</button>
         <button class="btn-primary" id="confirm-ok" type="button">Confirm</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Daily Goal Prompt Modal (first login of the day) -->
+  <div class="modal-overlay" id="daily-goal-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="daily-goal-title" style="max-width:500px;">
+      <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <h2 class="text-headline-md" id="daily-goal-title" style="color:#191c1e;">Set Today's Goals</h2>
+        <button class="modal-close" type="button" id="daily-goal-close" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <p class="text-body-md text-on-surface-variant" style="margin-bottom:16px;">What do you want to achieve today?</p>
+      <form id="daily-goal-form">
+        <div class="daily-goal-grid">
+          <!-- Water -->
+          <div class="daily-goal-field">
+            <div class="daily-goal-field__icon" style="background:rgba(0,167,173,0.12); color:#00696d;">
+              <span class="material-symbols-outlined">water_drop</span>
+            </div>
+            <label class="daily-goal-field__label" for="dg-water">Water (ml)</label>
+            <input class="input-field" id="dg-water" type="number" min="500" max="10000" step="50" required>
+          </div>
+          <!-- Calories -->
+          <div class="daily-goal-field">
+            <div class="daily-goal-field__icon" style="background:rgba(249,115,22,0.12); color:#f97316;">
+              <span class="material-symbols-outlined">local_fire_department</span>
+            </div>
+            <label class="daily-goal-field__label" for="dg-calories">Calories (kcal)</label>
+            <input class="input-field" id="dg-calories" type="number" min="1200" max="5000" step="50" required>
+          </div>
+          <!-- Protein -->
+          <div class="daily-goal-field">
+            <div class="daily-goal-field__icon" style="background:rgba(16,185,129,0.12); color:#10b981;">
+              <span class="material-symbols-outlined">egg_alt</span>
+            </div>
+            <label class="daily-goal-field__label" for="dg-protein">Protein (g)</label>
+            <input class="input-field" id="dg-protein" type="number" min="20" max="400" step="5" required>
+          </div>
+          <!-- Fat -->
+          <div class="daily-goal-field">
+            <div class="daily-goal-field__icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;">
+              <span class="material-symbols-outlined">water_drop</span>
+            </div>
+            <label class="daily-goal-field__label" for="dg-fat">Fat (g)</label>
+            <input class="input-field" id="dg-fat" type="number" min="20" max="250" step="5" required>
+          </div>
+          <!-- Carbs -->
+          <div class="daily-goal-field">
+            <div class="daily-goal-field__icon" style="background:rgba(59,130,246,0.12); color:#3b82f6;">
+              <span class="material-symbols-outlined">grain</span>
+            </div>
+            <label class="daily-goal-field__label" for="dg-carbs">Carbs (g)</label>
+            <input class="input-field" id="dg-carbs" type="number" min="50" max="800" step="5" required>
+          </div>
+          <!-- Exercise -->
+          <div class="daily-goal-field">
+            <div class="daily-goal-field__icon" style="background:rgba(16,185,129,0.12); color:#10b981;">
+              <span class="material-symbols-outlined">directions_run</span>
+            </div>
+            <label class="daily-goal-field__label" for="dg-exercise">Exercise (min)</label>
+            <input class="input-field" id="dg-exercise" type="number" min="5" max="600" step="5" required>
+          </div>
+          <!-- Burn -->
+          <div class="daily-goal-field">
+            <div class="daily-goal-field__icon" style="background:rgba(132,204,22,0.12); color:#84cc16;">
+              <span class="material-symbols-outlined">local_fire_department</span>
+            </div>
+            <label class="daily-goal-field__label" for="dg-burn">Calories Burn (kcal)</label>
+            <input class="input-field" id="dg-burn" type="number" min="50" max="2000" step="10" required>
+          </div>
+        </div>
+        <p class="field-error" id="daily-goal-error" style="display:none;"></p>
+        <div class="flex" style="display:flex; gap:8px; justify-content:flex-end; margin-top:20px;">
+          <button class="btn-secondary" type="button" id="daily-goal-skip">Skip</button>
+          <button class="btn-primary" type="submit" id="daily-goal-save">Save Goals</button>
+        </div>
+      </form>
     </div>
   </div>
 </body>

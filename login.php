@@ -57,6 +57,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 loginUser($user);
+
+                // Check if daily goal prompt should be shown (first login today)
+                $promptedAt = $user['daily_goals_prompted_at'] ?? null;
+                if (!$promptedAt || date('Y-m-d', strtotime($promptedAt)) < date('Y-m-d')) {
+                    $_SESSION['_show_daily_goal_prompt'] = true;
+                }
+
                 header('Location: dashboard.php');
                 exit;
             } else {

@@ -9,6 +9,21 @@ requireLogin();
 $db     = getDB();
 $userId = (int)$_SESSION['user_id'];
 
+// Check if daily goal prompt should be shown (first login today)
+$showDailyGoalPrompt = false;
+if (!empty($_SESSION['_show_daily_goal_prompt'])) {
+    $showDailyGoalPrompt = true;
+    unset($_SESSION['_show_daily_goal_prompt']);
+} else {
+    // Also check DB directly in case session flag was lost or user refreshed
+    $promptCheck = $db->prepare('SELECT daily_goals_prompted_at FROM users WHERE user_id = ?');
+    $promptCheck->execute([$userId]);
+    $promptedAt = $promptCheck->fetchColumn();
+    if (!$promptedAt || date('Y-m-d', strtotime($promptedAt)) < date('Y-m-d')) {
+        $showDailyGoalPrompt = true;
+    }
+}
+
 // MET value for an exercise type
 function metValue(string $type): float {
     return match($type) {
@@ -156,6 +171,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
         
         echo json_encode(['ok' => $ok, 'error' => $error]);
+        exit;
+    }
+
+    // Update daily goals (from daily goal prompt modal)
+    elseif ($action === 'update_daily_goals') {
+        header('Content-Type: application/json');
+
+        $goalMlIn    = (int)($_POST['daily_goal_ml'] ?? 2500);
+        $calorieIn   = (int)($_POST['daily_calorie_goal'] ?? 2000);
+        $proteinIn   = (int)($_POST['daily_protein_goal_g'] ?? 125);
+        $fatIn       = (int)($_POST['daily_fat_goal_g'] ?? 67);
+        $carbsIn     = (int)($_POST['daily_carbs_goal_g'] ?? 225);
+        $exerciseIn  = (int)($_POST['daily_exercise_goal_min'] ?? 30);
+        $burnIn      = (int)($_POST['daily_burn_goal_kcal'] ?? 300);
+
+        // Validate ranges
+        $errors = [];
+        if ($goalMlIn < 500 || $goalMlIn > 10000)    $errors[] = 'Water goal must be 500-10000 ml';
+        if ($calorieIn < 1200 || $calorieIn > 5000)   $errors[] = 'Calorie goal must be 1200-5000 kcal';
+        if ($proteinIn < 20 || $proteinIn > 400)       $errors[] = 'Protein goal must be 20-400 g';
+        if ($fatIn < 20 || $fatIn > 250)               $errors[] = 'Fat goal must be 20-250 g';
+        if ($carbsIn < 50 || $carbsIn > 800)           $errors[] = 'Carbs goal must be 50-800 g';
+        if ($exerciseIn < 5 || $exerciseIn > 600)      $errors[] = 'Exercise goal must be 5-600 min';
+        if ($burnIn < 50 || $burnIn > 2000)            $errors[] = 'Burn goal must be 50-2000 kcal';
+
+        if (!empty($errors)) {
+            echo json_encode(['ok' => false, 'error' => implode(' ', $errors)]);
+            exit;
+        }
+
+        $db->prepare(
+            'UPDATE user_goals SET daily_goal_ml=?, daily_calorie_goal=?,
+             daily_protein_goal_g=?, daily_fat_goal_g=?, daily_carbs_goal_g=?,
+             daily_exercise_goal_min=?, daily_burn_goal_kcal=? WHERE user_id=?'
+        )->execute([$goalMlIn, $calorieIn, $proteinIn, $fatIn, $carbsIn, $exerciseIn, $burnIn, $userId]);
+
+        // Mark as prompted today so it doesn't show again
+        $db->prepare('UPDATE users SET daily_goals_prompted_at = NOW() WHERE user_id = ?')
+           ->execute([$userId]);
+
+        echo json_encode(['ok' => true]);
+        exit;
+    }
+
+    // Skip daily goals prompt (just mark as prompted)
+    elseif ($action === 'skip_daily_goals') {
+        header('Content-Type: application/json');
+        $db->prepare('UPDATE users SET daily_goals_prompted_at = NOW() WHERE user_id = ?')
+           ->execute([$userId]);
+        echo json_encode(['ok' => true]);
         exit;
     }
 
