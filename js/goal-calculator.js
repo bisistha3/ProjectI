@@ -91,7 +91,7 @@ export function initGoalCalculator() {
     let carbs     = round5((calories * 0.45) / 4);
 
     calories = Math.max(1200, Math.min(5000, calories));
-    protein  = Math.max(40,   Math.min(300, protein));
+    protein  = Math.max(30,   Math.min(200, protein));
     fat      = Math.max(20,   Math.min(150, fat));
     carbs    = Math.max(100,  Math.min(600, carbs));
 

@@ -186,15 +186,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $exerciseIn  = (int)($_POST['daily_exercise_goal_min'] ?? 30);
         $burnIn      = (int)($_POST['daily_burn_goal_kcal'] ?? 300);
 
-        // Validate ranges
+        // Validate ranges (WHO-aligned guardrails)
         $errors = [];
-        if ($goalMlIn < 500 || $goalMlIn > 10000)    $errors[] = 'Water goal must be 500-10000 ml';
+        if ($goalMlIn < 1000 || $goalMlIn > 5000)    $errors[] = 'Water goal must be 1000-5000 ml';
         if ($calorieIn < 1200 || $calorieIn > 5000)   $errors[] = 'Calorie goal must be 1200-5000 kcal';
-        if ($proteinIn < 20 || $proteinIn > 400)       $errors[] = 'Protein goal must be 20-400 g';
-        if ($fatIn < 20 || $fatIn > 250)               $errors[] = 'Fat goal must be 20-250 g';
-        if ($carbsIn < 50 || $carbsIn > 800)           $errors[] = 'Carbs goal must be 50-800 g';
-        if ($exerciseIn < 5 || $exerciseIn > 600)      $errors[] = 'Exercise goal must be 5-600 min';
-        if ($burnIn < 50 || $burnIn > 2000)            $errors[] = 'Burn goal must be 50-2000 kcal';
+        if ($proteinIn < 30 || $proteinIn > 200)       $errors[] = 'Protein goal must be 30-200 g';
+        if ($fatIn < 20 || $fatIn > 150)               $errors[] = 'Fat goal must be 20-150 g';
+        if ($carbsIn < 100 || $carbsIn > 700)          $errors[] = 'Carbs goal must be 100-700 g';
+        if ($exerciseIn < 10 || $exerciseIn > 120)     $errors[] = 'Exercise goal must be 10-120 min';
+        if ($burnIn < 50 || $burnIn > 1500)            $errors[] = 'Burn goal must be 50-1500 kcal';
 
         if (!empty($errors)) {
             echo json_encode(['ok' => false, 'error' => implode(' ', $errors)]);

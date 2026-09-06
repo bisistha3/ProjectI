@@ -159,11 +159,11 @@
               <div id="custom-goal-area" style="display:none;">
                 <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="custom-goal-input">Your custom daily goal</label>
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <input class="input-field" id="custom-goal-input" name="custom_goal_ml" type="number" min="500" max="10000" step="50"
+                  <input class="input-field" id="custom-goal-input" name="custom_goal_ml" type="number" min="1000" max="5000" step="1"
                          placeholder="e.g. 2500" style="flex:1;" value="<?= $goalMl ?>">
                   <span style="font-size:13px;color:#3f4852;white-space:nowrap;">ml / day</span>
                 </div>
-                <p style="font-size:11px;color:#3f4852;margin-top:6px;">Range: 500 ml – 10,000 ml</p>
+                <p style="font-size:11px;color:#3f4852;margin-top:6px;">Range: 1000 ml – 5,000 ml</p>
               </div>
             </div>
 
@@ -226,22 +226,22 @@
                 <div class="grid-2" style="gap:12px;margin-bottom:10px;">
                   <div>
                     <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Calories (kcal)</label>
-                    <input class="input-field nutrition-custom-input" id="custom-calorie-input" name="custom_calorie_goal" type="number" min="1200" max="5000" step="50" value="<?= $calorieGoal ?>">
+                    <input class="input-field nutrition-custom-input" id="custom-calorie-input" name="custom_calorie_goal" type="number" min="1200" max="5000" step="1" value="<?= $calorieGoal ?>">
                   </div>
                   <div>
                     <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Protein (g)</label>
-                    <input class="input-field nutrition-custom-input" id="custom-protein-input" name="custom_protein_goal" type="number" min="20" max="400" step="5" value="<?= $proteinGoal ?>">
+                    <input class="input-field nutrition-custom-input" id="custom-protein-input" name="custom_protein_goal" type="number" min="30" max="200" step="1" value="<?= $proteinGoal ?>">
                   </div>
                   <div>
                     <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Fat (g)</label>
-                    <input class="input-field nutrition-custom-input" id="custom-fat-input" name="custom_fat_goal" type="number" min="20" max="250" step="5" value="<?= $fatGoal ?>">
+                    <input class="input-field nutrition-custom-input" id="custom-fat-input" name="custom_fat_goal" type="number" min="20" max="150" step="1" value="<?= $fatGoal ?>">
                   </div>
                   <div>
                     <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Carbs (g)</label>
-                    <input class="input-field nutrition-custom-input" id="custom-carbs-input" name="custom_carbs_goal" type="number" min="50" max="800" step="5" value="<?= $carbsGoal ?>">
+                    <input class="input-field nutrition-custom-input" id="custom-carbs-input" name="custom_carbs_goal" type="number" min="100" max="700" step="1" value="<?= $carbsGoal ?>">
                   </div>
                 </div>
-                <p style="font-size:11px;color:#3f4852;">Calories: 1200–5000 · Protein: 20–400g · Fat: 20–250g · Carbs: 50–800g</p>
+                <p style="font-size:11px;color:#3f4852;">Calories: 1200–5000 · Protein: 30–200g · Fat: 20–150g · Carbs: 100–700g</p>
               </div>
             </div>
 
@@ -284,7 +284,7 @@
             <div>
               <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="exercise-goal-min">Target duration per day</label>
               <div style="display:flex;align-items:center;gap:10px;">
-                <input class="input-field" id="exercise-goal-min" name="exercise_goal_min" type="number" min="5" max="600" step="5"
+                <input class="input-field" id="exercise-goal-min" name="exercise_goal_min" type="number" min="10" max="120" step="1"
                        value="<?= $exerciseMin ?>" style="flex:1;">
                 <span style="font-size:13px;color:#3f4852;white-space:nowrap;">minutes / day</span>
               </div>
@@ -293,7 +293,7 @@
             <div style="border-top:1px solid #e6e8ea;padding-top:14px;margin-top:14px;">
               <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;">Calories to burn per day</label>
               <div style="display:flex;align-items:center;gap:10px;">
-                <input class="input-field" name="burn_goal_kcal" type="number" min="50" max="2000" step="10"
+                <input class="input-field" name="burn_goal_kcal" type="number" min="50" max="1500" step="1"
                        value="<?= $burnGoal ?>" style="flex:1;">
                 <span style="font-size:13px;color:#3f4852;white-space:nowrap;">kcal / day</span>
               </div>

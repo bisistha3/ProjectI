@@ -75,13 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($weight < 10 || $weight > 500)  $errors[] = 'Weight must be between 10 and 500 kg.';
     if ($height < 50 || $height > 300)  $errors[] = 'Height must be between 50 and 300 cm.';
     if ($age < 1    || $age > 120)      $errors[] = 'Age must be between 1 and 120.';
-    if ($goalMlIn < 500 || $goalMlIn > 10000) $errors[] = 'Daily water goal must be between 500 ml and 10 L.';
+    if ($goalMlIn < 1000 || $goalMlIn > 5000) $errors[] = 'Daily water goal must be between 1000 ml and 5 L.';
     if ($calorieIn < 1200 || $calorieIn > 5000) $errors[] = 'Daily calorie goal must be between 1200 and 5000 kcal.';
-    if ($proteinIn < 20  || $proteinIn > 400)   $errors[] = 'Daily protein goal must be between 20 and 400 g.';
-    if ($fatIn < 20      || $fatIn > 250)       $errors[] = 'Daily fat goal must be between 20 and 250 g.';
-    if ($carbsIn < 50    || $carbsIn > 800)     $errors[] = 'Daily carbs goal must be between 50 and 800 g.';
-    if ($exerciseIn < 5  || $exerciseIn > 600)  $errors[] = 'Daily exercise goal must be between 5 and 600 minutes.';
-    if ($burnIn < 50 || $burnIn > 2000) $errors[] = 'Calories burn goal must be between 50 and 2000 kcal.';
+    if ($proteinIn < 30  || $proteinIn > 200)   $errors[] = 'Daily protein goal must be between 30 and 200 g.';
+    if ($fatIn < 20      || $fatIn > 150)       $errors[] = 'Daily fat goal must be between 20 and 150 g.';
+    if ($carbsIn < 100   || $carbsIn > 700)     $errors[] = 'Daily carbs goal must be between 100 and 700 g.';
+    if ($exerciseIn < 10 || $exerciseIn > 120)  $errors[] = 'Daily exercise goal must be between 10 and 120 minutes.';
+    if ($burnIn < 50 || $burnIn > 1500) $errors[] = 'Calories burn goal must be between 50 and 1500 kcal.';
 
     // Save settings
     if (empty($errors)) {
