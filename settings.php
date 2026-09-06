@@ -93,6 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $reminderEnabled, $reminderTime,
                     $reminderInterval, $wakeTime, $sleepTime, $userId]);
 
+        // Ensure a goals row exists (a bare UPDATE would silently no-op otherwise).
+        $db->prepare('INSERT IGNORE INTO user_goals (user_id) VALUES (?)')
+           ->execute([$userId]);
         $db->prepare(
             'UPDATE user_goals SET daily_goal_ml=?, daily_calorie_goal=?,
              daily_protein_goal_g=?, daily_fat_goal_g=?, daily_carbs_goal_g=?,

@@ -1,13 +1,13 @@
-import { initPasswordToggles } from './js/password-toggles.js';
-import { initGenderToggle }   from './js/gender-toggle.js';
-import { initMobileSidebar }  from './js/sidebar.js';
-import { initGoalCalculator } from './js/goal-calculator.js';
-import { initSettingsActions } from './js/settings-actions.js';
-import { initFormHandlers }   from './js/forms.js';
-import { initReminderToggle, initReminderToast } from './js/reminder.js';
-import { initChartToggle, initCalendarNav, initBarTooltips } from './js/history.js';
-import { showConfirm } from './js/confirm-modal.js';
-import { initDailyGoalPrompt } from './js/daily-goal-prompt.js';
+import { initPasswordToggles } from './js/password-toggles.js?v=3';
+import { initGenderToggle }   from './js/gender-toggle.js?v=3';
+import { initMobileSidebar }  from './js/sidebar.js?v=3';
+import { initGoalCalculator } from './js/goal-calculator.js?v=3';
+import { initSettingsActions } from './js/settings-actions.js?v=3';
+import { initFormHandlers }   from './js/forms.js?v=3';
+import { initReminderToggle, initReminderToast } from './js/reminder.js?v=3';
+import { initChartToggle, initCalendarNav, initBarTooltips } from './js/history.js?v=3';
+import { showConfirm } from './js/confirm-modal.js?v=3';
+import { initDailyGoalPrompt } from './js/daily-goal-prompt.js?v=3';
 
 /**
  * Generic handler for individual log editing (log pages).

@@ -1,6 +1,8 @@
 ﻿<?php
 // Auth & session helpers
 
+require_once __DIR__ . '/db.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -11,6 +13,19 @@ function isLoggedIn(): bool {
 
 function requireLogin(): void {
     if (!isLoggedIn()) {
+        header('Location: login.php');
+        exit;
+    }
+    // Guard against stale sessions whose user row no longer exists (e.g. the
+    // database was reset after login). Without this, every write silently
+    // affects 0 rows while reads fall back to defaults — the app looks
+    // logged-in but nothing ever saves.
+    $db = getDB();
+    $q = $db->prepare('SELECT 1 FROM users WHERE user_id=?');
+    $q->execute([(int)$_SESSION['user_id']]);
+    if (!$q->fetchColumn()) {
+        session_unset();
+        session_destroy();
         header('Location: login.php');
         exit;
     }

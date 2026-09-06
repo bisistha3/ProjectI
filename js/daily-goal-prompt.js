@@ -12,15 +12,41 @@ export function initDailyGoalPrompt() {
   const skipBtn = document.getElementById('daily-goal-skip');
   const closeBtn = document.getElementById('daily-goal-close');
 
-  // Pre-fill form with defaults
+  // Enter inside a goal field must NOT save — saving happens only via the
+  // Save button. Instead, Enter advances focus to the next field (and does
+  // nothing on the last one). Buttons are excluded so keyboard-activating
+  // Save/Skip with Enter keeps working.
+  form?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const t = e.target;
+    if (!t || t.tagName !== 'INPUT' || t.type === 'hidden' || t.type === 'submit' || t.type === 'button') return;
+    e.preventDefault();
+    const fields = [...form.querySelectorAll('input')].filter((el) => el.type !== 'hidden' && !el.disabled);
+    const i = fields.indexOf(document.activeElement);
+    if (i >= 0 && i < fields.length - 1) fields[i + 1].focus();
+  });
+
+  // Pre-fill form with defaults, clamped into each input's range so that
+  // stale out-of-range stored goals can never make Save unpassable.
+  const fill = (id, val, fallback) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let n = parseInt(val, 10);
+    if (isNaN(n)) n = fallback;
+    const min = parseFloat(el.min);
+    const max = parseFloat(el.max);
+    if (!isNaN(min)) n = Math.max(min, n);
+    if (!isNaN(max)) n = Math.min(max, n);
+    el.value = n;
+  };
   const defaults = window.DAILY_GOALS_DEFAULTS || {};
-  document.getElementById('dg-water').value    = defaults.daily_goal_ml || 2500;
-  document.getElementById('dg-calories').value = defaults.daily_calorie_goal || 2000;
-  document.getElementById('dg-protein').value  = defaults.daily_protein_goal_g || 125;
-  document.getElementById('dg-fat').value      = defaults.daily_fat_goal_g || 67;
-  document.getElementById('dg-carbs').value    = defaults.daily_carbs_goal_g || 225;
-  document.getElementById('dg-exercise').value = defaults.daily_exercise_goal_min || 30;
-  document.getElementById('dg-burn').value     = defaults.daily_burn_goal_kcal || 300;
+  fill('dg-water',    defaults.daily_goal_ml, 2500);
+  fill('dg-calories', defaults.daily_calorie_goal, 2000);
+  fill('dg-protein',  defaults.daily_protein_goal_g, 125);
+  fill('dg-fat',      defaults.daily_fat_goal_g, 67);
+  fill('dg-carbs',    defaults.daily_carbs_goal_g, 225);
+  fill('dg-exercise', defaults.daily_exercise_goal_min, 30);
+  fill('dg-burn',     defaults.daily_burn_goal_kcal, 300);
 
   function close() {
     modal.hidden = true;
@@ -39,8 +65,10 @@ export function initDailyGoalPrompt() {
   closeBtn?.addEventListener('click', close);
   modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
 
-  // Form submission
+  // Form submission — only the Save button may save. Implicit submits
+  // (Enter-key quirks, mobile Go-key) carry no submitter and are ignored.
   form?.addEventListener('submit', async (e) => {
+    if (!e.submitter) return;
     e.preventDefault();
     if (errorEl) errorEl.style.display = 'none';
 
@@ -49,6 +77,7 @@ export function initDailyGoalPrompt() {
     saveBtn.textContent = 'Saving...';
 
     const fd = new FormData();
+    fd.append('ajax', '1');
     fd.append('action', 'update_daily_goals');
     fd.append('daily_goal_ml', document.getElementById('dg-water').value);
     fd.append('daily_calorie_goal', document.getElementById('dg-calories').value);

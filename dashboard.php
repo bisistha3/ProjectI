@@ -24,6 +24,9 @@ if (!empty($_SESSION['_show_daily_goal_prompt'])) {
     }
 }
 
+// Error from a native (no-JS) goal save, shown inside the prompt modal.
+$dailyGoalError = (string)getFlash('goal_error', '');
+
 // MET value for an exercise type
 function metValue(string $type): float {
     return match($type) {
@@ -174,9 +177,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // Update daily goals (from daily goal prompt modal)
+    // Update daily goals (from daily goal prompt modal).
+    // AJAX (fetch) callers get JSON; a native form POST (no-JS fallback) gets
+    // a PRG redirect so Save works even when JavaScript never intercepts.
     elseif ($action === 'update_daily_goals') {
-        header('Content-Type: application/json');
+        // fetch() + FormData always sends multipart/form-data (old and new JS
+        // alike); only a true native form submit sends urlencoded. Detecting by
+        // content type keeps stale-cached JS working instead of 302-ing it into
+        // a JSON-parse failure ("Network error").
+        $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+        $isAjax = ($_POST['ajax'] ?? '') === '1'
+               || stripos($contentType, 'multipart/form-data') === 0;
 
         $goalMlIn    = (int)($_POST['daily_goal_ml'] ?? 2500);
         $calorieIn   = (int)($_POST['daily_calorie_goal'] ?? 2000);
@@ -197,10 +208,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($burnIn < 50 || $burnIn > 1500)            $errors[] = 'Burn goal must be 50-1500 kcal';
 
         if (!empty($errors)) {
-            echo json_encode(['ok' => false, 'error' => implode(' ', $errors)]);
+            $errText = implode(' ', $errors);
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['ok' => false, 'error' => $errText]);
+                exit;
+            }
+            // Native submit: redirect back with the panel forced open + error shown.
+            setFlash('goal_error', $errText);
+            $_SESSION['_show_daily_goal_prompt'] = true;
+            header('Location: dashboard.php');
             exit;
         }
 
+        // Ensure a goals row exists (a bare UPDATE would silently no-op otherwise).
+        $db->prepare('INSERT IGNORE INTO user_goals (user_id) VALUES (?)')
+           ->execute([$userId]);
         $db->prepare(
             'UPDATE user_goals SET daily_goal_ml=?, daily_calorie_goal=?,
              daily_protein_goal_g=?, daily_fat_goal_g=?, daily_carbs_goal_g=?,
@@ -211,7 +234,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $db->prepare('UPDATE users SET daily_goals_prompted_at = NOW() WHERE user_id = ?')
            ->execute([$userId]);
 
-        echo json_encode(['ok' => true]);
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => true]);
+            exit;
+        }
+        header('Location: dashboard.php');
         exit;
     }
 
