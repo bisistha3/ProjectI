@@ -1,0 +1,2 @@
+# HealthFlow — custom error pages
+ErrorDocument 404 /final/ProjectI/404.php

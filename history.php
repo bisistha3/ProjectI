@@ -11,6 +11,24 @@ $userId = (int)$_SESSION['user_id'];
 $type = $_GET['type'] ?? 'all';
 if (!in_array($type, ['water', 'food', 'exercise', 'all'], true)) $type = 'all';
 
+// Calendar month navigation (additive: defaults to current month, preserving prior behavior).
+$nowYear  = (int)date('Y');
+$nowMonth = (int)date('n');
+$calYear  = isset($_GET['year']) ? (int)$_GET['year'] : $nowYear;
+$calMonth = isset($_GET['month']) ? (int)$_GET['month'] : $nowMonth;
+if ($calMonth < 1 || $calMonth > 12) $calMonth = $nowMonth;
+if ($calYear < 1970 || $calYear > 2100) $calYear = $nowYear;
+$calLabel = date('F Y', mktime(0, 0, 0, $calMonth, 1, $calYear));
+$prevMonthTs = mktime(0, 0, 0, $calMonth - 1, 1, $calYear);
+$nextMonthTs = mktime(0, 0, 0, $calMonth + 1, 1, $calYear);
+$prevMonth = (int)date('n', $prevMonthTs);
+$prevYear  = (int)date('Y', $prevMonthTs);
+$nextMonth = (int)date('n', $nextMonthTs);
+$nextYear  = (int)date('Y', $nextMonthTs);
+$isCurrentMonth = ($calYear === $nowYear && $calMonth === $nowMonth);
+$isFutureMonth  = ($calYear > $nowYear) || ($calYear === $nowYear && $calMonth > $nowMonth);
+$todayNum = $isCurrentMonth ? (int)date('j') : 0;
+
 $u = $db->prepare('SELECT u.full_name, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
                           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
                           u.reminder_enabled, u.reminder_time, u.reminder_interval_min
@@ -109,10 +127,10 @@ if ($type === 'water') {
     $calQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml
         FROM water_logs
-        WHERE user_id=? AND YEAR(logged_at)=YEAR(CURDATE()) AND MONTH(logged_at)=MONTH(CURDATE())
+        WHERE user_id=? AND YEAR(logged_at)=? AND MONTH(logged_at)=?
         GROUP BY DATE(logged_at)
     ');
-    $calQ->execute([$userId]);
+    $calQ->execute([$userId, $calYear, $calMonth]);
     $calData['water'] = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 } elseif ($type === 'food') {
@@ -173,10 +191,10 @@ if ($type === 'water') {
     $calQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(calories) AS total_kcal
         FROM food_logs
-        WHERE user_id=? AND YEAR(logged_at)=YEAR(CURDATE()) AND MONTH(logged_at)=MONTH(CURDATE())
+        WHERE user_id=? AND YEAR(logged_at)=? AND MONTH(logged_at)=?
         GROUP BY DATE(logged_at)
     ');
-    $calQ->execute([$userId]);
+    $calQ->execute([$userId, $calYear, $calMonth]);
     $calData['food'] = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
 
 } elseif ($type === 'exercise') {
@@ -232,10 +250,10 @@ if ($type === 'water') {
     $calQ = $db->prepare('
         SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min
         FROM exercise_logs
-        WHERE user_id=? AND YEAR(logged_at)=YEAR(CURDATE()) AND MONTH(logged_at)=MONTH(CURDATE())
+        WHERE user_id=? AND YEAR(logged_at)=? AND MONTH(logged_at)=?
         GROUP BY DATE(logged_at)
     ');
-    $calQ->execute([$userId]);
+    $calQ->execute([$userId, $calYear, $calMonth]);
     $calData['exercise'] = $calQ->fetchAll(PDO::FETCH_KEY_PAIR);
 } else { // ---- ALL: combined water + food + exercise ----
     // Last-7-day daily aggregates per type.

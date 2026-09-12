@@ -47,7 +47,7 @@ function calcNutritionGoals(float $weight, float $height, int $age, string $gend
     $calories = max(1200, min(5000, $calories));
     $protein  = max(30,   min(200, $protein));
     $fat      = max(20,  min(150, $fat));
-    $carbs    = max(100, min(600, $carbs));
+    $carbs    = max(100,  min(700, $carbs));
 
     return [
         'calories'   => $calories,  

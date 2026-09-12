@@ -1,7 +1,7 @@
 import { initPasswordToggles } from './js/password-toggles.js?v=3';
 import { initGenderToggle }   from './js/gender-toggle.js?v=3';
 import { initMobileSidebar }  from './js/sidebar.js?v=3';
-import { initGoalCalculator } from './js/goal-calculator.js?v=3';
+import { initGoalCalculator } from './js/goal-calculator.js?v=4';
 import { initSettingsActions } from './js/settings-actions.js?v=3';
 import { initFormHandlers }   from './js/forms.js?v=3';
 import { initReminderToggle, initReminderToast } from './js/reminder.js?v=3';

@@ -260,23 +260,37 @@
       <div class="glass-card calendar-card">
         <div class="calendar-card__header">
           <h3 class="text-headline-md" style="color:#191c1e;">Streak Calendar</h3>
-          <span class="text-label-md" style="color:#191c1e;"><?= date('F Y') ?></span>
+          <div class="calendar-nav">
+            <a class="calendar-nav__btn" id="cal-prev"
+               href="history.php?type=<?= urlencode($type) ?>&month=<?= $prevMonth ?>&year=<?= $prevYear ?>"
+               aria-label="Previous month">
+              <span class="material-symbols-outlined">chevron_left</span>
+            </a>
+            <span class="text-label-md" id="cal-month" style="color:#191c1e;min-width:90px;text-align:center;"
+                  data-month="<?= $calMonth ?>" data-year="<?= $calYear ?>" data-type="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($calLabel) ?></span>
+            <a class="calendar-nav__btn" id="cal-next"
+               href="history.php?type=<?= urlencode($type) ?>&month=<?= $nextMonth ?>&year=<?= $nextYear ?>"
+               aria-label="Next month">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </a>
+          </div>
         </div>
         <div class="cal-grid cal-grid--header">
           <span>SU</span><span>MO</span><span>TU</span><span>WE</span><span>TH</span><span>FR</span><span>SA</span>
         </div>
         <div class="cal-grid cal-grid--days">
           <?php
-          $firstDay    = (int)date('w', strtotime(date('Y-m-01'))); // 0=Sun
-          $daysInMonth = (int)date('t');
-          $today       = (int)date('j');
+          $calFirstKey = sprintf('%04d-%02d-01', $calYear, $calMonth);
+          $firstDay    = (int)date('w', strtotime($calFirstKey)); // 0=Sun
+          $daysInMonth = (int)date('t', strtotime($calFirstKey));
+          $calPrefix   = sprintf('%04d-%02d', $calYear, $calMonth);
           for ($i = 0; $i < $firstDay; $i++) echo '<span class="cal-day cal-day--faded"></span>';
           for ($d = 1; $d <= $daysInMonth; $d++) {
-              $dateStr = date('Y-m') . '-' . str_pad($d, 2, '0', STR_PAD_LEFT);
+              $dateStr = $calPrefix . '-' . str_pad($d, 2, '0', STR_PAD_LEFT);
               $dayVal   = (int)(($calData[$type] ?? [])[$dateStr] ?? 0);
               $typeGoal = ($calGoals[$type] ?? 0) > 0 ? $calGoals[$type] : 1;
-              $isFuture= $d > $today;
-              $isToday = $d === $today;
+              $isFuture= $isFutureMonth || ($isCurrentMonth && $d > $todayNum);
+              $isToday = $isCurrentMonth && $d === $todayNum;
               $metGoal = $dayVal >= $typeGoal;
               if ($isFuture)    $cls = 'cal-day__dot--future';
               elseif ($isToday) $cls = $metGoal ? 'cal-day__dot--filled' : 'cal-day__dot--today';

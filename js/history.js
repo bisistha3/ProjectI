@@ -17,26 +17,30 @@ export function initCalendarNav() {
 
   if (!prevBtn || !nextBtn || !monthLabel) return;
 
-  const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                  'July', 'August', 'September', 'October', 'November', 'December'];
-  let currentIndex = months.indexOf(monthLabel.textContent);
-  if (currentIndex === -1) currentIndex = 6; // default July
+  // Server-rendered anchors already carry the correct ?type=&month=&year=
+  // hrefs (no-JS fallback). Enhance with a subtle fade; navigation itself
+  // is a full page load so the calendar queries re-run for that month.
+  // Guard against stale-cached JS where hrefs may be missing.
+  const go = (btn) => {
+    const href = btn.getAttribute('href');
+    if (href) window.location.href = href;
+  };
 
-  function update() {
-    monthLabel.textContent = months[currentIndex];
+  prevBtn.addEventListener('click', (e) => {
+    monthLabel.style.opacity = '0';
+    monthLabel.style.transition = 'opacity 0.2s';
+    // Let the anchor navigate; fade is best-effort before unload.
+    requestAnimationFrame(() => { monthLabel.style.opacity = '1'; });
+    if (!prevBtn.getAttribute('href')) e.preventDefault();
+    else { e.preventDefault(); go(prevBtn); }
+  });
+
+  nextBtn.addEventListener('click', (e) => {
     monthLabel.style.opacity = '0';
     monthLabel.style.transition = 'opacity 0.2s';
     requestAnimationFrame(() => { monthLabel.style.opacity = '1'; });
-  }
-
-  prevBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + 12) % 12;
-    update();
-  });
-
-  nextBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % 12;
-    update();
+    if (!nextBtn.getAttribute('href')) e.preventDefault();
+    else { e.preventDefault(); go(nextBtn); }
   });
 }
 

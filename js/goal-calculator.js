@@ -93,7 +93,11 @@ export function initGoalCalculator() {
     calories = Math.max(1200, Math.min(5000, calories));
     protein  = Math.max(30,   Math.min(200, protein));
     fat      = Math.max(20,   Math.min(150, fat));
-    carbs    = Math.max(100,  Math.min(600, carbs));
+    carbs    = Math.max(100,  Math.min(700, carbs));
+
+    // In custom mode the banner shows the saved custom targets — never
+    // overwrite it with the auto formula (server renders custom values).
+    if (nutriMode?.value === 'custom') return;
 
     if (recCalories) recCalories.textContent = calories;
     if (recProtein)  recProtein.textContent  = protein + 'g';
@@ -125,23 +129,40 @@ export function initGoalCalculator() {
   }
 
   // Custom nutrition toggle switch
-  let isNutriCustom = false;
+  // Initial state comes from the server-rendered hidden field, so a saved
+  // custom mode survives page reloads (previously always reset to OFF,
+  // silently discarding custom values on the next Save).
+  let isNutriCustom = nutriMode?.value === 'custom';
+  const syncNutriToggleUI = () => {
+    if (!nutriSwitch) return;
+    nutriKnob.style.transform    = isNutriCustom ? 'translateX(20px)' : 'translateX(0)';
+    nutriSwitch.style.background = isNutriCustom ? '#3d6b23' : '#e6e8ea';
+    nutriToggleLabel.textContent = isNutriCustom ? 'On' : 'Off';
+    nutriToggleLabel.style.color = isNutriCustom ? '#3d6b23' : '#3f4852';
+    nutriCustomArea.style.display = isNutriCustom ? 'block' : 'none';
+  };
+  syncNutriToggleUI();
   if (nutriSwitch) {
     nutriSwitch.addEventListener('click', () => {
       isNutriCustom = !isNutriCustom;
-      nutriKnob.style.transform        = isNutriCustom ? 'translateX(20px)' : 'translateX(0)';
-      nutriSwitch.style.background     = isNutriCustom ? '#3d6b23' : '#e6e8ea';
-      nutriToggleLabel.textContent     = isNutriCustom ? 'On' : 'Off';
-      nutriToggleLabel.style.color     = isNutriCustom ? '#3d6b23' : '#3f4852';
-      nutriCustomArea.style.display    = isNutriCustom ? 'block' : 'none';
+      syncNutriToggleUI();
 
       if (nutriMode) nutriMode.value = isNutriCustom ? 'custom' : 'auto';
 
       if (isNutriCustom) {
-        document.getElementById('custom-calorie-input').value = recCalories.textContent;
-        document.getElementById('custom-protein-input').value = recProtein.textContent.replace('g', '');
-        document.getElementById('custom-fat-input').value     = recFat.textContent.replace('g', '');
-        document.getElementById('custom-carbs-input').value   = recCarbs.textContent.replace('g', '');
+        // Pre-fill only empty inputs — never wipe values the user already
+        // typed or previously saved.
+        const fillIfEmpty = (id, text) => {
+          const el = document.getElementById(id);
+          if (el && !String(el.value).trim()) el.value = String(text).replace('g', '');
+        };
+        fillIfEmpty('custom-calorie-input', recCalories.textContent);
+        fillIfEmpty('custom-protein-input', recProtein.textContent);
+        fillIfEmpty('custom-fat-input',     recFat.textContent);
+        fillIfEmpty('custom-carbs-input',   recCarbs.textContent);
+      } else {
+        // Back in auto mode: refresh the banner from the formula.
+        calcNutrition();
       }
     });
   }
@@ -161,6 +182,7 @@ export function initGoalCalculator() {
         gLabelMale.classList.toggle('active', !isFemale);
         gLabelFemale.classList.toggle('active', isFemale);
         calcBmi();
+        calcNutrition();
       });
     });
   }

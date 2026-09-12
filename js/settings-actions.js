@@ -1,4 +1,4 @@
-import { initGoalCalculator } from './goal-calculator.js?v=3';
+import { initGoalCalculator } from './goal-calculator.js?v=4';
 
 export function initSettingsActions() {
   const saveBtn = document.getElementById('btn-save-settings');

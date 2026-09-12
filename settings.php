@@ -103,6 +103,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         )->execute([$goalMlIn, $calorieIn, $proteinIn, $fatIn, $carbsIn,
                     $exerciseIn, $burnIn, $userId]);
 
+        // Diagnostics: if goals ever appear not to stick, the XAMPP PHP error
+        // log shows exactly which mode/values were written for this user.
+        error_log(sprintf(
+            'settings save uid=%d mode=%s/%s goals ml=%d kcal=%d p=%d f=%d c=%d ex=%d burn=%d',
+            $userId, $goalMode, $nutriMode, $goalMlIn, $calorieIn, $proteinIn,
+            $fatIn, $carbsIn, $exerciseIn, $burnIn
+        ));
+
         $_SESSION['full_name'] = $fullName;
         $success = 'Settings saved successfully!';
     }
@@ -135,6 +143,28 @@ $fatGoal     = (int)($user['daily_fat_goal_g']     ?? 67);
 $carbsGoal   = (int)($user['daily_carbs_goal_g']   ?? 225);
 $exerciseMin = (int)($user['daily_exercise_goal_min'] ?? 30);
 $burnGoal    = (int)($user['daily_burn_goal_kcal'] ?? 300);
+
+// Nutrition toggle display state + sticky values.
+// The toggle itself isn't stored — only the goals are — so infer custom mode:
+// custom is ON when saved goals differ from the auto formula. On a failed
+// POST, keep the submitted values and the submitted toggle instead of DB.
+$nutriAutoRef = calcNutritionGoals((float)($user['weight'] ?? 0), (float)($user['height'] ?? 0), (int)($user['age'] ?? 0), $user['gender'] ?? 'male', 'medium');
+$isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
+$postedNutriCustom = $isPost && (($_POST['nutrition_mode'] ?? 'auto') === 'custom');
+if ($isPost && !empty($errors)) {
+    $calorieGoal = isset($calorieIn)  ? (int)$calorieIn  : $calorieGoal;
+    $proteinGoal = isset($proteinIn)  ? (int)$proteinIn  : $proteinGoal;
+    $fatGoal     = isset($fatIn)      ? (int)$fatIn      : $fatGoal;
+    $carbsGoal   = isset($carbsIn)    ? (int)$carbsIn    : $carbsGoal;
+    $exerciseMin = isset($exerciseIn) ? (int)$exerciseIn : $exerciseMin;
+    $nutriCustom = $postedNutriCustom;
+} else {
+    $nutriCustom = ($calorieGoal !== (int)$nutriAutoRef['calories']
+        || $proteinGoal !== (int)$nutriAutoRef['protein_g']
+        || $fatGoal     !== (int)$nutriAutoRef['fat_g']
+        || $carbsGoal   !== (int)$nutriAutoRef['carbs_g']);
+}
+$nutriModeValue = $nutriCustom ? 'custom' : 'auto';
 $reminderOn  = (int)($user['reminder_enabled'] ?? 0);
 $reminderTm  = $user['reminder_time'] ?? '20:00:00';
 $reminderTm  = substr($reminderTm, 0, 5);
@@ -143,6 +173,16 @@ $wakeTm      = substr($user['wake_time']  ?? '07:00:00', 0, 5);
 $sleepTm     = substr($user['sleep_time'] ?? '22:00:00', 0, 5);
 
 $nutriRec = calcNutritionGoals($weight, $height, $age, $gender, 'medium');
+// In custom mode the banner reflects the saved custom targets, not the formula,
+// so the page visibly confirms what is stored.
+if ($nutriCustom) {
+    $nutriRec = [
+        'calories'  => $calorieGoal,
+        'protein_g' => $proteinGoal,
+        'fat_g'     => $fatGoal,
+        'carbs_g'   => $carbsGoal,
+    ];
+}
 
 // Calculate BMI
 $bmiVal = ($height > 0) ? round($weight / (($height / 100) ** 2), 1) : 0;
