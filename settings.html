@@ -313,7 +313,7 @@
                   <p class="text-label-md" style="color:#191c1e;font-weight:600;">Daily Reminder</p>
                   <p style="font-size:11px;color:#3f4852;">One reminder for water, meals and exercise</p>
                 </div>
-                <label style="display:flex;align-items:center;cursor:pointer;gap:8px;">
+                <div style="display:flex;align-items:center;cursor:pointer;gap:8px;">
                   <span style="font-size:12px;color:#3f4852;" id="reminder-toggle-label"><?= $reminderOn ? 'On' : 'Off' ?></span>
                   <div>
                     <input type="checkbox" name="reminder_enabled" id="reminder-enabled" value="1" <?= $reminderOn ? 'checked' : '' ?> class="sr-only" style="display:none;">
@@ -321,7 +321,7 @@
                       <div id="reminder-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s, left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);<?= $reminderOn ? 'left:23px;' : '' ?>"></div>
                     </div>
                   </div>
-                </label>
+                </div>
               </div>
               <div id="reminder-time-area" style="<?= $reminderOn && $reminderInt === 0 ? '' : 'display:none;' ?>">
                 <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="reminder-time">Remind me at</label>
@@ -366,12 +366,7 @@
                   <span class="settings-row__desc"><?= $email ?></span>
                 </div>
               </div>
-              <div class="settings-row">
-                <div class="settings-row__info">
-                  <span class="settings-row__label">Member Since</span>
-                  <span class="settings-row__desc">HealthFlow account</span>
-                </div>
-              </div>
+
               <div class="settings-row" style="padding-top:16px;border-top:1px solid #e6e8ea;">
                 <div class="settings-row__info">
                   <span class="settings-row__label" style="color:#ba1a1a;">Sign Out</span>

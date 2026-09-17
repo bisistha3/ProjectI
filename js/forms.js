@@ -3,53 +3,30 @@ export function initFormHandlers() {
   function showError(input, msg) {
     input.classList.add('input-field--error');
     input.classList.remove('input-field--success');
-    removeSuccessIcon(input);
-    // Remove any existing error
-    const existing = input.closest('.input-group')?.parentElement?.querySelector('.field-error')
-                  || input.parentElement?.querySelector('.field-error');
-    if (existing) existing.remove();
+    const parent = input.parentElement;
+    const existingError = parent?.querySelector('.field-error');
+    if (existingError) existingError.remove();
     const span = document.createElement('span');
     span.className = 'field-error';
     span.textContent = msg;
-    const parent = input.closest('.input-group') || input.parentElement;
-    parent.insertAdjacentElement('afterend', span);
+    input.insertAdjacentElement('afterend', span);
   }
 
   function clearError(input) {
     input.classList.remove('input-field--error');
-    const parent = input.closest('.input-group') || input.parentElement;
-    const err = parent?.nextElementSibling;
-    if (err && err.classList.contains('field-error')) err.remove();
+    const parent = input.parentElement;
+    const err = parent?.querySelector('.field-error');
+    if (err) err.remove();
   }
 
   function showSuccess(input) {
     input.classList.remove('input-field--error');
     input.classList.add('input-field--success');
     clearError(input);
-    addSuccessIcon(input);
-  }
-
-  function addSuccessIcon(input) {
-    if (input.classList.contains('input-field--icon-right') && input.type !== 'password') {
-      const group = input.closest('.input-group');
-      if (group && !group.querySelector('.field-success')) {
-        const icon = document.createElement('span');
-        icon.className = 'material-symbols-outlined field-success';
-        icon.textContent = 'check_circle';
-        group.appendChild(icon);
-      }
-    }
-  }
-
-  function removeSuccessIcon(input) {
-    const group = input.closest('.input-group');
-    const icon = group?.querySelector('.field-success');
-    if (icon) icon.remove();
   }
 
   function clearAllStates(input) {
     input.classList.remove('input-field--error', 'input-field--success');
-    removeSuccessIcon(input);
     clearError(input);
   }
 

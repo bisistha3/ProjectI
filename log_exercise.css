@@ -402,7 +402,7 @@ select.input-field {
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  justify_content: center;
+  justify-content: center;
   gap: 8px;
   background-color: #00696d;
   color: #ffffff;
