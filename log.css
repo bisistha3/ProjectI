@@ -163,31 +163,8 @@
 
 .sidebar__footer {
   margin-top: auto;
-  background: linear-gradient(135deg, #00696d, #00a7ad);
-  padding: 16px;
-  border-radius: 0.75rem;
-  color: white;
-  box-shadow: 0 4px 14px rgba(0, 105, 109, 0.2);
-  position: relative;
-  overflow: hidden;
-}
-
-.sidebar__footer-watermark {
-  position: absolute;
-  right: -16px;
-  top: -16px;
-  opacity: 0.2;
-  transform: rotate(12deg);
-  font-size: 80px;
-}
-
-.sidebar__footer-text {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.9);
-  position: relative;
-  z-index: 1;
+  padding-top: 8px;
+  border-top: 1px solid rgba(190, 199, 212, 0.3);
 }
 
 /* ---------- Component: Top Navbar ---------- */
