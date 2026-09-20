@@ -324,7 +324,7 @@ $stmt = $db->prepare('
     SELECT u.full_name, u.weight, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
            g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
            g.daily_burn_goal_kcal,
-           u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
+           r.reminder_enabled, r.reminder_interval_min,
            COALESCE(w.ml, 0)   AS today_ml,
            COALESCE(f.kcal, 0) AS today_kcal,
            COALESCE(f.prot, 0) AS today_protein,
@@ -338,6 +338,7 @@ $stmt = $db->prepare('
            COALESCE(e.gym, 0)  AS today_gym
     FROM users u
     LEFT JOIN user_goals g ON g.user_id = u.user_id
+    LEFT JOIN reminders r ON r.user_id = u.user_id
     LEFT JOIN (SELECT user_id, SUM(amount_ml) AS ml FROM water_logs
                WHERE user_id=? AND DATE(logged_at)=CURDATE() GROUP BY user_id) w
            ON w.user_id = u.user_id
@@ -390,8 +391,7 @@ $activityToday = [
 ];
 
 $reminderEnabled = (int)($user['reminder_enabled'] ?? 0);
-$reminderTime    = $user['reminder_time'] ?? '20:00:00';
-$reminderInt     = (int)($user['reminder_interval_min'] ?? 0);
+$reminderInt     = (int)($user['reminder_interval_min'] ?? 60);
 $weightKg        = (float)($user['weight'] ?? 70) ?: 70; // ?: also guards against a stored weight of 0, not just a missing value
 
 // Recent logs for today

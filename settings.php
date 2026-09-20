@@ -26,13 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Parse reminder settings
     $reminderEnabled  = isset($_POST['reminder_enabled']) ? 1 : 0;
-    $reminderInterval = (int)($_POST['reminder_interval_min'] ?? 0);
-    // 0 = "custom daily time" mode (not off); only fixed hourly options are allowed otherwise.
-    if (!in_array($reminderInterval, [0, 60, 120, 180], true)) $reminderInterval = 0;
-    $reminderTime    = trim($_POST['reminder_time'] ?? '20:00');
-    // Accept only strict 24h HH:MM (invalid input falls back to default), then pad to HH:MM:SS for MySQL's TIME column.
-    if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $reminderTime)) $reminderTime = '20:00';
-    $reminderTime    .= ':00';
+    $emailReminderEnabled = isset($_POST['email_reminder_enabled']) ? 1 : 0;
+    $reminderInterval = (int)($_POST['reminder_interval_min'] ?? 60);
+    if (!in_array($reminderInterval, [60, 120, 180], true)) $reminderInterval = 60;
 
     // Parse wake and sleep times
     $wakeTime  = trim($_POST['wake_time']  ?? '07:00');
@@ -87,11 +83,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $db->prepare(
             'UPDATE users SET full_name=?, weight=?, height=?, age=?, gender=?,
-             reminder_enabled=?, reminder_time=?, reminder_interval_min=?,
              wake_time=?, sleep_time=? WHERE user_id=?'
         )->execute([$fullName, $weight, $height, $age, $gender,
-                    $reminderEnabled, $reminderTime,
-                    $reminderInterval, $wakeTime, $sleepTime, $userId]);
+                    $wakeTime, $sleepTime, $userId]);
+
+        // Upsert reminder settings into reminders table
+        $db->prepare(
+            'INSERT INTO reminders (user_id, reminder_enabled, reminder_interval_min, email_reminder_enabled)
+             VALUES (?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+                 reminder_enabled=VALUES(reminder_enabled),
+                 reminder_interval_min=VALUES(reminder_interval_min),
+                 email_reminder_enabled=VALUES(email_reminder_enabled)'
+        )->execute([$userId, $reminderEnabled, $reminderInterval, $emailReminderEnabled]);
 
         // Ensure a goals row exists (a bare UPDATE would silently no-op otherwise).
         $db->prepare('INSERT IGNORE INTO user_goals (user_id) VALUES (?)')
@@ -121,10 +125,12 @@ $u = $db->prepare('SELECT u.full_name, u.email, u.age, u.weight, u.height, u.gen
                           g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
                           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
                           g.daily_burn_goal_kcal,
-                          u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
+                          r.reminder_enabled, r.reminder_interval_min,
+                          r.email_reminder_enabled,
                           u.wake_time, u.sleep_time
                           FROM users u
                           LEFT JOIN user_goals g ON g.user_id = u.user_id
+                          LEFT JOIN reminders r ON r.user_id = u.user_id
                           WHERE u.user_id=?');
 $u->execute([$userId]);
 $user      = $u->fetch();
@@ -166,9 +172,8 @@ if ($isPost && !empty($errors)) {
 }
 $nutriModeValue = $nutriCustom ? 'custom' : 'auto';
 $reminderOn  = (int)($user['reminder_enabled'] ?? 0);
-$reminderTm  = $user['reminder_time'] ?? '20:00:00';
-$reminderTm  = substr($reminderTm, 0, 5);
-$reminderInt = (int)($user['reminder_interval_min'] ?? 0);
+$reminderInt = (int)($user['reminder_interval_min'] ?? 60);
+$emailReminderOn = (int)($user['email_reminder_enabled'] ?? 0);
 $wakeTm      = substr($user['wake_time']  ?? '07:00:00', 0, 5);
 $sleepTm     = substr($user['sleep_time'] ?? '22:00:00', 0, 5);
 

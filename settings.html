@@ -323,19 +323,32 @@
                   </div>
                 </div>
               </div>
-              <div id="reminder-time-area" style="<?= $reminderOn && $reminderInt === 0 ? '' : 'display:none;' ?>">
-                <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="reminder-time">Remind me at</label>
-                <input class="input-field" id="reminder-time" name="reminder_time" type="time" value="<?= $reminderTm ?>">
-              </div>
               <div style="margin-top:14px;">
                 <label class="text-label-md text-on-surface-variant" style="display:block;margin-bottom:8px;" for="reminder-interval">Remind me</label>
                 <select class="input-field" id="reminder-interval" name="reminder_interval_min">
                   <option value="60"  <?= $reminderInt === 60  ? 'selected' : '' ?>>Every 1 hour</option>
                   <option value="120" <?= $reminderInt === 120 ? 'selected' : '' ?>>Every 2 hours</option>
                   <option value="180" <?= $reminderInt === 180 ? 'selected' : '' ?>>Every 3 hours</option>
-                  <option value="0"   <?= $reminderInt === 0   ? 'selected' : '' ?>>Custom time</option>
                 </select>
-                <p style="font-size:11px;color:#3f4852;margin-top:6px;">While the app is open, a gentle toast reminds you to log your water, meals and exercise.</p>
+                <p style="font-size:11px;color:#3f4852;margin-top:6px;">A gentle toast reminds you to log your water, meals and exercise while the app is open.</p>
+              </div>
+              <div style="border-top:1px solid #e6e8ea;padding-top:14px;margin-top:14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                  <div>
+                    <p class="text-label-md" style="color:#191c1e;font-weight:600;">Email Reminder</p>
+                    <p style="font-size:11px;color:#3f4852;">Get email reminders even when the app is closed</p>
+                  </div>
+                  <div style="display:flex;align-items:center;cursor:pointer;gap:8px;">
+                    <span style="font-size:12px;color:#3f4852;" id="email-reminder-toggle-label"><?= $emailReminderOn ? 'On' : 'Off' ?></span>
+                    <div>
+                      <input type="checkbox" name="email_reminder_enabled" id="email-reminder-enabled" value="1" <?= $emailReminderOn ? 'checked' : '' ?> class="sr-only" style="display:none;">
+                      <div id="email-reminder-switch" style="width:44px;height:24px;background:<?= $emailReminderOn ? '#00696d' : '#e6e8ea' ?>;border-radius:100px;cursor:pointer;position:relative;transition:background 0.2s;">
+                        <div id="email-reminder-knob" style="width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform 0.2s, left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);<?= $emailReminderOn ? 'left:23px;' : '' ?>"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p style="font-size:11px;color:#3f4852;margin-top:4px;">Uses the same reminder time above. Requires reminders to be enabled.</p>
               </div>
               <div style="border-top:1px solid #e6e8ea;padding-top:14px;margin-top:14px;">
                 <p class="text-label-md" style="color:#191c1e;font-weight:600;margin-bottom:4px;">Sleep Schedule</p>
@@ -396,7 +409,6 @@
   <script>
   window.HEALTHFLOW_REMINDER = <?= json_encode([
       'enabled' => (bool)$reminderOn,
-      'time'    => $reminderTm,
       'interval_min' => $reminderInt,
   ]); ?>;
   </script>

@@ -907,6 +907,46 @@
   max-width: 26px;
 }
 
+/* Hourly (1-day) bar overrides — 8 bars for 3-hour blocks */
+.bar-chart--hourly .bar-col {
+  min-width: 0;
+}
+.bar-chart--hourly .bar {
+  max-width: 32px;
+}
+.bar-chart--hourly .bar-group .bar {
+  max-width: 20px;
+}
+.bar-chart--hourly .bar-label {
+  font-size: 10px;
+  letter-spacing: 0;
+}
+
+/* Monthly (1-month) bar overrides — 5 bars for weekly blocks */
+.bar-chart--monthly .bar-col {
+  min-width: 0;
+}
+.bar-chart--monthly .bar {
+  max-width: 48px;
+}
+.bar-chart--monthly .bar-group .bar {
+  max-width: 30px;
+}
+
+.range-toggle {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .range-toggle .chart-toggle__btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .range-toggle .chart-toggle__btn .material-symbols-outlined {
+    display: none;
+  }
+}
+
 .bar--water {
   background-color: rgba(0, 105, 109, 0.2);
 }

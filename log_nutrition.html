@@ -274,8 +274,7 @@
   <script>
   window.HEALTHFLOW_REMINDER = <?= json_encode([
       'enabled' => (bool)($user['reminder_enabled'] ?? 0),
-      'time'    => $user['reminder_time'] ?? '20:00:00',
-      'interval_min' => (int)($user['reminder_interval_min'] ?? 0),
+      'interval_min' => (int)($user['reminder_interval_min'] ?? 60),
   ]); ?>;
   window.HEALTHFLOW_FOODS = <?= json_encode([
       ...array_map(fn($f) => ['unit' => $f['unit_type'], 'serving_qty' => (float)$f['serving_qty'], 'kcal' => (int)$f['calories']], $foods),

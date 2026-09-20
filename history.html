@@ -56,17 +56,30 @@
 
     <!-- Type Tabs -->
     <div class="chart-toggle" style="display:flex; gap:8px; margin-bottom:4px;">
-      <a href="history.php?type=all" class="chart-toggle__btn <?= $type === 'all' ? 'chart-toggle__btn--active' : '' ?>">
+      <a href="history.php?type=all&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'all' ? 'chart-toggle__btn--active' : '' ?>">
         <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">grid_view</span> All
       </a>
-      <a href="history.php?type=water" class="chart-toggle__btn <?= $type === 'water' ? 'chart-toggle__btn--active' : '' ?>">
+      <a href="history.php?type=water&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'water' ? 'chart-toggle__btn--active' : '' ?>">
         <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">water_drop</span> Water
       </a>
-      <a href="history.php?type=food" class="chart-toggle__btn <?= $type === 'food' ? 'chart-toggle__btn--active' : '' ?>">
+      <a href="history.php?type=food&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'food' ? 'chart-toggle__btn--active' : '' ?>">
         <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">restaurant</span> Food
       </a>
-      <a href="history.php?type=exercise" class="chart-toggle__btn <?= $type === 'exercise' ? 'chart-toggle__btn--active' : '' ?>">
+      <a href="history.php?type=exercise&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'exercise' ? 'chart-toggle__btn--active' : '' ?>">
         <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">directions_run</span> Exercise
+      </a>
+    </div>
+
+    <!-- Range Tabs -->
+    <div class="chart-toggle range-toggle" style="display:flex; gap:8px; margin-bottom:4px;">
+      <a href="history.php?type=<?= urlencode($type) ?>&range=1d" class="chart-toggle__btn <?= $range === '1d' ? 'chart-toggle__btn--active' : '' ?>">
+        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">schedule</span> 1D
+      </a>
+      <a href="history.php?type=<?= urlencode($type) ?>&range=7d" class="chart-toggle__btn <?= $range === '7d' ? 'chart-toggle__btn--active' : '' ?>">
+        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">date_range</span> 7D
+      </a>
+      <a href="history.php?type=<?= urlencode($type) ?>&range=1m" class="chart-toggle__btn <?= $range === '1m' ? 'chart-toggle__btn--active' : '' ?>">
+        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">calendar_month</span> 1M
       </a>
     </div>
 
@@ -110,12 +123,12 @@
       <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
         <div class="stat-card">
           <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">water_drop</span>
-          <p class="stat-card__label">Water This Week</p>
+          <p class="stat-card__label">Water <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= number_format(($metrics['week_ml'] ?? 0) / 1000, 1) ?> <span style="font-size:12px;">L</span></p>
         </div>
         <div class="stat-card">
           <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">receipt_long</span>
-          <p class="stat-card__label">Logs This Week</p>
+          <p class="stat-card__label">Logs <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= (int)($metrics['week_n'] ?? 0) ?> <span style="font-size:12px;">entries</span></p>
         </div>
         <div class="stat-card">
@@ -174,18 +187,18 @@
       <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
         <div class="stat-card">
           <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">water_drop</span>
-          <p class="stat-card__label">Water This Week</p>
+          <p class="stat-card__label">Water <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= number_format(($metrics['week_ml'] ?? 0) / 1000, 1) ?> <span style="font-size:12px;">L</span></p>
         </div>
         <div class="stat-card">
           <span class="material-symbols-outlined" style="color:#f97316; margin-bottom:8px; font-variation-settings:'FILL' 1;">restaurant</span>
-          <p class="stat-card__label">Food This Week</p>
+          <p class="stat-card__label">Food <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= number_format((float)($metrics['week_kcal'] ?? 0)) ?> <span style="font-size:12px;">kcal</span></p>
           <p class="stat-card__sub">P <?= $metrics['week_prot'] ?? '0.0' ?>g &middot; F <?= $metrics['week_fat'] ?? '0.0' ?>g &middot; C <?= $metrics['week_carbs'] ?? '0.0' ?>g</p>
         </div>
         <div class="stat-card">
           <span class="material-symbols-outlined" style="color:#10b981; margin-bottom:8px; font-variation-settings:'FILL' 1;">directions_run</span>
-          <p class="stat-card__label">Exercise This Week</p>
+          <p class="stat-card__label">Exercise <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= (int)($metrics['week_min'] ?? 0) ?> <span style="font-size:12px;">min</span></p>
           <p class="stat-card__sub"><?= number_format((float)($metrics['week_burn'] ?? 0)) ?> kcal burned</p>
         </div>
@@ -195,10 +208,10 @@
     <!-- All weekly overview: grouped bars, one per type, each scaled to its own goal -->
     <section class="glass-card chart-card" style="margin-top:24px;">
       <div class="chart-card__header">
-        <h3 class="text-headline-md" style="color:#191c1e;">Last 7 Days &mdash; All Activities</h3>
+        <h3 class="text-headline-md" style="color:#191c1e;"><?= $isHourly ? 'Today' : ($range === '1m' ? htmlspecialchars($calLabel) : 'Last 7 Days') ?> &mdash; All Activities</h3>
         <span class="text-label-md text-on-surface-variant" style="font-size:12px;">% of daily goal</span>
       </div>
-      <div class="bar-chart">
+      <div class="bar-chart <?= $isHourly ? 'bar-chart--hourly' : ($range === '1m' ? 'bar-chart--monthly' : '') ?>">
         <div class="bar-chart__goal-line"></div>
         <?php foreach ($weekDays as $d): ?>
         <div class="bar-col <?= $d['is_today'] ? 'bar-col--active' : '' ?>">
@@ -231,7 +244,7 @@
       <!-- Weekly Bar Chart -->
       <div class="glass-card chart-card <?= $type === 'water' ? 'chart-card--wide' : 'chart-card--wide' ?>">
         <div class="chart-card__header">
-          <h3 class="text-headline-md" style="color:#191c1e;">Last 7 Days</h3>
+          <h3 class="text-headline-md" style="color:#191c1e;"><?= $isHourly ? 'Today' : ($range === '1m' ? htmlspecialchars($calLabel) : 'Last 7 Days') ?></h3>
           <?php
           $unit = $type === 'water' ? 'L' : ($type === 'food' ? 'kcal' : 'min');
           $displayGoal = $type === 'water' ? $goalLabel
@@ -239,7 +252,7 @@
           ?>
           <span class="text-label-md text-on-surface-variant" style="font-size:12px;">Goal: <?= $displayGoal ?></span>
         </div>
-        <div class="bar-chart">
+        <div class="bar-chart <?= $isHourly ? 'bar-chart--hourly' : ($range === '1m' ? 'bar-chart--monthly' : '') ?>">
           <div class="bar-chart__goal-line"></div>
           <?php foreach ($weekDays as $d): ?>
           <div class="bar-col <?= $d['is_today'] ? 'bar-col--active' : '' ?>"
@@ -262,14 +275,14 @@
           <h3 class="text-headline-md" style="color:#191c1e;">Streak Calendar</h3>
           <div class="calendar-nav">
             <a class="calendar-nav__btn" id="cal-prev"
-               href="history.php?type=<?= urlencode($type) ?>&month=<?= $prevMonth ?>&year=<?= $prevYear ?>"
+               href="history.php?type=<?= urlencode($type) ?>&range=<?= urlencode($range) ?>&month=<?= $prevMonth ?>&year=<?= $prevYear ?>"
                aria-label="Previous month">
               <span class="material-symbols-outlined">chevron_left</span>
             </a>
             <span class="text-label-md" id="cal-month" style="color:#191c1e;min-width:90px;text-align:center;"
                   data-month="<?= $calMonth ?>" data-year="<?= $calYear ?>" data-type="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($calLabel) ?></span>
             <a class="calendar-nav__btn" id="cal-next"
-               href="history.php?type=<?= urlencode($type) ?>&month=<?= $nextMonth ?>&year=<?= $nextYear ?>"
+               href="history.php?type=<?= urlencode($type) ?>&range=<?= urlencode($range) ?>&month=<?= $nextMonth ?>&year=<?= $nextYear ?>"
                aria-label="Next month">
               <span class="material-symbols-outlined">chevron_right</span>
             </a>
@@ -318,12 +331,12 @@
     <?php if ($type === 'all'): ?>
     <!-- Combined Daily Log Table: one row per day across all types -->
     <section class="glass-card table-card">
-      <h3 class="text-headline-md mb-6" style="color:#191c1e;">Daily Log: Last 7 Days</h3>
+      <h3 class="text-headline-md mb-6" style="color:#191c1e;"><?= $isHourly ? 'Hourly Log: Today' : (($range === '1m' ? 'Weekly Log: ' . htmlspecialchars($calLabel) : 'Daily Log: Last 7 Days')) ?></h3>
       <div class="table-wrapper">
         <table class="history-table">
           <thead>
             <tr>
-              <th>DATE</th>
+              <th><?= $isHourly ? 'HOUR' : 'DATE' ?></th>
               <th>WATER</th>
               <th>FOOD</th>
               <th>EXERCISE</th>
@@ -337,8 +350,18 @@
             </td></tr>
             <?php else: ?>
             <?php foreach ($tableRows as $row):
-              $isToday = $row['day'] === date('Y-m-d');
-              $dateLabel = $isToday ? 'Today, ' . date('M j', strtotime($row['day'])) : date('M j', strtotime($row['day']));
+              if ($isHourly) {
+                $h = (int)$row['day'];
+                $dateLabel = $timeLabels[$h] ?? $h;
+                $isToday = false;
+              } elseif ($range === '1m') {
+                $wkNum = (int)$row['day'];
+                $dateLabel = 'Wk ' . $wkNum . ' · ' . ($weekLabels[$wkNum - 1] ?? '');
+                $isToday = false;
+              } else {
+                $isToday = $row['day'] === date('Y-m-d');
+                $dateLabel = $isToday ? 'Today, ' . date('M j', strtotime($row['day'])) : date('M j', strtotime($row['day']));
+              }
               $g = (int)$row['goals_met'];
               if ($isToday)      { $statusCls = 'status-badge--progress'; $status = 'In Progress'; }
               elseif ($g >= 3)   { $statusCls = 'status-badge--exceeded'; $status = 'Perfect Day'; }
@@ -371,12 +394,12 @@
     <?php else: ?>
     <!-- Daily Log Table -->
     <section class="glass-card table-card">
-      <h3 class="text-headline-md mb-6" style="color:#191c1e;">Daily Log: Last 7 Days</h3>
+      <h3 class="text-headline-md mb-6" style="color:#191c1e;"><?= $isHourly ? 'Hourly Log: Today' : ($range === '1m' ? 'Weekly Log: ' . htmlspecialchars($calLabel) : 'Daily Log: Last 7 Days') ?></h3>
       <div class="table-wrapper">
         <table class="history-table">
           <thead>
             <tr>
-              <th>DATE</th>
+              <th><?= $isHourly ? 'HOUR' : 'DATE' ?></th>
               <?php if ($type === 'water'): ?>
               <th>TOTAL INTAKE</th>
               <th style="width:25%;">GOAL PROGRESS</th>
@@ -402,8 +425,18 @@
             </td></tr>
             <?php else: ?>
             <?php foreach ($tableRows as $row):
-              $isToday = $row['day'] === date('Y-m-d');
-              $dateLabel = $isToday ? 'Today, ' . date('M j', strtotime($row['day'])) : date('M j', strtotime($row['day']));
+              if ($isHourly) {
+                $h = (int)$row['day'];
+                $dateLabel = $timeLabels[$h] ?? $h;
+                $isToday = false;
+              } elseif ($range === '1m') {
+                $wkNum = (int)$row['day'];
+                $dateLabel = 'Wk ' . $wkNum . ' · ' . ($weekLabels[$wkNum - 1] ?? '');
+                $isToday = false;
+              } else {
+                $isToday = $row['day'] === date('Y-m-d');
+                $dateLabel = $isToday ? 'Today, ' . date('M j', strtotime($row['day'])) : date('M j', strtotime($row['day']));
+              }
 
               if ($type === 'water') {
                   $val   = (int)$row['total_ml'];
@@ -456,8 +489,7 @@
   <script>
   window.HEALTHFLOW_REMINDER = <?= json_encode([
       'enabled' => (bool)($user['reminder_enabled'] ?? 0),
-      'time'    => $user['reminder_time'] ?? '20:00:00',
-      'interval_min' => (int)($user['reminder_interval_min'] ?? 0),
+      'interval_min' => (int)($user['reminder_interval_min'] ?? 60),
   ]); ?>;
   </script>
   <script type="module" src="app.js"></script>

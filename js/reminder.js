@@ -1,50 +1,65 @@
 /* ---------- Reminders (Settings toggle + app-wide toast) ---------- */
 
 /**
- * Settings page: animate the Reminders toggle and show/hide the time input.
+ * Settings page: animate the Reminders toggle.
  */
 export function initReminderToggle() {
   const checkbox  = document.getElementById('reminder-enabled');
   const switchEl  = document.getElementById('reminder-switch');
   const knobEl    = document.getElementById('reminder-knob');
   const labelEl   = document.getElementById('reminder-toggle-label');
-  const timeArea  = document.getElementById('reminder-time-area');
-  const interval  = document.getElementById('reminder-interval');
   if (!checkbox || !switchEl) return;
 
-  const showTimeArea = () => {
-    const on       = checkbox.checked;
-    const isCustom = !interval || Number(interval.value) === 0; // 0 = "custom daily time" mode, not disabled
-    if (timeArea) timeArea.style.display = on && isCustom ? '' : 'none';
-  };
   const refresh = () => {
     const on = checkbox.checked;
     switchEl.style.background = on ? '#00696d' : '#e6e8ea';
     if (knobEl) knobEl.style.left = on ? '23px' : '3px';
     if (labelEl) labelEl.textContent = on ? 'On' : 'Off';
-    showTimeArea();
   };
   switchEl.addEventListener('click', () => {
     checkbox.checked = !checkbox.checked;
     refresh();
   });
-  if (interval) interval.addEventListener('change', showTimeArea);
+  refresh();
+}
+
+/**
+ * Settings page: animate the Email Reminder toggle.
+ */
+export function initEmailReminderToggle() {
+  const checkbox  = document.getElementById('email-reminder-enabled');
+  const switchEl  = document.getElementById('email-reminder-switch');
+  const knobEl    = document.getElementById('email-reminder-knob');
+  const labelEl   = document.getElementById('email-reminder-toggle-label');
+  if (!checkbox || !switchEl) return;
+
+  const refresh = () => {
+    const on = checkbox.checked;
+    switchEl.style.background = on ? '#00696d' : '#e6e8ea';
+    if (knobEl) knobEl.style.left = on ? '23px' : '3px';
+    if (labelEl) labelEl.textContent = on ? 'On' : 'Off';
+  };
+  switchEl.addEventListener('click', () => {
+    checkbox.checked = !checkbox.checked;
+    refresh();
+  });
   refresh();
 }
 
 /**
  * App pages: show recurring reminders while the app is open.
  * Config comes from window.HEALTHFLOW_REMINDER (printed by the PHP pages).
- * - interval_min > 0 : "Every 1/2/3 hours" — toast on load, then every interval
- * - interval_min = 0 : "Custom time" — one-time daily toast once the time is reached
+ * interval_min: how often to show the toast (in minutes)
+ * Uses localStorage to persist timing across page navigations.
  */
 export function initReminderToast() {
-  const cfg = window.HEALTHFLOW_REMINDER || { enabled: false, time: '20:00', interval_min: 0 };
+  const cfg = window.HEALTHFLOW_REMINDER || { enabled: false, interval_min: 60 };
   if (!cfg.enabled) return;
 
-  const showToast = (onceKey) => {
-    if (onceKey && localStorage.getItem(onceKey)) return;
+  const STORAGE_KEY = 'hf_last_toast_at';
+  const intervalMs = (Number(cfg.interval_min) || 60) * 60 * 1000;
 
+  const showToast = () => {
     const toast = document.createElement('div');
     toast.id = 'reminder-toast';
     toast.style.cssText = `
@@ -64,7 +79,6 @@ export function initReminderToast() {
       </div>
     `;
     document.body.appendChild(toast);
-    // wait a frame so the browser paints the hidden state before transitioning in
     requestAnimationFrame(() => {
       toast.style.opacity = '1';
       toast.style.transform = 'translateX(-50%) translateY(0)';
@@ -73,39 +87,29 @@ export function initReminderToast() {
     const remove = () => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateX(-50%) translateY(20px)';
-      setTimeout(() => toast.remove(), 400); // must match the 0.4s exit transition above
+      setTimeout(() => toast.remove(), 400);
     };
     toast.querySelector('#reminder-goto')?.addEventListener('click', () => {
-      if (onceKey) localStorage.setItem(onceKey, '1');
       remove();
       window.location.href = 'log.php?type=water';
     });
     toast.querySelector('#reminder-dismiss')?.addEventListener('click', () => {
-      if (onceKey) localStorage.setItem(onceKey, '1');
       remove();
     });
   };
 
-  const intervalMin = Number(cfg.interval_min) || 0;
-  if (intervalMin > 0) {
-    // Recurring interval reminders while the app is open
-    showToast(null);
-    setInterval(() => showToast(null), intervalMin * 60 * 1000);
-    return;
+  // Check localStorage for last toast time
+  const lastShown = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+  const now = Date.now();
+
+  if (now - lastShown >= intervalMs) {
+    showToast();
+    localStorage.setItem(STORAGE_KEY, String(now));
   }
 
-  // Custom once-daily time reminder
-  if (!cfg.time) return;
-  const today = new Date().toISOString().slice(0, 10);
-  const onceKey = 'hf_reminder_dismissed_' + today;
-  if (localStorage.getItem(onceKey)) return;
-
-  const [h, m] = cfg.time.split(':').map(Number);
-  const now = new Date();
-  const reminderAt = new Date(now);
-  reminderAt.setHours(h || 20, m || 0, 0, 0);
-
-  // fire-and-forget: only shows if the time already passed today; no future scheduling
-  if (now < reminderAt) return;
-  showToast(onceKey);
+  // Also set interval for staying on same page
+  setInterval(() => {
+    showToast();
+    localStorage.setItem(STORAGE_KEY, String(Date.now()));
+  }, intervalMs);
 }

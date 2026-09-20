@@ -33,10 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 // Load today's water totals
 $stmt = $db->prepare('
     SELECT u.full_name, u.weight, g.daily_goal_ml,
-           u.reminder_enabled, u.reminder_time, u.reminder_interval_min,
+           r.reminder_enabled, r.reminder_interval_min,
            COALESCE(w.ml, 0) AS today_ml
     FROM users u
     LEFT JOIN user_goals g ON g.user_id = u.user_id
+    LEFT JOIN reminders r ON r.user_id = u.user_id
     LEFT JOIN (SELECT user_id, SUM(amount_ml) AS ml FROM water_logs
                WHERE user_id=? AND DATE(logged_at)=CURDATE() GROUP BY user_id) w
            ON w.user_id = u.user_id

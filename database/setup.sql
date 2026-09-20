@@ -22,13 +22,6 @@ CREATE TABLE IF NOT EXISTS users (
     weight DECIMAL(5,1) DEFAULT NULL,
     height DECIMAL(5,1) DEFAULT NULL,
 
-    reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
-    reminder_time TIME NOT NULL DEFAULT '20:00:00',
-    reminder_interval_min INT NOT NULL DEFAULT 0,
-
-    wake_time TIME NOT NULL DEFAULT '07:00:00',
-    sleep_time TIME NOT NULL DEFAULT '22:00:00',
-
     is_verified TINYINT(1) NOT NULL DEFAULT 0,
 
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -53,6 +46,22 @@ CREATE TABLE IF NOT EXISTS user_goals (
     daily_exercise_goal_min INT NOT NULL DEFAULT 30,
     daily_burn_goal_kcal INT NOT NULL DEFAULT 300,
 
+    FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+
+-- =============================================
+-- 1c. REMINDERS TABLE (1:1 with users)
+-- =============================================
+
+CREATE TABLE IF NOT EXISTS reminders (
+    user_id INT PRIMARY KEY,
+    reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
+    reminder_interval_min INT NOT NULL DEFAULT 60,
+    email_reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
+    last_email_sent_at DATETIME NULL DEFAULT NULL,
     FOREIGN KEY (user_id)
         REFERENCES users(user_id)
         ON DELETE CASCADE
@@ -313,6 +322,7 @@ SHOW TABLES;
 
 DESCRIBE users;
 DESCRIBE user_goals;
+DESCRIBE reminders;
 DESCRIBE email_otps;
 DESCRIBE water_logs;
 DESCRIBE foods;

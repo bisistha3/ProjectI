@@ -1,11 +1,14 @@
 export function initChartToggle() {
-  const toggleBtns = document.querySelectorAll('.chart-toggle__btn');
-  if (toggleBtns.length === 0) return;
+  const toggleContainers = document.querySelectorAll('.chart-toggle');
+  if (toggleContainers.length === 0) return;
 
-  toggleBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      toggleBtns.forEach(b => b.classList.remove('chart-toggle__btn--active'));
-      btn.classList.add('chart-toggle__btn--active');
+  toggleContainers.forEach(container => {
+    const btns = container.querySelectorAll('.chart-toggle__btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('chart-toggle__btn--active'));
+        btn.classList.add('chart-toggle__btn--active');
+      });
     });
   });
 }

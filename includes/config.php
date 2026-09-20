@@ -1,4 +1,7 @@
 <?php
+// Composer autoloader (PHPMailer, etc.)
+require_once __DIR__ . '/../vendor/autoload.php';
+
 /**
  * HealthFlow — Application Configuration
  * ════════════════════════════════════════════════════════════════════════════

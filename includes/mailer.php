@@ -151,27 +151,35 @@ function sendOtpEmail(string $toAddr, string $toName, string $otp): bool {
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8"><style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; background: #0d1117; color: #c9d1d9; margin: 0; padding: 0; }
-  .wrap { max-width: 480px; margin: 40px auto; background: #161b22; border-radius: 16px; overflow: hidden; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f8; color: #1a1a2e; margin: 0; padding: 0; }
+  .wrap { max-width: 480px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e0e0e0; }
   .header { background: linear-gradient(135deg, #00696d, #00b8bd); padding: 32px; text-align: center; }
   .header h1 { color: #fff; margin: 0; font-size: 22px; font-weight: 700; }
   .body { padding: 32px; }
-  .otp-box { background: #0d1117; border: 2px dashed #00a7ad; border-radius: 12px; text-align: center; padding: 24px 0; margin: 24px 0; }
-  .otp { font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #00b8bd; font-family: 'Courier New', monospace; }
-  .note { font-size: 13px; color: #8b949e; text-align: center; margin-top: 8px; }
-  .footer { text-align: center; padding: 16px; font-size: 12px; color: #484f58; border-top: 1px solid #21262d; }
+  .otp-box { background: #f4f6f8; border: 2px dashed #00a7ad; border-radius: 12px; text-align: center; padding: 24px 0; margin: 24px 0; }
+  .otp { font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #00696d; font-family: 'Courier New', monospace; }
+  .note { font-size: 13px; color: #666; text-align: center; margin-top: 8px; }
+  .footer { text-align: center; padding: 16px; font-size: 12px; color: #888; border-top: 1px solid #e9ecef; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #0d1117; }
+    .wrap { background: #161b22; border-color: #30363d; }
+    .otp-box { background: #0d1117; border-color: #00a7ad; }
+    .otp { color: #00b8bd; }
+    .note { color: #8b949e; }
+    .footer { color: #484f58; border-color: #21262d; }
+  }
 </style></head>
 <body>
 <div class="wrap">
   <div class="header"><h1>❤️ HealthFlow — Verify Your Email</h1></div>
   <div class="body">
     <p>Hi <strong>{$toName}</strong>,</p>
-    <p>Thanks for signing up! Enter the code below to activate your account:</p>
+    <p style="color:#1a1a2e;">Thanks for signing up! Enter the code below to activate your account:</p>
     <div class="otp-box">
       <div class="otp">{$otp}</div>
       <div class="note">Expires in {$expiry} minutes</div>
     </div>
-    <p>If you didn't create a HealthFlow account, you can safely ignore this email.</p>
+    <p style="font-size:13px; color:#666;">If you didn't create a HealthFlow account, you can safely ignore this email.</p>
   </div>
   <div class="footer">HealthFlow · This is an automated message, please do not reply.</div>
 </div>
