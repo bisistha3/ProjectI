@@ -162,19 +162,19 @@ function sendReminderEmail(string $toAddr, string $toName, array $stats): bool {
 
     <div class="stat">
       <div class="stat-label">Water</div>
-      <div class="stat-row"><span>{$stats['today_ml']} ml</span><span>{$stats['goal_ml']} ml goal</span></div>
+      <div class="stat-row"><span>{$stats['today_ml']} ml</span> / <span>{$stats['goal_ml']} ml goal</span></div>
       <div class="bar-bg"><div class="bar-fill bar-water" style="width:{$pctMl}%"></div></div>
     </div>
 
     <div class="stat">
       <div class="stat-label">Calories</div>
-      <div class="stat-row"><span>{$stats['today_kcal']} kcal</span><span>{$stats['goal_kcal']} kcal goal</span></div>
+      <div class="stat-row"><span>{$stats['today_kcal']} kcal</span> / <span>{$stats['goal_kcal']} kcal goal</span></div>
       <div class="bar-bg"><div class="bar-fill bar-food" style="width:{$pctCal}%"></div></div>
     </div>
 
     <div class="stat">
       <div class="stat-label">Exercise</div>
-      <div class="stat-row"><span>{$stats['today_min']} min</span><span>{$stats['goal_min']} min goal</span></div>
+      <div class="stat-row"><span>{$stats['today_min']} min</span> / <span>{$stats['goal_min']} min goal</span></div>
       <div class="bar-bg"><div class="bar-fill bar-exercise" style="width:{$pctMin}%"></div></div>
     </div>
 
