@@ -416,13 +416,32 @@ $recentQ = $db->prepare('
 $recentQ->execute([$userId]);
 $recentLogs = $recentQ->fetchAll();
 
-// Calculate water streak
-// Counts back from today only — an unlogged today resets the visible streak to 0.
+// Calculate streak — counts a day only if ALL goals are met (water, food, exercise)
 $streakQ = $db->prepare('
-    SELECT DATE(logged_at) AS day FROM water_logs
-    WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC
+    SELECT DATE(w.logged_at) AS day,
+           SUM(w.amount_ml) AS ml,
+           COALESCE(f.kcal, 0) AS kcal,
+           COALESCE(e.mins, 0) AS mins
+    FROM water_logs w
+    JOIN user_goals g ON g.user_id = w.user_id
+    LEFT JOIN (
+        SELECT user_id, DATE(logged_at) AS day, SUM(calories) AS kcal
+        FROM food_logs WHERE user_id = ?
+        GROUP BY user_id, DATE(logged_at)
+    ) f ON f.user_id = w.user_id AND f.day = DATE(w.logged_at)
+    LEFT JOIN (
+        SELECT user_id, DATE(logged_at) AS day, SUM(duration_min) AS mins
+        FROM exercise_logs WHERE user_id = ?
+        GROUP BY user_id, DATE(logged_at)
+    ) e ON e.user_id = w.user_id AND e.day = DATE(w.logged_at)
+    WHERE w.user_id = ?
+    GROUP BY DATE(w.logged_at), g.daily_goal_ml, g.daily_calorie_goal, g.daily_exercise_goal_min
+    HAVING ml >= g.daily_goal_ml
+       AND kcal >= g.daily_calorie_goal
+       AND mins >= g.daily_exercise_goal_min
+    ORDER BY day DESC
 ');
-$streakQ->execute([$userId]);
+$streakQ->execute([$userId, $userId, $userId]);
 $days   = $streakQ->fetchAll(PDO::FETCH_COLUMN);
 $streak = 0;
 $check  = new DateTime('today');

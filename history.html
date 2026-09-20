@@ -319,10 +319,10 @@
             <span class="material-symbols-outlined" style="color:#00696d;font-variation-settings:'FILL' 1;">local_fire_department</span>
             <div>
               <p class="text-label-md" style="color:#191c1e;">Current Streak</p>
-              <p style="font-size:10px;color:#3f4852;"><?= $streaks[$type] ?> day<?= $streaks[$type] !== 1 ? 's' : '' ?> in a row</p>
+              <p style="font-size:10px;color:#3f4852;"><?= $streak ?> day<?= $streak !== 1 ? 's' : '' ?> in a row</p>
             </div>
           </div>
-          <span class="text-headline-md text-primary"><?= str_pad($streaks[$type], 2, '0', STR_PAD_LEFT) ?></span>
+          <span class="text-headline-md text-primary"><?= str_pad($streak, 2, '0', STR_PAD_LEFT) ?></span>
         </div>
       </div>
     </section>

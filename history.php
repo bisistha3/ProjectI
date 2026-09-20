@@ -53,23 +53,39 @@ $goalCarbs = (int)($user['daily_carbs_goal_g']    ?? 225);
 $goalMin   = (int)($user['daily_exercise_goal_min'] ?? 30);
 $fullName  = htmlspecialchars($user['full_name'] ?? $_SESSION['full_name'], ENT_QUOTES, 'UTF-8');
 
-// Streaks per type (water, food, exercise).
-// Counts back from today only — an unlogged today resets the visible streak to 0.
-$streakTables = ['water' => 'water_logs', 'food' => 'food_logs', 'exercise' => 'exercise_logs'];
-$streaks = ['water' => 0, 'food' => 0, 'exercise' => 0];
-foreach ($streakTables as $skey => $stable) {
-    $streakQ = $db->prepare(
-        "SELECT DATE(logged_at) AS day FROM $stable WHERE user_id=? GROUP BY DATE(logged_at) ORDER BY day DESC"
-    );
-    $streakQ->execute([$userId]);
-    $sdays = $streakQ->fetchAll(PDO::FETCH_COLUMN);
-    $check = new DateTime('today');
-    foreach ($sdays as $day) {
-        if ($day === $check->format('Y-m-d')) { $streaks[$skey]++; $check->modify('-1 day'); }
-        else break;
-    }
+// Streak — counts a day only if ALL goals are met (water, food, exercise)
+$streakQ = $db->prepare('
+    SELECT DATE(w.logged_at) AS day,
+           SUM(w.amount_ml) AS ml,
+           COALESCE(f.kcal, 0) AS kcal,
+           COALESCE(e.mins, 0) AS mins
+    FROM water_logs w
+    JOIN user_goals g ON g.user_id = w.user_id
+    LEFT JOIN (
+        SELECT user_id, DATE(logged_at) AS day, SUM(calories) AS kcal
+        FROM food_logs WHERE user_id = ?
+        GROUP BY user_id, DATE(logged_at)
+    ) f ON f.user_id = w.user_id AND f.day = DATE(w.logged_at)
+    LEFT JOIN (
+        SELECT user_id, DATE(logged_at) AS day, SUM(duration_min) AS mins
+        FROM exercise_logs WHERE user_id = ?
+        GROUP BY user_id, DATE(logged_at)
+    ) e ON e.user_id = w.user_id AND e.day = DATE(w.logged_at)
+    WHERE w.user_id = ?
+    GROUP BY DATE(w.logged_at), g.daily_goal_ml, g.daily_calorie_goal, g.daily_exercise_goal_min
+    HAVING ml >= g.daily_goal_ml
+       AND kcal >= g.daily_calorie_goal
+       AND mins >= g.daily_exercise_goal_min
+    ORDER BY day DESC
+');
+$streakQ->execute([$userId, $userId, $userId]);
+$streakDays = $streakQ->fetchAll(PDO::FETCH_COLUMN);
+$streak = 0;
+$check = new DateTime('today');
+foreach ($streakDays as $day) {
+    if ($day === $check->format('Y-m-d')) { $streak++; $check->modify('-1 day'); }
+    else break;
 }
-$streak = $streaks['water'];
 
 // Per-type daily goal, used by the streak calendar dots.
 $calGoals = ['water' => $goalMl, 'food' => $goalKcal, 'exercise' => $goalMin];
@@ -538,7 +554,7 @@ if ($isHourly) {
     $loopCount = $rangeDays + 1;
 }
 
-for ($i = $loopCount - 1; $i >= 0; $i--) {
+for ($i = 0; $i < $loopCount; $i++) {
     if ($isHourly) {
         $raw = $weekRaw[$i] ?? [];
         $label = $timeLabels[$i];
@@ -551,7 +567,8 @@ for ($i = $loopCount - 1; $i >= 0; $i--) {
         $isCurrent = false;
         $bucketKey = $wk;
     } else {
-        $date = date('Y-m-d', strtotime("-$i days"));
+        $daysAgo = $loopCount - 1 - $i;
+        $date = date('Y-m-d', strtotime("-{$daysAgo} days"));
         $raw  = $weekRaw[$date] ?? [];
         $label = date('D', strtotime($date));
         $isCurrent = ($date === date('Y-m-d'));
