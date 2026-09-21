@@ -9,6 +9,11 @@ requireLogin();
 $db     = getDB();
 $userId = (int)$_SESSION['user_id'];
 
+// Keep the dashboard streak calculation working for users created before
+// user_goals was introduced.
+$db->prepare('INSERT IGNORE INTO user_goals (user_id) VALUES (?)')
+   ->execute([$userId]);
+
 // Check if daily goal prompt should be shown (first login today)
 $showDailyGoalPrompt = false;
 if (!empty($_SESSION['_show_daily_goal_prompt'])) {
@@ -447,6 +452,14 @@ $streakQ->execute([$userId, $userId, $userId]);
 $days   = $streakQ->fetchAll(PDO::FETCH_COLUMN);
 $streak = 0;
 $check  = new DateTime('today');
+if (!empty($days) && $days[0] !== $check->format('Y-m-d')) {
+    $yesterday = (clone $check)->modify('-1 day');
+    if ($days[0] === $yesterday->format('Y-m-d')) {
+        $check = $yesterday;
+    } else {
+        $days = [];
+    }
+}
 foreach ($days as $day) {
     if ($day === $check->format('Y-m-d')) { $streak++; $check->modify('-1 day'); }
     else break;

@@ -86,6 +86,14 @@ $streakQ->execute([$userId, $userId, $userId]);
 $streakDays = $streakQ->fetchAll(PDO::FETCH_COLUMN);
 $streak = 0;
 $check = new DateTime('today');
+if (!empty($streakDays) && $streakDays[0] !== $check->format('Y-m-d')) {
+    $yesterday = (clone $check)->modify('-1 day');
+    if ($streakDays[0] === $yesterday->format('Y-m-d')) {
+        $check = $yesterday;
+    } else {
+        $streakDays = [];
+    }
+}
 foreach ($streakDays as $day) {
     if ($day === $check->format('Y-m-d')) { $streak++; $check->modify('-1 day'); }
     else break;
