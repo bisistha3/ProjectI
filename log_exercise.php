@@ -51,7 +51,9 @@ $stmt = $db->prepare('
            COALESCE(e.burn, 0) AS today_burn
     FROM users u
     LEFT JOIN user_goals g ON g.user_id = u.user_id
-    LEFT JOIN reminders r ON r.user_id = u.user_id
+    LEFT JOIN reminders r ON r.reminder_id = (
+        SELECT MAX(r2.reminder_id) FROM reminders r2 WHERE r2.user_id = u.user_id
+    )
     LEFT JOIN (SELECT user_id, SUM(duration_min) AS min, SUM(calories_burned) AS burn
                FROM exercise_logs WHERE user_id=? AND DATE(logged_at)=CURDATE()
                GROUP BY user_id) e ON e.user_id = u.user_id

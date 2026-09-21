@@ -53,15 +53,17 @@ CREATE TABLE IF NOT EXISTS user_goals (
 
 
 -- =============================================
--- 1c. REMINDERS TABLE (1:1 with users)
+-- 1c. REMINDERS TABLE (1:M with users)
+-- Each sent reminder is stored as a separate row.
 -- =============================================
 
 CREATE TABLE IF NOT EXISTS reminders (
-    user_id INT PRIMARY KEY,
+    reminder_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
     reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
     reminder_interval_min INT NOT NULL DEFAULT 60,
     email_reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
-    last_email_sent_at DATETIME NULL DEFAULT NULL,
+    sent_at DATETIME NULL DEFAULT NULL,
     FOREIGN KEY (user_id)
         REFERENCES users(user_id)
         ON DELETE CASCADE

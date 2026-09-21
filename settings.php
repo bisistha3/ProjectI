@@ -87,15 +87,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         )->execute([$fullName, $weight, $height, $age, $gender,
                     $wakeTime, $sleepTime, $userId]);
 
-        // Upsert reminder settings into reminders table
-        $db->prepare(
-            'INSERT INTO reminders (user_id, reminder_enabled, reminder_interval_min, email_reminder_enabled)
-             VALUES (?, ?, ?, ?)
-             ON DUPLICATE KEY UPDATE
-                 reminder_enabled=VALUES(reminder_enabled),
-                 reminder_interval_min=VALUES(reminder_interval_min),
-                 email_reminder_enabled=VALUES(email_reminder_enabled)'
-        )->execute([$userId, $reminderEnabled, $reminderInterval, $emailReminderEnabled]);
+        // Update the user's current reminder record, or create the first one.
+        $currentReminder = $db->prepare(
+            'SELECT reminder_id FROM reminders
+             WHERE user_id=? ORDER BY reminder_id DESC LIMIT 1'
+        );
+        $currentReminder->execute([$userId]);
+        $reminderId = $currentReminder->fetchColumn();
+
+        if ($reminderId) {
+            $db->prepare(
+                'UPDATE reminders
+                 SET reminder_enabled=?, reminder_interval_min=?, email_reminder_enabled=?
+                 WHERE reminder_id=? AND user_id=?'
+            )->execute([
+                $reminderEnabled, $reminderInterval, $emailReminderEnabled,
+                (int)$reminderId, $userId
+            ]);
+        } else {
+            $db->prepare(
+                'INSERT INTO reminders
+                 (user_id, reminder_enabled, reminder_interval_min, email_reminder_enabled)
+                 VALUES (?, ?, ?, ?)'
+            )->execute([$userId, $reminderEnabled, $reminderInterval, $emailReminderEnabled]);
+        }
 
         // Ensure a goals row exists (a bare UPDATE would silently no-op otherwise).
         $db->prepare('INSERT IGNORE INTO user_goals (user_id) VALUES (?)')
@@ -130,7 +145,11 @@ $u = $db->prepare('SELECT u.full_name, u.email, u.age, u.weight, u.height, u.gen
                           u.wake_time, u.sleep_time
                           FROM users u
                           LEFT JOIN user_goals g ON g.user_id = u.user_id
-                          LEFT JOIN reminders r ON r.user_id = u.user_id
+                          LEFT JOIN reminders r ON r.reminder_id = (
+                              SELECT MAX(r2.reminder_id)
+                              FROM reminders r2
+                              WHERE r2.user_id = u.user_id
+                          )
                           WHERE u.user_id=?');
 $u->execute([$userId]);
 $user      = $u->fetch();

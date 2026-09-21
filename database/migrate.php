@@ -124,23 +124,67 @@ if (!$hasCol('users', 'daily_goals_prompted_at')) {
 // 3. REMINDERS
 // ══════════════════════════════════════════════════════════════════
 
-// Create reminders table (final schema includes last_email_sent_at)
+// Create reminders table (one user can have many reminder records)
 $db->exec('
     CREATE TABLE IF NOT EXISTS reminders (
-        user_id INT PRIMARY KEY,
+        reminder_id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
         reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
         reminder_interval_min INT NOT NULL DEFAULT 60,
         email_reminder_enabled TINYINT(1) NOT NULL DEFAULT 0,
-        last_email_sent_at DATETIME NULL DEFAULT NULL,
+        sent_at DATETIME NULL DEFAULT NULL,
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
     )
 ');
 $out[] = 'OK: reminders table ensured';
 
+// Convert the old one-to-one schema to one-to-many.
+if (!$hasCol('reminders', 'reminder_id')) {
+    $fkStmt = $db->prepare('
+        SELECT CONSTRAINT_NAME
+        FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = "reminders"
+          AND COLUMN_NAME = "user_id"
+          AND REFERENCED_TABLE_NAME = "users"
+        LIMIT 1
+    ');
+    $fkStmt->execute();
+    $reminderUserForeignKey = $fkStmt->fetchColumn();
+
+    if ($reminderUserForeignKey) {
+        $alter("ALTER TABLE reminders DROP FOREIGN KEY `{$reminderUserForeignKey}`");
+    }
+
+    $alter('ALTER TABLE reminders DROP PRIMARY KEY');
+    $alter('ALTER TABLE reminders ADD COLUMN reminder_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST');
+    $alter('ALTER TABLE reminders
+            ADD CONSTRAINT fk_reminders_user
+            FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE');
+}
+
+if ($hasCol('reminders', 'last_email_sent_at') && !$hasCol('reminders', 'sent_at')) {
+    $alter('ALTER TABLE reminders CHANGE COLUMN last_email_sent_at sent_at DATETIME NULL DEFAULT NULL');
+}
+
+if ($hasCol('reminders', 'last_email_sent_at') && $hasCol('reminders', 'sent_at')) {
+    $alter('ALTER TABLE reminders DROP COLUMN last_email_sent_at');
+}
+
+if (!$hasCol('reminders', 'sent_at')) {
+    $alter('ALTER TABLE reminders ADD COLUMN sent_at DATETIME NULL DEFAULT NULL');
+}
+
 // Backfill reminder data from users → reminders (for old installs)
 if ($hasCol('users', 'reminder_enabled')) {
-    $db->exec('INSERT IGNORE INTO reminders (user_id, reminder_enabled, reminder_interval_min)
-               SELECT user_id, reminder_enabled, reminder_interval_min FROM users');
+    $db->exec('
+        INSERT INTO reminders (user_id, reminder_enabled, reminder_interval_min)
+        SELECT u.user_id, u.reminder_enabled, u.reminder_interval_min
+        FROM users u
+        WHERE NOT EXISTS (
+            SELECT 1 FROM reminders r WHERE r.user_id = u.user_id
+        )
+    ');
     $out[] = 'OK: backfilled reminders from users';
 }
 
@@ -159,11 +203,6 @@ if ($hasCol('reminders', 'reminder_time')) {
 // Ensure default interval is 60 (was 0 for old custom-time users)
 $db->exec('UPDATE reminders SET reminder_interval_min = 60 WHERE reminder_interval_min = 0');
 $out[] = 'OK: default intervals set to 60 minutes';
-
-// Add last_email_sent_at if missing (old installs that predate this column)
-if (!$hasCol('reminders', 'last_email_sent_at')) {
-    $alter('ALTER TABLE reminders ADD COLUMN last_email_sent_at DATETIME NULL DEFAULT NULL');
-}
 
 // ══════════════════════════════════════════════════════════════════
 // 4. EMAIL REMINDERS CLEANUP

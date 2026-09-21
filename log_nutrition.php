@@ -45,7 +45,9 @@ $stmt = $db->prepare('
            COALESCE(f.carb, 0) AS today_carbs
     FROM users u
     LEFT JOIN user_goals g ON g.user_id = u.user_id
-    LEFT JOIN reminders r ON r.user_id = u.user_id
+    LEFT JOIN reminders r ON r.reminder_id = (
+        SELECT MAX(r2.reminder_id) FROM reminders r2 WHERE r2.user_id = u.user_id
+    )
     LEFT JOIN (SELECT user_id, SUM(calories) AS kcal, SUM(protein_g) AS prot,
                       SUM(fat_g) AS fat, SUM(carbs_g) AS carb
                FROM food_logs WHERE user_id=? AND DATE(logged_at)=CURDATE()

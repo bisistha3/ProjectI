@@ -21,9 +21,13 @@ function sendEmailReminders(bool $force = false): array {
     $results = ['sent' => 0, 'skipped' => 0, 'errors' => 0];
 
     $users = $db->query(
-        "SELECT u.user_id, u.full_name, u.email, r.reminder_interval_min
+        "SELECT u.user_id, u.full_name, u.email, r.reminder_id, r.reminder_interval_min
          FROM users u
-         INNER JOIN reminders r ON r.user_id = u.user_id
+         INNER JOIN reminders r ON r.reminder_id = (
+             SELECT MAX(r2.reminder_id)
+             FROM reminders r2
+             WHERE r2.user_id = u.user_id
+         )
          WHERE r.reminder_enabled = 1
            AND r.email_reminder_enabled = 1
            AND u.is_verified = 1"
@@ -38,9 +42,9 @@ function sendEmailReminders(bool $force = false): array {
         // Check last sent time — skip if interval hasn't elapsed yet
         if (!$force) {
             $elapsedStmt = $db->prepare(
-                "SELECT UNIX_TIMESTAMP(last_email_sent_at) FROM reminders WHERE user_id = ?"
+                "SELECT UNIX_TIMESTAMP(sent_at) FROM reminders WHERE reminder_id = ?"
             );
-            $elapsedStmt->execute([$userId]);
+            $elapsedStmt->execute([(int)$user['reminder_id']]);
             $lastSentUnix = (int)$elapsedStmt->fetchColumn();
 
             if ($lastSentUnix > 0) {
@@ -57,8 +61,14 @@ function sendEmailReminders(bool $force = false): array {
 
         if ($sent) {
             $db->prepare(
-                "UPDATE reminders SET last_email_sent_at = NOW() WHERE user_id = ?"
-            )->execute([$userId]);
+                "INSERT INTO reminders
+                    (user_id, reminder_enabled, reminder_interval_min,
+                     email_reminder_enabled, sent_at)
+                 SELECT user_id, reminder_enabled, reminder_interval_min,
+                        email_reminder_enabled, NOW()
+                 FROM reminders
+                 WHERE reminder_id = ? AND user_id = ?"
+            )->execute([(int)$user['reminder_id'], $userId]);
             $results['sent']++;
         } else {
             $results['errors']++;

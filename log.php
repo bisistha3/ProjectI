@@ -26,7 +26,9 @@ $stmt = $db->prepare('
            COALESCE(e.burn, 0) AS today_burn
     FROM users u
     LEFT JOIN user_goals g ON g.user_id = u.user_id
-    LEFT JOIN reminders r ON r.user_id = u.user_id
+    LEFT JOIN reminders r ON r.reminder_id = (
+        SELECT MAX(r2.reminder_id) FROM reminders r2 WHERE r2.user_id = u.user_id
+    )
     LEFT JOIN (SELECT user_id, SUM(amount_ml) AS ml FROM water_logs
                WHERE user_id=? AND DATE(logged_at)=CURDATE() GROUP BY user_id) w
            ON w.user_id = u.user_id

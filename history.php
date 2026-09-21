@@ -39,7 +39,11 @@ $u = $db->prepare('SELECT u.full_name, g.daily_goal_ml, g.daily_calorie_goal, g.
                           r.reminder_enabled, r.reminder_interval_min
                           FROM users u
                           LEFT JOIN user_goals g ON g.user_id = u.user_id
-                          LEFT JOIN reminders r ON r.user_id = u.user_id
+                          LEFT JOIN reminders r ON r.reminder_id = (
+                              SELECT MAX(r2.reminder_id)
+                              FROM reminders r2
+                              WHERE r2.user_id = u.user_id
+                          )
                           WHERE u.user_id=?');
 $u->execute([$userId]);
 $user     = $u->fetch();
