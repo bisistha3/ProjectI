@@ -16,3 +16,8 @@ Desktop.ini
 # PHP logs
 *.log
 error_log
+
+# Environment & credentials
+.env
+includes/config.php
+includes/db.php

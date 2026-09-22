@@ -15,6 +15,7 @@ $range = $_GET['range'] ?? '7d';
 if (!in_array($range, ['1d', '7d', '1m'], true)) $range = '7d';
 $isHourly = ($range === '1d');
 $rangeDays = $range === '1d' ? 0 : ($range === '7d' ? 6 : 30);
+$goalMult  = ($range === '1m') ? 7 : 1;
 
 // Calendar month navigation (additive: defaults to current month, preserving prior behavior).
 $nowYear  = (int)date('Y');
@@ -484,10 +485,10 @@ if ($type === 'water') {
             'water_ml'  => $ml,
             'food_kcal' => $kcal,
             'ex_min'    => $min,
-            'water_pct' => $goalMl   > 0 ? min(100, round($ml / $goalMl * 100)) : 0,
-            'food_pct'  => $goalKcal > 0 ? min(100, round($kcal / $goalKcal * 100)) : 0,
-            'ex_pct'    => $goalMin  > 0 ? min(100, round($min / $goalMin * 100)) : 0,
-            'goals_met' => ($ml >= $goalMl ? 1 : 0) + ($kcal >= $goalKcal ? 1 : 0) + ($min >= $goalMin ? 1 : 0),
+            'water_pct' => $goalMl   > 0 ? min(100, round($ml / ($goalMl * $goalMult) * 100)) : 0,
+            'food_pct'  => $goalKcal > 0 ? min(100, round($kcal / ($goalKcal * $goalMult) * 100)) : 0,
+            'ex_pct'    => $goalMin  > 0 ? min(100, round($min / ($goalMin * $goalMult) * 100)) : 0,
+            'goals_met' => ($ml >= $goalMl * $goalMult ? 1 : 0) + ($kcal >= $goalKcal * $goalMult ? 1 : 0) + ($min >= $goalMin * $goalMult ? 1 : 0),
         ];
     }
     // Table shows newest first.
@@ -550,13 +551,8 @@ if ($type === 'water') {
 $weekDays = [];
 $timeLabels = ['12–3a','3–6a','6–9a','9–12p','12–3p','3–6p','6–9p','9–12a'];
 $daysInMonth = (int)date('t', mktime(0, 0, 0, $calMonth, 1, $calYear));
-$weekLabels = [
-    '1–' . min(7, $daysInMonth),
-    '8–' . min(14, $daysInMonth),
-    '15–' . min(21, $daysInMonth),
-    '22–' . min(28, $daysInMonth),
-];
-if ($daysInMonth > 28) $weekLabels[] = '29–' . $daysInMonth;
+$weekLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+if ($daysInMonth > 28) $weekLabels[] = 'Week 5';
 
 if ($isHourly) {
     $loopCount = 8;
@@ -598,22 +594,22 @@ for ($i = 0; $i < $loopCount; $i++) {
             'food_kcal' => $f,
             'ex_min'    => $e,
             'pcts'      => [
-                'water'    => $goalMl   > 0 ? min(100, round($w / $goalMl * 100)) : 0,
-                'food'     => $goalKcal > 0 ? min(100, round($f / $goalKcal * 100)) : 0,
-                'exercise' => $goalMin  > 0 ? min(100, round($e / $goalMin * 100)) : 0,
+                'water'    => $goalMl   > 0 ? min(100, round($w / ($goalMl * $goalMult) * 100)) : 0,
+                'food'     => $goalKcal > 0 ? min(100, round($f / ($goalKcal * $goalMult) * 100)) : 0,
+                'exercise' => $goalMin  > 0 ? min(100, round($e / ($goalMin * $goalMult) * 100)) : 0,
             ],
             'is_today'  => $isCurrent,
         ];
         continue;
     } elseif ($type === 'water') {
         $val  = (int)($raw ?? 0);
-        $goal = $goalMl;
+        $goal = $goalMl * $goalMult;
     } elseif ($type === 'food') {
         $val  = (int)($raw['kcal'] ?? 0);
-        $goal = $goalKcal;
+        $goal = $goalKcal * $goalMult;
     } else {
         $val  = (int)($raw['min'] ?? 0);
-        $goal = $goalMin;
+        $goal = $goalMin * $goalMult;
     }
     $pct = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
 

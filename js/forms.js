@@ -3,19 +3,23 @@ export function initFormHandlers() {
   function showError(input, msg) {
     input.classList.add('input-field--error');
     input.classList.remove('input-field--success');
-    const parent = input.parentElement;
-    const existingError = parent?.querySelector('.field-error');
+    const group = input.closest('.input-group') || input.parentElement;
+    const existingError = group?.nextElementSibling?.classList?.contains('field-error')
+      ? group.nextElementSibling
+      : null;
     if (existingError) existingError.remove();
     const span = document.createElement('span');
     span.className = 'field-error';
     span.textContent = msg;
-    input.insertAdjacentElement('afterend', span);
+    group.insertAdjacentElement('afterend', span);
   }
 
   function clearError(input) {
     input.classList.remove('input-field--error');
-    const parent = input.parentElement;
-    const err = parent?.querySelector('.field-error');
+    const group = input.closest('.input-group') || input.parentElement;
+    const err = group?.nextElementSibling?.classList?.contains('field-error')
+      ? group.nextElementSibling
+      : null;
     if (err) err.remove();
   }
 

@@ -209,7 +209,7 @@
     <section class="glass-card chart-card" style="margin-top:24px;">
       <div class="chart-card__header">
         <h3 class="text-headline-md" style="color:#191c1e;"><?= $isHourly ? 'Today' : ($range === '1m' ? htmlspecialchars($calLabel) : 'Last 7 Days') ?> &mdash; All Activities</h3>
-        <span class="text-label-md text-on-surface-variant" style="font-size:12px;">% of daily goal</span>
+        <span class="text-label-md text-on-surface-variant" style="font-size:12px;"><?= $range === '1m' ? '% of weekly goal' : '% of daily goal' ?></span>
       </div>
       <div class="bar-chart <?= $isHourly ? 'bar-chart--hourly' : ($range === '1m' ? 'bar-chart--monthly' : '') ?>">
         <div class="bar-chart__goal-line"></div>
@@ -218,22 +218,22 @@
           <div class="bar-group">
             <div class="bar bar--water <?= $d['pcts']['water'] >= 100 ? 'bar--filled' : '' ?>"
                  style="height:<?= max(2, $d['pcts']['water']) ?>%;"
-                 title="Water: <?= number_format($d['water_ml'] / 1000, 1) ?>L (<?= $d['pcts']['water'] ?>% of <?= $goalLabel ?>)"></div>
+                 title="Water: <?= number_format($d['water_ml'] / 1000, 1) ?>L (<?= $d['pcts']['water'] ?>% of <?= $range === '1m' ? number_format($goalMl * $goalMult / 1000, 1) . 'L' : $goalLabel ?>)"></div>
             <div class="bar bar--food <?= $d['pcts']['food'] >= 100 ? 'bar--filled' : '' ?>"
                  style="height:<?= max(2, $d['pcts']['food']) ?>%;"
-                 title="Food: <?= number_format($d['food_kcal']) ?> kcal (<?= $d['pcts']['food'] ?>% of <?= number_format($goalKcal) ?> kcal)"></div>
+                 title="Food: <?= number_format($d['food_kcal']) ?> kcal (<?= $d['pcts']['food'] ?>% of <?= number_format($range === '1m' ? $goalKcal * $goalMult : $goalKcal) ?> kcal)"></div>
             <div class="bar bar--exercise <?= $d['pcts']['exercise'] >= 100 ? 'bar--filled' : '' ?>"
                  style="height:<?= max(2, $d['pcts']['exercise']) ?>%;"
-                 title="Exercise: <?= $d['ex_min'] ?> min (<?= $d['pcts']['exercise'] ?>% of <?= $goalMin ?> min)"></div>
+                 title="Exercise: <?= $d['ex_min'] ?> min (<?= $d['pcts']['exercise'] ?>% of <?= $range === '1m' ? $goalMin * $goalMult : $goalMin ?> min)"></div>
           </div>
           <span class="bar-label" <?= $d['is_today'] ? 'style="color:#00696d;"' : '' ?>><?= $d['label'] ?></span>
         </div>
         <?php endforeach; ?>
       </div>
       <div class="chart-legend" style="gap:16px; flex-wrap:wrap;">
-        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--water"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Water &middot; <?= $goalLabel ?></span></span>
-        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--food"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Food &middot; <?= number_format($goalKcal) ?> kcal</span></span>
-        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--exercise"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Exercise &middot; <?= $goalMin ?> min</span></span>
+        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--water"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Water &middot; <?= $range === '1m' ? number_format($goalMl * $goalMult / 1000, 1) . 'L' : $goalLabel ?></span></span>
+        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--food"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Food &middot; <?= number_format($range === '1m' ? $goalKcal * $goalMult : $goalKcal) ?> kcal</span></span>
+        <span style="display:flex; align-items:center; gap:8px;"><span class="chart-legend__dot legend-dot--exercise"></span><span class="text-label-md text-on-surface-variant" style="font-size:12px;">Exercise &middot; <?= $range === '1m' ? $goalMin * $goalMult : $goalMin ?> min</span></span>
       </div>
     </section>
     <?php endif; ?>
@@ -247,8 +247,13 @@
           <h3 class="text-headline-md" style="color:#191c1e;"><?= $isHourly ? 'Today' : ($range === '1m' ? htmlspecialchars($calLabel) : 'Last 7 Days') ?></h3>
           <?php
           $unit = $type === 'water' ? 'L' : ($type === 'food' ? 'kcal' : 'min');
-          $displayGoal = $type === 'water' ? $goalLabel
-                       : ($type === 'food' ? number_format($goalKcal) . ' kcal' : $goalMin . ' min');
+          if ($range === '1m') {
+              $displayGoal = $type === 'water' ? number_format($goalMl * $goalMult / 1000, 1) . 'L'
+                           : ($type === 'food' ? number_format($goalKcal * $goalMult) . ' kcal' : ($goalMin * $goalMult) . ' min');
+          } else {
+              $displayGoal = $type === 'water' ? $goalLabel
+                           : ($type === 'food' ? number_format($goalKcal) . ' kcal' : $goalMin . ' min');
+          }
           ?>
           <span class="text-label-md text-on-surface-variant" style="font-size:12px;">Goal: <?= $displayGoal ?></span>
         </div>
@@ -356,7 +361,7 @@
                 $isToday = false;
               } elseif ($range === '1m') {
                 $wkNum = (int)$row['day'];
-                $dateLabel = 'Wk ' . $wkNum . ' · ' . ($weekLabels[$wkNum - 1] ?? '');
+                $dateLabel = $weekLabels[$wkNum - 1] ?? 'Week ' . $wkNum;
                 $isToday = false;
               } else {
                 $isToday = $row['day'] === date('Y-m-d');
@@ -431,7 +436,7 @@
                 $isToday = false;
               } elseif ($range === '1m') {
                 $wkNum = (int)$row['day'];
-                $dateLabel = 'Wk ' . $wkNum . ' · ' . ($weekLabels[$wkNum - 1] ?? '');
+                $dateLabel = $weekLabels[$wkNum - 1] ?? 'Week ' . $wkNum;
                 $isToday = false;
               } else {
                 $isToday = $row['day'] === date('Y-m-d');
@@ -440,17 +445,17 @@
 
               if ($type === 'water') {
                   $val   = (int)$row['total_ml'];
-                  $goal  = $goalMl;
+                  $goal  = $goalMl * $goalMult;
                   $disp  = number_format($val / 1000, 1) . 'L';
                   $extra = $row['top_source'] ?? 'Water';
               } elseif ($type === 'food') {
                   $val   = (int)$row['total_kcal'];
-                  $goal  = $goalKcal;
+                  $goal  = $goalKcal * $goalMult;
                   $disp  = number_format($val) . ' kcal';
                   $extra = number_format((float)$row['prot'], 1) . 'g / ' . number_format((float)$row['fat'], 1) . 'g / ' . number_format((float)$row['carbs'], 1) . 'g';
               } else {
                   $val   = (int)$row['total_min'];
-                  $goal  = $goalMin;
+                  $goal  = $goalMin * $goalMult;
                   $disp  = $val . ' min';
                   $extra = number_format((float)$row['total_burn']) . ' kcal';
               }
