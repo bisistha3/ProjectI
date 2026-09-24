@@ -13,6 +13,73 @@ export function initChartToggle() {
   });
 }
 
+let monthLoadInFlight = false;
+let popstateBound = false;
+
+function rebindAfterMainSwap() {
+  initCalendarNav();
+  initBarTooltips();
+  initChartToggle();
+}
+
+async function swapMainFromUrl(url, { push = false } = {}) {
+  const curMain = document.querySelector('main.app-content');
+  if (!curMain) {
+    window.location.href = url;
+    return;
+  }
+
+  const res = await fetch(url, { credentials: 'same-origin' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+
+  const html = await res.text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const newMain = doc.querySelector('main.app-content');
+
+  // Login redirect, error page, or unexpected body — fall back to full navigation.
+  if (!newMain || !newMain.querySelector('#cal-prev')) {
+    window.location.href = url;
+    return;
+  }
+
+  curMain.replaceWith(newMain);
+  if (push) window.history.pushState({ hfHistoryMonth: true }, '', url);
+
+  rebindAfterMainSwap();
+
+  const label = document.getElementById('cal-month');
+  if (label) {
+    label.style.transition = 'opacity 0.15s';
+    label.style.opacity = '0';
+    requestAnimationFrame(() => { label.style.opacity = '1'; });
+  }
+}
+
+function bindPopstateOnce() {
+  if (popstateBound) return;
+  popstateBound = true;
+
+  window.addEventListener('popstate', async () => {
+    if (!document.getElementById('cal-month')) return;
+    if (monthLoadInFlight) return;
+
+    monthLoadInFlight = true;
+    const label = document.getElementById('cal-month');
+    if (label) {
+      label.style.transition = 'opacity 0.15s';
+      label.style.opacity = '0';
+    }
+
+    try {
+      await swapMainFromUrl(window.location.href, { push: false });
+    } catch {
+      if (label) label.style.opacity = '1';
+    } finally {
+      monthLoadInFlight = false;
+    }
+  });
+}
+
 export function initCalendarNav() {
   const prevBtn = document.getElementById('cal-prev');
   const nextBtn = document.getElementById('cal-next');
@@ -20,31 +87,38 @@ export function initCalendarNav() {
 
   if (!prevBtn || !nextBtn || !monthLabel) return;
 
-  // Server-rendered anchors already carry the correct ?type=&month=&year=
-  // hrefs (no-JS fallback). Enhance with a subtle fade; navigation itself
-  // is a full page load so the calendar queries re-run for that month.
-  // Guard against stale-cached JS where hrefs may be missing.
-  const go = (btn) => {
+  // Server-rendered anchors keep working without JS (and as fetch fallback).
+  // With JS: fetch the target month, swap <main> in place, pushState — no full reload.
+  const go = async (btn) => {
     const href = btn.getAttribute('href');
-    if (href) window.location.href = href;
+    if (!href || monthLoadInFlight) return;
+
+    monthLoadInFlight = true;
+    prevBtn.setAttribute('aria-disabled', 'true');
+    nextBtn.setAttribute('aria-disabled', 'true');
+    monthLabel.style.transition = 'opacity 0.15s';
+    monthLabel.style.opacity = '0';
+
+    try {
+      await swapMainFromUrl(href, { push: true });
+    } catch {
+      window.location.href = href;
+    } finally {
+      monthLoadInFlight = false;
+    }
   };
 
   prevBtn.addEventListener('click', (e) => {
-    monthLabel.style.opacity = '0';
-    monthLabel.style.transition = 'opacity 0.2s';
-    // Let the anchor navigate; fade is best-effort before unload.
-    requestAnimationFrame(() => { monthLabel.style.opacity = '1'; });
-    if (!prevBtn.getAttribute('href')) e.preventDefault();
-    else { e.preventDefault(); go(prevBtn); }
+    e.preventDefault();
+    go(prevBtn);
   });
 
   nextBtn.addEventListener('click', (e) => {
-    monthLabel.style.opacity = '0';
-    monthLabel.style.transition = 'opacity 0.2s';
-    requestAnimationFrame(() => { monthLabel.style.opacity = '1'; });
-    if (!nextBtn.getAttribute('href')) e.preventDefault();
-    else { e.preventDefault(); go(nextBtn); }
+    e.preventDefault();
+    go(nextBtn);
   });
+
+  bindPopstateOnce();
 }
 
 export function initBarTooltips() {
@@ -52,6 +126,9 @@ export function initBarTooltips() {
   if (bars.length === 0) return;
 
   bars.forEach(col => {
+    if (col.dataset.tooltipBound) return;
+    col.dataset.tooltipBound = '1';
+
     const value = parseInt(col.getAttribute('data-value'), 10);
     if (isNaN(value)) return;
 

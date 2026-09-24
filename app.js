@@ -5,7 +5,7 @@ import { initGoalCalculator } from './js/goal-calculator.js?v=4';
 import { initSettingsActions } from './js/settings-actions.js?v=3';
 import { initFormHandlers }   from './js/forms.js?v=3';
 import { initReminderToggle, initEmailReminderToggle, initReminderToast } from './js/reminder.js?v=3';
-import { initChartToggle, initCalendarNav, initBarTooltips } from './js/history.js?v=3';
+import { initChartToggle, initCalendarNav, initBarTooltips } from './js/history.js?v=4';
 import { showConfirm } from './js/confirm-modal.js?v=3';
 import { initDailyGoalPrompt } from './js/daily-goal-prompt.js?v=3';
 
