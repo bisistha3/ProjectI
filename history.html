@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,18 +6,19 @@
   <title>History - HealthFlow</title>
   <meta name="description" content="View your water, food and exercise history, weekly trends, streak calendar, and daily logs.">
   <link rel="stylesheet" href="history.css">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="app-layout" style="display: flex; flex-direction: column;">
 
   <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
-    <span class="material-symbols-outlined">menu</span>
+    <span class="material-symbols-outlined" data-icon="menu"></span>
   </button>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+      <span class="material-symbols-outlined" data-icon="logo"></span>
       HealthFlow
     </div>
     <div class="sidebar__profile">
@@ -27,16 +28,16 @@
       </div>
     </div>
     <nav class="sidebar__nav">
-      <a href="dashboard.php" class="nav-item"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
-      <a href="log.php?type=water" class="nav-item"><span class="material-symbols-outlined">water_drop</span>Log Water</a>
-      <a href="log.php?type=nutrition" class="nav-item"><span class="material-symbols-outlined">restaurant</span>Log Nutrition</a>
-      <a href="log.php?type=exercise" class="nav-item"><span class="material-symbols-outlined">directions_run</span>Log Exercise</a>
-      <a href="history.php" class="nav-item nav-item--active"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">history</span>History</a>
-      <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
+      <a href="dashboard.php" class="nav-item"><span class="material-symbols-outlined" data-icon="dashboard"></span>Dashboard</a>
+      <a href="log.php?type=water" class="nav-item"><span class="material-symbols-outlined" data-icon="water_drop"></span>Log Water</a>
+      <a href="log.php?type=nutrition" class="nav-item"><span class="material-symbols-outlined" data-icon="restaurant"></span>Log Nutrition</a>
+      <a href="log.php?type=exercise" class="nav-item"><span class="material-symbols-outlined" data-icon="directions_run"></span>Log Exercise</a>
+      <a href="history.php" class="nav-item nav-item--active"><span class="material-symbols-outlined" data-icon="history-filled"></span>History</a>
+      <a href="settings.php" class="nav-item"><span class="material-symbols-outlined" data-icon="settings"></span>Settings</a>
     </nav>
     <div class="sidebar__footer">
       <a href="logout.php" class="nav-item" style="color: #ba1a1a;">
-        <span class="material-symbols-outlined">logout</span>Logout
+        <span class="material-symbols-outlined" data-icon="logout"></span>Logout
       </a>
     </div>
   </aside>
@@ -45,7 +46,7 @@
     <div class="topnav__actions" style="margin-left:auto;">
       <span class="topnav__greeting">Hello, <?= $fullName ?>!</span>
       <a href="logout.php" class="topnav__icon-btn" aria-label="Logout" title="Logout">
-        <span class="material-symbols-outlined">logout</span>
+        <span class="material-symbols-outlined" data-icon="logout"></span>
       </a>
     </div>
   </header>
@@ -57,29 +58,29 @@
     <!-- Type Tabs -->
     <div class="chart-toggle" style="display:flex; gap:8px; margin-bottom:4px;">
       <a href="history.php?type=all&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'all' ? 'chart-toggle__btn--active' : '' ?>">
-        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">grid_view</span> All
+        <span class="material-symbols-outlined" data-icon="grid_view" style="font-size:16px; vertical-align:-3px"></span> All
       </a>
       <a href="history.php?type=water&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'water' ? 'chart-toggle__btn--active' : '' ?>">
-        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">water_drop</span> Water
+        <span class="material-symbols-outlined" data-icon="water_drop" style="font-size:16px; vertical-align:-3px"></span> Water
       </a>
       <a href="history.php?type=food&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'food' ? 'chart-toggle__btn--active' : '' ?>">
-        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">restaurant</span> Food
+        <span class="material-symbols-outlined" data-icon="restaurant" style="font-size:16px; vertical-align:-3px"></span> Food
       </a>
       <a href="history.php?type=exercise&range=<?= urlencode($range) ?>" class="chart-toggle__btn <?= $type === 'exercise' ? 'chart-toggle__btn--active' : '' ?>">
-        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">directions_run</span> Exercise
+        <span class="material-symbols-outlined" data-icon="directions_run" style="font-size:16px; vertical-align:-3px"></span> Exercise
       </a>
     </div>
 
     <!-- Range Tabs -->
     <div class="chart-toggle range-toggle" style="display:flex; gap:8px; margin-bottom:4px;">
       <a href="history.php?type=<?= urlencode($type) ?>&range=1d" class="chart-toggle__btn <?= $range === '1d' ? 'chart-toggle__btn--active' : '' ?>">
-        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">schedule</span> 1D
+        <span class="material-symbols-outlined" data-icon="schedule" style="font-size:16px; vertical-align:-3px"></span> 1D
       </a>
       <a href="history.php?type=<?= urlencode($type) ?>&range=7d" class="chart-toggle__btn <?= $range === '7d' ? 'chart-toggle__btn--active' : '' ?>">
-        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">date_range</span> 7D
+        <span class="material-symbols-outlined" data-icon="date_range" style="font-size:16px; vertical-align:-3px"></span> 7D
       </a>
       <a href="history.php?type=<?= urlencode($type) ?>&range=1m" class="chart-toggle__btn <?= $range === '1m' ? 'chart-toggle__btn--active' : '' ?>">
-        <span class="material-symbols-outlined" style="font-size:16px; vertical-align:-3px;">calendar_month</span> 1M
+        <span class="material-symbols-outlined" data-icon="calendar_month" style="font-size:16px; vertical-align:-3px"></span> 1M
       </a>
     </div>
 
@@ -87,7 +88,7 @@
     <section class="metric-grid" style="margin-top:24px;">
       <div class="glass-card metric-card">
         <div class="metric-card__header">
-          <span class="material-symbols-outlined" style="color:<?= $metricMeta[$type]['avg']['color'] ?>;font-variation-settings:'FILL' 1;"><?= $metricMeta[$type]['avg']['icon'] ?></span>
+          <span class="material-symbols-outlined" data-icon="<?= $metricMeta[$type]['avg']['icon'] ?>-filled" style="color:<?= $metricMeta[$type]['avg']['color'] ?>"></span>
         </div>
         <div class="metric-card__body">
           <h3 class="metric-card__label"><?= $metricMeta[$type]['avg']['lbl'] ?></h3>
@@ -98,7 +99,7 @@
       </div>
       <div class="glass-card metric-card">
         <div class="metric-card__header">
-          <span class="material-symbols-outlined" style="color:<?= $metricMeta[$type]['best']['color'] ?>;font-variation-settings:'FILL' 1;"><?= $metricMeta[$type]['best']['icon'] ?></span>
+          <span class="material-symbols-outlined" data-icon="<?= $metricMeta[$type]['best']['icon'] ?>-filled" style="color:<?= $metricMeta[$type]['best']['color'] ?>"></span>
         </div>
         <div class="metric-card__body">
           <h3 class="metric-card__label"><?= $metricMeta[$type]['best']['lbl'] ?></h3>
@@ -107,7 +108,7 @@
       </div>
       <div class="glass-card metric-card">
         <div class="metric-card__header">
-          <span class="material-symbols-outlined" style="color:<?= $metricMeta[$type]['total']['color'] ?>;font-variation-settings:'FILL' 1;"><?= $metricMeta[$type]['total']['icon'] ?></span>
+          <span class="material-symbols-outlined" data-icon="<?= $metricMeta[$type]['total']['icon'] ?>-filled" style="color:<?= $metricMeta[$type]['total']['color'] ?>"></span>
           <span class="metric-badge metric-badge--muted"><?= date('M Y') ?></span>
         </div>
         <div class="metric-card__body">
@@ -122,17 +123,17 @@
     <section class="glass-card chart-card" style="padding:20px; border-radius:16px; margin-top:24px; min-height:unset;">
       <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">water_drop</span>
+          <span class="material-symbols-outlined" data-icon="water_drop-filled" style="color:#00696d; margin-bottom:8px"></span>
           <p class="stat-card__label">Water <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= number_format(($metrics['week_ml'] ?? 0) / 1000, 1) ?> <span style="font-size:12px;">L</span></p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">receipt_long</span>
+          <span class="material-symbols-outlined" data-icon="receipt_long-filled" style="color:#00696d; margin-bottom:8px"></span>
           <p class="stat-card__label">Logs <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= (int)($metrics['week_n'] ?? 0) ?> <span style="font-size:12px;">entries</span></p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">track_changes</span>
+          <span class="material-symbols-outlined" data-icon="track_changes-filled" style="color:#00696d; margin-bottom:8px"></span>
           <p class="stat-card__label">Daily Goal</p>
           <p class="stat-card__value"><?= $goalLabel ?></p>
         </div>
@@ -145,17 +146,17 @@
     <section class="glass-card chart-card" style="padding:20px; border-radius:16px; margin-top:24px; min-height:unset;">
       <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#10b981; margin-bottom:8px; font-variation-settings:'FILL' 1;">egg_alt</span>
+          <span class="material-symbols-outlined" data-icon="egg_alt-filled" style="color:#10b981; margin-bottom:8px"></span>
           <p class="stat-card__label">Total Protein</p>
           <p class="stat-card__value"><?= $metrics['total_prot'] ?? '0.0' ?> <span style="font-size:12px;">g</span></p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#f59e0b; margin-bottom:8px; font-variation-settings:'FILL' 1;">water_drop</span>
+          <span class="material-symbols-outlined" data-icon="water_drop-filled" style="color:#f59e0b; margin-bottom:8px"></span>
           <p class="stat-card__label">Total Fat</p>
           <p class="stat-card__value"><?= $metrics['total_fat'] ?? '0.0' ?> <span style="font-size:12px;">g</span></p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#3b82f6; margin-bottom:8px; font-variation-settings:'FILL' 1;">grain</span>
+          <span class="material-symbols-outlined" data-icon="grain-filled" style="color:#3b82f6; margin-bottom:8px"></span>
           <p class="stat-card__label">Total Carbs</p>
           <p class="stat-card__value"><?= $metrics['total_carbs'] ?? '0.0' ?> <span style="font-size:12px;">g</span></p>
         </div>
@@ -168,12 +169,12 @@
     <section class="glass-card chart-card" style="padding:20px; border-radius:16px; margin-top:24px; min-height:unset;">
       <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#10b981; margin-bottom:8px; font-variation-settings:'FILL' 1;">local_fire_department</span>
+          <span class="material-symbols-outlined" data-icon="local_fire_department-filled" style="color:#10b981; margin-bottom:8px"></span>
           <p class="stat-card__label">Total Calories Burned</p>
           <p class="stat-card__value"><?= number_format((float)($metrics['total_burn'] ?? 0)) ?> <span style="font-size:12px;">kcal</span></p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">bolt</span>
+          <span class="material-symbols-outlined" data-icon="bolt-filled" style="color:#00696d; margin-bottom:8px"></span>
           <p class="stat-card__label">Burn Rate</p>
           <p class="stat-card__value"><?= $metrics['kcal_per_min'] ?? '0' ?> <span style="font-size:12px;">kcal/min</span></p>
         </div>
@@ -186,18 +187,18 @@
     <section class="glass-card chart-card" style="padding:20px; border-radius:16px; margin-top:24px; min-height:unset;">
       <div class="flex" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:space-around;">
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#00696d; margin-bottom:8px; font-variation-settings:'FILL' 1;">water_drop</span>
+          <span class="material-symbols-outlined" data-icon="water_drop-filled" style="color:#00696d; margin-bottom:8px"></span>
           <p class="stat-card__label">Water <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= number_format(($metrics['week_ml'] ?? 0) / 1000, 1) ?> <span style="font-size:12px;">L</span></p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#f97316; margin-bottom:8px; font-variation-settings:'FILL' 1;">restaurant</span>
+          <span class="material-symbols-outlined" data-icon="restaurant-filled" style="color:#f97316; margin-bottom:8px"></span>
           <p class="stat-card__label">Food <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= number_format((float)($metrics['week_kcal'] ?? 0)) ?> <span style="font-size:12px;">kcal</span></p>
           <p class="stat-card__sub">P <?= $metrics['week_prot'] ?? '0.0' ?>g &middot; F <?= $metrics['week_fat'] ?? '0.0' ?>g &middot; C <?= $metrics['week_carbs'] ?? '0.0' ?>g</p>
         </div>
         <div class="stat-card">
-          <span class="material-symbols-outlined" style="color:#10b981; margin-bottom:8px; font-variation-settings:'FILL' 1;">directions_run</span>
+          <span class="material-symbols-outlined" data-icon="directions_run-filled" style="color:#10b981; margin-bottom:8px"></span>
           <p class="stat-card__label">Exercise <?= $isHourly ? 'Today' : ($range === '1m' ? 'This Month' : 'This Week') ?></p>
           <p class="stat-card__value"><?= (int)($metrics['week_min'] ?? 0) ?> <span style="font-size:12px;">min</span></p>
           <p class="stat-card__sub"><?= number_format((float)($metrics['week_burn'] ?? 0)) ?> kcal burned</p>
@@ -282,14 +283,14 @@
             <a class="calendar-nav__btn" id="cal-prev"
                href="history.php?type=<?= urlencode($type) ?>&range=<?= urlencode($range) ?>&month=<?= $prevMonth ?>&year=<?= $prevYear ?>"
                aria-label="Previous month">
-              <span class="material-symbols-outlined">chevron_left</span>
+              <span class="material-symbols-outlined" data-icon="chevron_left"></span>
             </a>
             <span class="text-label-md" id="cal-month" style="color:#191c1e;min-width:90px;text-align:center;"
                   data-month="<?= $calMonth ?>" data-year="<?= $calYear ?>" data-type="<?= htmlspecialchars($type) ?>"><?= htmlspecialchars($calLabel) ?></span>
             <a class="calendar-nav__btn" id="cal-next"
                href="history.php?type=<?= urlencode($type) ?>&range=<?= urlencode($range) ?>&month=<?= $nextMonth ?>&year=<?= $nextYear ?>"
                aria-label="Next month">
-              <span class="material-symbols-outlined">chevron_right</span>
+              <span class="material-symbols-outlined" data-icon="chevron_right"></span>
             </a>
           </div>
         </div>
@@ -321,7 +322,7 @@
         </div>
         <div class="streak-info">
           <div class="streak-info__left">
-            <span class="material-symbols-outlined" style="color:#00696d;font-variation-settings:'FILL' 1;">local_fire_department</span>
+            <span class="material-symbols-outlined" data-icon="local_fire_department-filled" style="color:#00696d"></span>
             <div>
               <p class="text-label-md" style="color:#191c1e;">Current Streak</p>
               <p style="font-size:10px;color:#3f4852;"><?= $streak ?> day<?= $streak !== 1 ? 's' : '' ?> in a row</p>
@@ -336,37 +337,63 @@
     <?php if ($type === 'all'): ?>
     <!-- Combined Daily Log Table: one row per day across all types -->
     <section class="glass-card table-card">
-      <h3 class="text-headline-md mb-6" style="color:#191c1e;"><?= $isHourly ? 'Hourly Log: Today' : (($range === '1m' ? 'Weekly Log: ' . htmlspecialchars($calLabel) : 'Daily Log: Last 7 Days')) ?></h3>
+      <h3 class="text-headline-md mb-6" style="color:#191c1e;"><?= $isHourly ? "Today's Log" : (($range === '1m' ? 'Weekly Log: ' . htmlspecialchars($calLabel) : 'Daily Log: Last 7 Days')) ?></h3>
       <div class="table-wrapper">
         <table class="history-table">
           <thead>
             <tr>
-              <th><?= $isHourly ? 'HOUR' : 'DATE' ?></th>
+              <?php if ($isHourly): ?>
+              <th>TIME</th>
+              <th>TYPE</th>
+              <th>DETAILS</th>
+              <th>AMOUNT</th>
+              <?php else: ?>
+              <th>DATE</th>
               <th>WATER</th>
               <th>FOOD</th>
               <th>EXERCISE</th>
               <th style="text-align:right;">STATUS</th>
+              <?php endif; ?>
             </tr>
           </thead>
           <tbody>
             <?php if (empty($tableRows)): ?>
-            <tr><td colspan="5" style="text-align:center;color:#3f4852;padding:32px;">
-              Nothing logged yet &mdash; log water, food, or exercise to see it here!
+            <tr><td colspan="<?= $isHourly ? 4 : 5 ?>" style="text-align:center;color:#3f4852;padding:32px;">
+              <?= $isHourly ? 'No logs yet today.' : 'Nothing logged yet &mdash; log water, food, or exercise to see it here!' ?>
             </td></tr>
             <?php else: ?>
             <?php foreach ($tableRows as $row):
               if ($isHourly) {
-                $h = (int)$row['day'];
-                $dateLabel = $timeLabels[$h] ?? $h;
-                $isToday = false;
+                $dateLabel = date('h:i A', strtotime($row['logged_at']));
               } elseif ($range === '1m') {
                 $wkNum = (int)$row['day'];
                 $dateLabel = $weekLabels[$wkNum - 1] ?? 'Week ' . $wkNum;
-                $isToday = false;
+                $isToday = $isCurrentMonth && $wkNum === $currentWeek;
               } else {
                 $isToday = $row['day'] === date('Y-m-d');
                 $dateLabel = $isToday ? 'Today, ' . date('M j', strtotime($row['day'])) : date('M j', strtotime($row['day']));
               }
+
+              if ($isHourly): ?>
+            <tr>
+              <td class="font-semibold" style="color:#191c1e;"><?= htmlspecialchars($dateLabel) ?></td>
+              <td>
+                <?php
+                  $typeIcon = $row['log_type'] === 'water' ? 'water_drop' : ($row['log_type'] === 'food' ? 'restaurant' : 'directions_run');
+                  $typeLbl  = ucfirst($row['log_type']);
+                ?>
+                <span class="type-badge type-badge--<?= htmlspecialchars($row['log_type']) ?>">
+                  <span class="material-symbols-outlined" data-icon="<?= $typeIcon ?>" style="font-size:14px;"></span>
+                  <?= htmlspecialchars($typeLbl) ?>
+                </span>
+              </td>
+              <td>
+                <span class="font-semibold" style="color:#191c1e;"><?= htmlspecialchars($row['title']) ?></span>
+                <?php if (!empty($row['detail'])): ?><div style="font-size:12px;color:#3f4852;"><?= htmlspecialchars($row['detail']) ?></div><?php endif; ?>
+              </td>
+              <td class="font-semibold" style="color:#191c1e;"><?= htmlspecialchars($row['amount']) ?></td>
+            </tr>
+            <?php else:
               $g = (int)$row['goals_met'];
               if ($isToday)      { $statusCls = 'status-badge--progress'; $status = 'In Progress'; }
               elseif ($g >= 3)   { $statusCls = 'status-badge--exceeded'; $status = 'Perfect Day'; }
@@ -390,6 +417,7 @@
               </td>
               <td style="text-align:right;"><span class="status-badge <?= $statusCls ?>"><?= $status ?></span></td>
             </tr>
+            <?php endif; ?>
             <?php endforeach; ?>
             <?php endif; ?>
           </tbody>
@@ -399,45 +427,46 @@
     <?php else: ?>
     <!-- Daily Log Table -->
     <section class="glass-card table-card">
-      <h3 class="text-headline-md mb-6" style="color:#191c1e;"><?= $isHourly ? 'Hourly Log: Today' : ($range === '1m' ? 'Weekly Log: ' . htmlspecialchars($calLabel) : 'Daily Log: Last 7 Days') ?></h3>
+      <h3 class="text-headline-md mb-6" style="color:#191c1e;"><?= $isHourly ? "Today's Log" : ($range === '1m' ? 'Weekly Log: ' . htmlspecialchars($calLabel) : 'Daily Log: Last 7 Days') ?></h3>
       <div class="table-wrapper">
         <table class="history-table">
           <thead>
             <tr>
-              <th><?= $isHourly ? 'HOUR' : 'DATE' ?></th>
+              <th><?= $isHourly ? 'TIME' : 'DATE' ?></th>
               <?php if ($type === 'water'): ?>
               <th>TOTAL INTAKE</th>
-              <th style="width:25%;">GOAL PROGRESS</th>
-              <th>TOP SOURCE</th>
-              <th style="text-align:right;">STATUS</th>
+              <?php if (!$isHourly): ?><th style="width:25%;">GOAL PROGRESS</th><?php endif; ?>
+              <th><?= $isHourly ? 'DETAILS' : 'TOP SOURCE' ?></th>
+              <?php if (!$isHourly): ?><th style="text-align:right;">STATUS</th><?php endif; ?>
               <?php elseif ($type === 'food'): ?>
               <th>CALORIES</th>
-              <th style="width:25%;">GOAL PROGRESS</th>
-              <th>PROTEIN / FAT / CARBS</th>
-              <th style="text-align:right;">STATUS</th>
+              <?php if (!$isHourly): ?><th style="width:25%;">GOAL PROGRESS</th><?php endif; ?>
+              <th><?= $isHourly ? 'DETAILS' : 'PROTEIN / FAT / CARBS' ?></th>
+              <?php if (!$isHourly): ?><th style="text-align:right;">STATUS</th><?php endif; ?>
               <?php else: ?>
               <th>MINUTES</th>
-              <th style="width:25%;">GOAL PROGRESS</th>
-              <th>CALORIES BURNED</th>
-              <th style="text-align:right;">STATUS</th>
+              <?php if (!$isHourly): ?><th style="width:25%;">GOAL PROGRESS</th><?php endif; ?>
+              <th><?= $isHourly ? 'DETAILS' : 'CALORIES BURNED' ?></th>
+              <?php if (!$isHourly): ?><th style="text-align:right;">STATUS</th><?php endif; ?>
               <?php endif; ?>
             </tr>
           </thead>
           <tbody>
             <?php if (empty($tableRows)): ?>
-            <tr><td colspan="5" style="text-align:center;color:#3f4852;padding:32px;">
-              <?= $type === 'water' ? 'No water logged yet — drink up!' : ($type === 'food' ? 'No meals logged yet.' : 'No exercise logged yet.') ?>
+            <tr><td colspan="<?= $isHourly ? 3 : 5 ?>" style="text-align:center;color:#3f4852;padding:32px;">
+              <?= $isHourly
+                    ? ($type === 'water' ? 'No water logged yet today.' : ($type === 'food' ? 'No meals logged yet today.' : 'No exercise logged yet today.'))
+                    : ($type === 'water' ? 'No water logged yet — drink up!' : ($type === 'food' ? 'No meals logged yet.' : 'No exercise logged yet.')) ?>
             </td></tr>
             <?php else: ?>
             <?php foreach ($tableRows as $row):
               if ($isHourly) {
-                $h = (int)$row['day'];
-                $dateLabel = $timeLabels[$h] ?? $h;
+                $dateLabel = date('h:i A', strtotime($row['logged_at']));
                 $isToday = false;
               } elseif ($range === '1m') {
                 $wkNum = (int)$row['day'];
                 $dateLabel = $weekLabels[$wkNum - 1] ?? 'Week ' . $wkNum;
-                $isToday = false;
+                $isToday = $isCurrentMonth && $wkNum === $currentWeek;
               } else {
                 $isToday = $row['day'] === date('Y-m-d');
                 $dateLabel = $isToday ? 'Today, ' . date('M j', strtotime($row['day'])) : date('M j', strtotime($row['day']));
@@ -452,16 +481,21 @@
                   $val   = (int)$row['total_kcal'];
                   $goal  = $goalKcal * $goalMult;
                   $disp  = number_format($val) . ' kcal';
-                  $extra = number_format((float)$row['prot'], 1) . 'g / ' . number_format((float)$row['fat'], 1) . 'g / ' . number_format((float)$row['carbs'], 1) . 'g';
+                  $extra = $isHourly
+                      ? ($row['top_source'] ?? '') . ' · ' . number_format((float)$row['prot'], 1) . 'g / ' . number_format((float)$row['fat'], 1) . 'g / ' . number_format((float)$row['carbs'], 1) . 'g'
+                      : number_format((float)$row['prot'], 1) . 'g / ' . number_format((float)$row['fat'], 1) . 'g / ' . number_format((float)$row['carbs'], 1) . 'g';
               } else {
                   $val   = (int)$row['total_min'];
                   $goal  = $goalMin * $goalMult;
                   $disp  = $val . ' min';
-                  $extra = number_format((float)$row['total_burn']) . ' kcal';
+                  $extra = $isHourly
+                      ? ($row['top_source'] ?? '') . ' · ' . number_format((float)$row['total_burn']) . ' kcal'
+                      : number_format((float)$row['total_burn']) . ' kcal';
               }
               $pct = $goal > 0 ? min(100, round($val / $goal * 100)) : 0;
 
-              if ($isToday)                { $statusCls = 'status-badge--progress'; $status = 'In Progress'; $barCls = 'progress-fill--primary'; }
+              if ($isHourly)                { $statusCls = ''; $status = ''; $barCls = 'progress-fill--primary'; }
+              elseif ($isToday)             { $statusCls = 'status-badge--progress'; $status = 'In Progress'; $barCls = 'progress-fill--primary'; }
               elseif ($val >= $goal * 1.1) { $statusCls = 'status-badge--exceeded'; $status = 'Exceeded';    $barCls = 'progress-fill--exceeded'; }
               elseif ($val >= $goal)       { $statusCls = 'status-badge--met';      $status = 'Met Goal';    $barCls = 'progress-fill--success'; }
               else                         { $statusCls = 'status-badge--missed';   $status = 'Missed';      $barCls = 'progress-fill--error'; }
@@ -469,13 +503,15 @@
             <tr>
               <td class="font-semibold" style="color:#191c1e;"><?= htmlspecialchars($dateLabel) ?></td>
               <td><?= $disp ?></td>
+              <?php if (!$isHourly): ?>
               <td>
                 <div class="progress-track">
                   <div class="progress-fill <?= $barCls ?>" style="width:<?= $pct ?>%;"></div>
                 </div>
               </td>
+              <?php endif; ?>
               <td><?= htmlspecialchars($extra) ?></td>
-              <td style="text-align:right;"><span class="status-badge <?= $statusCls ?>"><?= $status ?></span></td>
+              <?php if (!$isHourly): ?><td style="text-align:right;"><span class="status-badge <?= $statusCls ?>"><?= $status ?></span></td><?php endif; ?>
             </tr>
             <?php endforeach; ?>
             <?php endif; ?>

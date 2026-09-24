@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -7,27 +7,29 @@
   <meta name="description" content="HealthFlow helps you drink enough water, eat balanced meals, and move your body every day. Personal goals. Simple logging. Build healthy habits.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="base.css">
   <link rel="stylesheet" href="landing.css">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="landing-layout">
   <!-- Hero -->
   <header class="hero">
     <div class="hero__content">
       <p class="hero__badge">
-        <span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">verified</span>
+        <span class="material-symbols-outlined" data-icon="verified" style="font-size:16px;vertical-align:middle"></span>
         Free to start · No credit card · Cancel anytime
       </p>
       <h1 class="hero__title">Track water, food & exercise — all in one place</h1>
       <p class="hero__subtitle">Personal daily goals based on your body. Simple logging. See your progress at a glance.</p>
       <div class="hero__actions">
         <a href="register.php" class="btn-gradient btn-lg">
-          <span class="material-symbols-outlined" style="font-size:20px;">rocket_launch</span>
+          <span class="material-symbols-outlined" data-icon="rocket_launch" style="font-size:20px"></span>
           Get Started Free
         </a>
         <a href="#features" class="btn-outline-primary">
-          <span class="material-symbols-outlined" style="font-size:18px;">play_circle</span>
+          <span class="material-symbols-outlined" data-icon="play_circle" style="font-size:18px"></span>
           See How It Works
         </a>
       </div>
@@ -42,7 +44,7 @@
             <span class="light maximize"></span>
           </div>
           <div class="browser-frame__url">
-            <span class="material-symbols-outlined" style="font-size:14px;color:#6f7883;">lock</span>
+            <span class="material-symbols-outlined" data-icon="lock" style="font-size:14px;color:#6f7883"></span>
             healthflow.app/dashboard
           </div>
         </div>
@@ -51,37 +53,37 @@
             <!-- Sidebar -->
             <aside class="mock-sidebar">
               <div class="mock-sidebar__brand">
-                <span class="material-symbols-outlined" style="font-size:14px;color:#00696d;font-variation-settings:'FILL' 1;">monitor_heart</span>
+                <span class="material-symbols-outlined" data-icon="logo" style="font-size:14px;color:#00696d"></span>
                 HealthFlow
               </div>
               <nav class="mock-sidebar__nav">
                 <a class="mock-sidebar__item active">
-                  <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">dashboard</span>
+                  <span class="material-symbols-outlined" data-icon="dashboard-filled"></span>
                   Dashboard
                 </a>
                 <a class="mock-sidebar__item">
-                  <span class="material-symbols-outlined">water_drop</span>
+                  <span class="material-symbols-outlined" data-icon="water_drop"></span>
                   Log Water
                 </a>
                 <a class="mock-sidebar__item">
-                  <span class="material-symbols-outlined">restaurant</span>
+                  <span class="material-symbols-outlined" data-icon="restaurant"></span>
                   Log Nutrition
                 </a>
                 <a class="mock-sidebar__item">
-                  <span class="material-symbols-outlined">directions_run</span>
+                  <span class="material-symbols-outlined" data-icon="directions_run"></span>
                   Log Exercise
                 </a>
                 <a class="mock-sidebar__item">
-                  <span class="material-symbols-outlined">history</span>
+                  <span class="material-symbols-outlined" data-icon="history"></span>
                   History
                 </a>
                 <a class="mock-sidebar__item">
-                  <span class="material-symbols-outlined">settings</span>
+                  <span class="material-symbols-outlined" data-icon="settings"></span>
                   Settings
                 </a>
               </nav>
               <a class="mock-sidebar__logout">
-                <span class="material-symbols-outlined">logout</span>
+                <span class="material-symbols-outlined" data-icon="logout"></span>
                 Logout
               </a>
             </aside>
@@ -92,7 +94,7 @@
               <header class="mock-topbar">
                 <span class="mock-greeting">Welcome, John!</span>
                 <button class="mock-logout-btn">
-                  <span class="material-symbols-outlined">logout</span>
+                  <span class="material-symbols-outlined" data-icon="logout"></span>
                 </button>
               </header>
 
@@ -100,7 +102,7 @@
               <div class="mock-header-row">
                 <h1 class="mock-page-title">Daily Overview</h1>
                 <div class="mock-streak-badge">
-                  <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">local_fire_department</span>
+                  <span class="material-symbols-outlined" data-icon="local_fire_department-filled"></span>
                   7 Day Streak
                 </div>
               </div>
@@ -111,7 +113,7 @@
                 <div class="mock-mini-card">
                   <a class="mock-mini-card__log">+ Log</a>
                   <div class="mock-mini-card__icon" style="background:rgba(0,167,173,0.15);color:#00696d;">
-                    <span class="material-symbols-outlined">water_drop</span>
+                    <span class="material-symbols-outlined" data-icon="water_drop"></span>
                   </div>
                   <p class="mock-mini-card__label">Water Progress</p>
                   <p class="mock-mini-card__value">1.80 / 2.50 L</p>
@@ -122,7 +124,7 @@
                 <div class="mock-mini-card">
                   <a class="mock-mini-card__log">+ Log</a>
                   <div class="mock-mini-card__icon" style="background:rgba(249,115,22,0.15);color:#f97316;">
-                    <span class="material-symbols-outlined">local_fire_department</span>
+                    <span class="material-symbols-outlined" data-icon="local_fire_department"></span>
                   </div>
                   <p class="mock-mini-card__label">Calories Progress</p>
                   <p class="mock-mini-card__value">1,360 / 2,000 kcal</p>
@@ -133,7 +135,7 @@
                 <div class="mock-mini-card">
                   <a class="mock-mini-card__log">+ Log</a>
                   <div class="mock-mini-card__icon" style="background:rgba(16,185,129,0.15);color:#10b981;">
-                    <span class="material-symbols-outlined">egg_alt</span>
+                    <span class="material-symbols-outlined" data-icon="egg_alt"></span>
                   </div>
                   <p class="mock-mini-card__label">Protein Progress</p>
                   <p class="mock-mini-card__value">90 / 125 g</p>
@@ -144,7 +146,7 @@
                 <div class="mock-mini-card">
                   <a class="mock-mini-card__log">+ Log</a>
                   <div class="mock-mini-card__icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;">
-                    <span class="material-symbols-outlined">water_drop</span>
+                    <span class="material-symbols-outlined" data-icon="water_drop"></span>
                   </div>
                   <p class="mock-mini-card__label">Fat Progress</p>
                   <p class="mock-mini-card__value">41 / 67 g</p>
@@ -155,7 +157,7 @@
                 <div class="mock-mini-card">
                   <a class="mock-mini-card__log">+ Log</a>
                   <div class="mock-mini-card__icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">
-                    <span class="material-symbols-outlined">grain</span>
+                    <span class="material-symbols-outlined" data-icon="grain"></span>
                   </div>
                   <p class="mock-mini-card__label">Carbohydrate Progress</p>
                   <p class="mock-mini-card__value">124 / 225 g</p>
@@ -166,7 +168,7 @@
                 <div class="mock-mini-card">
                   <a class="mock-mini-card__log">+ Log</a>
                   <div class="mock-mini-card__icon" style="background:rgba(16,185,129,0.15);color:#10b981;">
-                    <span class="material-symbols-outlined">directions_run</span>
+                    <span class="material-symbols-outlined" data-icon="directions_run"></span>
                   </div>
                   <p class="mock-mini-card__label">Exercise Progress<span class="mock-mini-card__sub"> (walking · running · gym · yoga)</span></p>
                   <p class="mock-mini-card__value">405 / 300 kcal</p>
@@ -185,7 +187,7 @@
                   <div class="mock-log-item">
                     <div class="mock-log-left">
                       <div class="mock-log-avatar" style="background:rgba(16,185,129,0.15);color:#10b981;">
-                        <span class="material-symbols-outlined">directions_run</span>
+                        <span class="material-symbols-outlined" data-icon="directions_run"></span>
                       </div>
                       <div>
                         <p class="mock-log-amount">30 min</p>
@@ -197,7 +199,7 @@
                   <div class="mock-log-item">
                     <div class="mock-log-left">
                       <div class="mock-log-avatar" style="background:rgba(0,167,173,0.15);color:#00696d;">
-                        <span class="material-symbols-outlined">water_drop</span>
+                        <span class="material-symbols-outlined" data-icon="water_drop"></span>
                       </div>
                       <div>
                         <p class="mock-log-amount">500 ml</p>
@@ -224,7 +226,7 @@
     <div class="features-grid">
       <article class="feature-card glass-card">
         <div class="feature-card__icon">
-          <span class="material-symbols-outlined">water_drop</span>
+          <span class="material-symbols-outlined" data-icon="water_drop"></span>
         </div>
         <h3 class="feature-card__title">Water Tracking</h3>
         <p class="feature-card__desc">Log every drink in seconds. Watch your progress bar fill up as you reach your personal daily target.</p>
@@ -236,7 +238,7 @@
       </article>
       <article class="feature-card glass-card">
         <div class="feature-card__icon">
-          <span class="material-symbols-outlined">restaurant</span>
+          <span class="material-symbols-outlined" data-icon="restaurant"></span>
         </div>
         <h3 class="feature-card__title">Food & Nutrition Logging</h3>
         <p class="feature-card__desc">Search foods or add your own. Track calories, protein, carbs, and fat by meal — breakfast, lunch, dinner, snacks.</p>
@@ -248,7 +250,7 @@
       </article>
       <article class="feature-card glass-card">
         <div class="feature-card__icon">
-          <span class="material-symbols-outlined">directions_run</span>
+          <span class="material-symbols-outlined" data-icon="directions_run"></span>
         </div>
         <h3 class="feature-card__title">Exercise & Calorie Burn</h3>
         <p class="feature-card__desc">Log workouts in two taps. We calculate calories burned using your weight and the activity type.</p>
@@ -295,28 +297,28 @@
     <div class="goals-grid">
       <div class="goal-card glass-card">
         <div class="goal-card__icon">
-          <span class="material-symbols-outlined">calculate</span>
+          <span class="material-symbols-outlined" data-icon="calculate"></span>
         </div>
         <h3 class="goal-card__title">Water goal from your BMI</h3>
         <p class="goal-card__desc">We use your weight, height, gender, and activity level to calculate a hydration target that fits your body — not a generic "8 glasses" rule.</p>
       </div>
       <div class="goal-card glass-card">
         <div class="goal-card__icon">
-          <span class="material-symbols-outlined">science</span>
+          <span class="material-symbols-outlined" data-icon="science"></span>
         </div>
         <h3 class="goal-card__title">Nutrition from Mifflin-St Jeor</h3>
         <p class="goal-card__desc">Your calorie and macro targets come from the same formula nutritionists use. It adapts as your weight or activity changes.</p>
       </div>
       <div class="goal-card glass-card">
         <div class="goal-card__icon">
-          <span class="material-symbols-outlined">fitness_center</span>
+          <span class="material-symbols-outlined" data-icon="fitness_center"></span>
         </div>
         <h3 class="goal-card__title">Exercise burn from your weight</h3>
         <p class="goal-card__desc">Calories burned = MET × your weight × time. A 60kg person burns less than a 90kg person doing the same workout. We account for that.</p>
       </div>
       <div class="goal-card glass-card">
         <div class="goal-card__icon">
-          <span class="material-symbols-outlined">tune</span>
+          <span class="material-symbols-outlined" data-icon="tune"></span>
         </div>
         <h3 class="goal-card__title">Custom goals anytime</h3>
         <p class="goal-card__desc">Prefer your own targets? Switch to custom mode and set exact numbers for water, calories, macros, and exercise minutes.</p>
@@ -359,46 +361,32 @@
     <div class="reminders-grid">
       <div class="reminder-card glass-card">
         <div class="reminder-card__icon">
-          <span class="material-symbols-outlined">notifications_active</span>
+          <span class="material-symbols-outlined" data-icon="notifications_active"></span>
         </div>
         <h3 class="reminder-card__title">Flexible timing</h3>
         <p class="reminder-card__desc">Choose a fixed time (e.g., 8 PM) or recurring intervals (every 1, 2, or 3 hours while the app is open).</p>
       </div>
       <div class="reminder-card glass-card">
         <div class="reminder-card__icon">
-          <span class="material-symbols-outlined">water_drop</span>
+          <span class="material-symbols-outlined" data-icon="water_drop"></span>
         </div>
         <h3 class="reminder-card__title">All-in-one nudge</h3>
         <p class="reminder-card__desc">One reminder covers water, meals, and exercise. No notification spam.</p>
       </div>
       <div class="reminder-card glass-card">
         <div class="reminder-card__icon">
-          <span class="material-symbols-outlined">bedtime</span>
+          <span class="material-symbols-outlined" data-icon="bedtime"></span>
         </div>
         <h3 class="reminder-card__title">Sleep schedule</h3>
         <p class="reminder-card__desc">Set wake-up and sleep times. Helps you build a consistent daily rhythm.</p>
       </div>
       <div class="reminder-card glass-card">
         <div class="reminder-card__icon">
-          <span class="material-symbols-outlined">local_fire_department</span>
+          <span class="material-symbols-outlined" data-icon="local_fire_department"></span>
         </div>
         <h3 class="reminder-card__title">Streak counter</h3>
         <p class="reminder-card__desc">See how many days in a row you've hit your water goal. Don't break the chain.</p>
       </div>
-    </div>
-  </section>
-
-  <!-- Trust -->
-  <section id="trust" class="section trust">
-    <div class="trust-card glass-card">
-      <div class="trust__icons">
-        <span class="material-symbols-outlined" title="Private">lock</span>
-        <span class="material-symbols-outlined" title="No ads">block</span>
-        <span class="material-symbols-outlined" title="Free to start">attach_money</span>
-        
-      </div>
-      <h2 class="trust__title">Private. No ads. Free to start.</h2>
-      <p class="trust__desc">Your data stays in your account. We don't sell it. No hidden fees. Upgrade only if you want extra features later.</p>
     </div>
   </section>
 
@@ -408,7 +396,7 @@
       <h2 class="footer-cta__title">Ready to build healthier habits?</h2>
       <p class="footer-cta__desc">Create your free account in under a minute. Start tracking today.</p>
       <a href="register.php" class="btn-gradient btn-lg">
-        <span class="material-symbols-outlined" style="font-size:20px;">person_add</span>
+        <span class="material-symbols-outlined" data-icon="person_add" style="font-size:20px"></span>
         Create Free Account
       </a>
       <p class="footer-cta__note">Already have an account? <a href="login.php">Sign in</a></p>
@@ -417,14 +405,14 @@
 
   <!-- Minimal footer -->
   <div class="landing-footer">
-    <p>&copy; 2025 HealthFlow. <a href="#">Privacy</a> · <a href="#">Terms</a></p>
+    <p>&copy; 2026 HealthFlow. <a href="#">Privacy</a> · <a href="#">Terms</a></p>
   </div>
 
   <script type="module" src="app.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', () => {
     const targets = document.querySelectorAll(
-      '.feature-card, .step, .goal-card, .preview-card, .reminder-card, .trust-card, .footer-cta__card'
+      '.feature-card, .step, .goal-card, .preview-card, .reminder-card, .footer-cta__card'
     );
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {

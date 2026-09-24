@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,13 +6,14 @@
   <title>Dashboard - HealthFlow</title>
   <meta name="description" content="Track your daily water, food and exercise intake with HealthFlow dashboard.">
   <link rel="stylesheet" href="dashboard.css">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="app-layout" style="display: flex;">
 
   <!-- Mobile Hamburger -->
   <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
-    <span class="material-symbols-outlined">menu</span>
+    <span class="material-symbols-outlined" data-icon="menu"></span>
   </button>
 
   <!-- Sidebar Overlay (mobile) -->
@@ -21,7 +22,7 @@
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+      <span class="material-symbols-outlined" data-icon="logo"></span>
       HealthFlow
     </div>
 
@@ -36,34 +37,34 @@
 
     <nav class="sidebar__nav">
       <a href="dashboard.php" class="nav-item nav-item--active">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">dashboard</span>
+        <span class="material-symbols-outlined" data-icon="dashboard-filled"></span>
         Dashboard
       </a>
       <a href="log.php?type=water" class="nav-item">
-        <span class="material-symbols-outlined">water_drop</span>
+        <span class="material-symbols-outlined" data-icon="water_drop"></span>
         Log Water
       </a>
       <a href="log.php?type=nutrition" class="nav-item">
-        <span class="material-symbols-outlined">restaurant</span>
+        <span class="material-symbols-outlined" data-icon="restaurant"></span>
         Log Nutrition
       </a>
       <a href="log.php?type=exercise" class="nav-item">
-        <span class="material-symbols-outlined">directions_run</span>
+        <span class="material-symbols-outlined" data-icon="directions_run"></span>
         Log Exercise
       </a>
       <a href="history.php" class="nav-item">
-        <span class="material-symbols-outlined">history</span>
+        <span class="material-symbols-outlined" data-icon="history"></span>
         History
       </a>
       <a href="settings.php" class="nav-item">
-        <span class="material-symbols-outlined">settings</span>
+        <span class="material-symbols-outlined" data-icon="settings"></span>
         Settings
       </a>
     </nav>
 
     <div class="sidebar__footer">
       <a href="logout.php" class="nav-item" style="color: #ba1a1a;">
-        <span class="material-symbols-outlined">logout</span>
+        <span class="material-symbols-outlined" data-icon="logout"></span>
         Logout
       </a>
     </div>
@@ -74,7 +75,7 @@
     <div class="topnav__actions" style="margin-left:auto;">
       <span class="topnav__greeting">Welcome, <?= $fullName ?>!</span>
       <a href="logout.php" class="topnav__icon-btn" aria-label="Logout" title="Logout">
-        <span class="material-symbols-outlined">logout</span>
+        <span class="material-symbols-outlined" data-icon="logout"></span>
       </a>
     </div>
   </header>
@@ -85,7 +86,7 @@
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-headline-lg" style="color: #191c1e;">Daily Overview</h1>
       <div class="streak-badge">
-        <span class="material-symbols-outlined" style="font-size: 14px; font-variation-settings: 'FILL' 1;">local_fire_department</span>
+        <span class="material-symbols-outlined" data-icon="local_fire_department-filled" style="font-size: 14px"></span>
         <?= $streak ?> Day Streak
       </div>
     </div>
@@ -97,7 +98,7 @@
       <div class="mini-card">
         <a href="log.php?type=water" class="mini-card__log" title="Log water">+ Log</a>
         <div class="mini-card__icon" style="background: rgba(0,167,173,0.15); color: #00696d;">
-          <span class="material-symbols-outlined">water_drop</span>
+          <span class="material-symbols-outlined" data-icon="water_drop"></span>
         </div>
         <p class="mini-card__label">Water Progress</p>
         <p class="mini-card__value"><span id="mc-water"><?= number_format($todayMl / 1000, 2) ?></span> / <?= $goalLabel ?></p>
@@ -108,7 +109,7 @@
       <div class="mini-card">
         <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
         <div class="mini-card__icon" style="background: rgba(249,115,22,0.15); color: #f97316;">
-          <span class="material-symbols-outlined">local_fire_department</span>
+          <span class="material-symbols-outlined" data-icon="local_fire_department"></span>
         </div>
         <p class="mini-card__label">Calories Progress</p>
         <p class="mini-card__value"><span id="mc-kcal"><?= number_format($todayKcal) ?></span> / <?= number_format($goalKcal) ?> kcal</p>
@@ -119,7 +120,7 @@
       <div class="mini-card">
         <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
         <div class="mini-card__icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
-          <span class="material-symbols-outlined">egg_alt</span>
+          <span class="material-symbols-outlined" data-icon="egg_alt"></span>
         </div>
         <p class="mini-card__label">Protein Progress</p>
         <p class="mini-card__value"><span id="mc-protein"><?= $todayP ?></span> / <?= $goalP ?> g</p>
@@ -130,7 +131,7 @@
       <div class="mini-card">
         <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
         <div class="mini-card__icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;">
-          <span class="material-symbols-outlined">water_drop</span>
+          <span class="material-symbols-outlined" data-icon="water_drop"></span>
         </div>
         <p class="mini-card__label">Fat Progress</p>
         <p class="mini-card__value"><span id="mc-fat"><?= $todayFt ?></span> / <?= $goalFt ?> g</p>
@@ -141,7 +142,7 @@
       <div class="mini-card">
         <a href="log.php?type=nutrition" class="mini-card__log" title="Log nutrition">+ Log</a>
         <div class="mini-card__icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;">
-          <span class="material-symbols-outlined">grain</span>
+          <span class="material-symbols-outlined" data-icon="grain"></span>
         </div>
         <p class="mini-card__label">Carbohydrate Progress</p>
         <p class="mini-card__value"><span id="mc-carbs"><?= $todayCb ?></span> / <?= $goalCb ?> g</p>
@@ -152,7 +153,7 @@
       <div class="mini-card">
         <a href="log.php?type=exercise" class="mini-card__log" title="Log exercise">+ Log</a>
         <div class="mini-card__icon" style="background: rgba(16,185,129,0.15); color: #10b981;">
-          <span class="material-symbols-outlined">directions_run</span>
+          <span class="material-symbols-outlined" data-icon="directions_run"></span>
         </div>
         <p class="mini-card__label">Exercise Progress<span class="mini-card__sub"> (walking · running · gym · yoga)</span></p>
         <p class="mini-card__value"><span id="mc-burn"><?= number_format($todayBurn) ?></span> / <?= number_format($goalBurn) ?> kcal</p>
@@ -193,7 +194,7 @@
 <div class="log-item">
               <div class="log-item__left">
                 <div class="log-item__avatar log-item__avatar--<?= $log['type'] ?>">
-                  <span class="material-symbols-outlined" style="font-size: 18px;"><?= $icon ?></span>
+                  <span class="material-symbols-outlined" data-icon="<?= $icon ?>" style="font-size: 18px"></span>
                 </div>
                 <div>
                   <p class="log-item__amount"><?= $amount ?></p>
@@ -211,11 +212,11 @@
                             data-exercise="<?= htmlspecialchars($log['title']) ?>" data-duration="<?= (int)$log['val'] ?>"
                         <?php endif; ?>
                         title="Edit entry" aria-label="Edit entry">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">edit</span>
+                  <span class="material-symbols-outlined" data-icon="edit" style="font-size: 16px"></span>
                 </button>
                 <button class="log-item__delete" type="button" data-delete-type="<?= $log['type'] ?>" data-delete-id="<?= (int)$log['log_id'] ?>"
                         title="Delete entry" aria-label="Delete entry">
-                  <span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+                  <span class="material-symbols-outlined" data-icon="delete" style="font-size: 16px"></span>
                 </button>
               </div>
             </div>
@@ -250,12 +251,12 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-water-title">
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 class="text-headline-md" id="edit-water-title" style="color:#191c1e;">Edit Water Entry</h2>
-        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined" data-icon="close"></span></button>
       </div>
       <form id="edit-water-form">
         <div class="flex" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <div class="input-group" style="flex:1; min-width:140px;">
-            <span class="material-symbols-outlined icon-left">local_drink</span>
+            <span class="material-symbols-outlined icon-left" data-icon="local_drink"></span>
             <input class="input-field input-field--icon" id="edit-water-amount" type="number" min="1" max="5000" step="1" required>
           </div>
           <select class="input-field" id="edit-water-drink" style="width:auto; min-width:130px;" required>
@@ -276,7 +277,7 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-food-title">
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 class="text-headline-md" id="edit-food-title" style="color:#191c1e;">Edit Food Entry</h2>
-        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined" data-icon="close"></span></button>
       </div>
       <form id="edit-food-form">
         <div style="display:flex; flex-direction:column; gap:12px;">
@@ -318,7 +319,7 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-exercise-title">
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 class="text-headline-md" id="edit-exercise-title" style="color:#191c1e;">Edit Exercise Entry</h2>
-        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined" data-icon="close"></span></button>
       </div>
       <form id="edit-exercise-form">
         <div style="display:flex; flex-direction:column; gap:12px;">
@@ -362,7 +363,7 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="daily-goal-title" style="max-width:500px;">
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
         <h2 class="text-headline-md" id="daily-goal-title" style="color:#191c1e;">Set Today's Goals</h2>
-        <button class="modal-close" type="button" id="daily-goal-close" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+        <button class="modal-close" type="button" id="daily-goal-close" aria-label="Close"><span class="material-symbols-outlined" data-icon="close"></span></button>
       </div>
       <p class="text-body-md text-on-surface-variant" style="margin-bottom:16px;">What do you want to achieve today?</p>
       <form id="daily-goal-form" method="POST" action="dashboard.php">
@@ -371,7 +372,7 @@
           <!-- Water -->
           <div class="daily-goal-field">
             <div class="daily-goal-field__icon" style="background:rgba(0,167,173,0.12); color:#00696d;">
-              <span class="material-symbols-outlined">water_drop</span>
+              <span class="material-symbols-outlined" data-icon="water_drop"></span>
             </div>
             <label class="daily-goal-field__label" for="dg-water">Water (ml)</label>
             <input class="input-field" id="dg-water" name="daily_goal_ml" type="number" min="1000" max="5000" step="1" required>
@@ -379,7 +380,7 @@
           <!-- Calories -->
           <div class="daily-goal-field">
             <div class="daily-goal-field__icon" style="background:rgba(249,115,22,0.12); color:#f97316;">
-              <span class="material-symbols-outlined">local_fire_department</span>
+              <span class="material-symbols-outlined" data-icon="local_fire_department"></span>
             </div>
             <label class="daily-goal-field__label" for="dg-calories">Calories (kcal)</label>
             <input class="input-field" id="dg-calories" name="daily_calorie_goal" type="number" min="1200" max="5000" step="1" required>
@@ -387,7 +388,7 @@
           <!-- Protein -->
           <div class="daily-goal-field">
             <div class="daily-goal-field__icon" style="background:rgba(16,185,129,0.12); color:#10b981;">
-              <span class="material-symbols-outlined">egg_alt</span>
+              <span class="material-symbols-outlined" data-icon="egg_alt"></span>
             </div>
             <label class="daily-goal-field__label" for="dg-protein">Protein (g)</label>
             <input class="input-field" id="dg-protein" name="daily_protein_goal_g" type="number" min="30" max="200" step="1" required>
@@ -395,7 +396,7 @@
           <!-- Fat -->
           <div class="daily-goal-field">
             <div class="daily-goal-field__icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;">
-              <span class="material-symbols-outlined">water_drop</span>
+              <span class="material-symbols-outlined" data-icon="water_drop"></span>
             </div>
             <label class="daily-goal-field__label" for="dg-fat">Fat (g)</label>
             <input class="input-field" id="dg-fat" name="daily_fat_goal_g" type="number" min="20" max="150" step="1" required>
@@ -403,7 +404,7 @@
           <!-- Carbs -->
           <div class="daily-goal-field">
             <div class="daily-goal-field__icon" style="background:rgba(59,130,246,0.12); color:#3b82f6;">
-              <span class="material-symbols-outlined">grain</span>
+              <span class="material-symbols-outlined" data-icon="grain"></span>
             </div>
             <label class="daily-goal-field__label" for="dg-carbs">Carbs (g)</label>
             <input class="input-field" id="dg-carbs" name="daily_carbs_goal_g" type="number" min="100" max="700" step="1" required>
@@ -411,7 +412,7 @@
           <!-- Exercise -->
           <div class="daily-goal-field">
             <div class="daily-goal-field__icon" style="background:rgba(16,185,129,0.12); color:#10b981;">
-              <span class="material-symbols-outlined">directions_run</span>
+              <span class="material-symbols-outlined" data-icon="directions_run"></span>
             </div>
             <label class="daily-goal-field__label" for="dg-exercise">Exercise (min)</label>
             <input class="input-field" id="dg-exercise" name="daily_exercise_goal_min" type="number" min="10" max="120" step="1" required>
@@ -419,7 +420,7 @@
           <!-- Burn -->
           <div class="daily-goal-field">
             <div class="daily-goal-field__icon" style="background:rgba(132,204,22,0.12); color:#84cc16;">
-              <span class="material-symbols-outlined">local_fire_department</span>
+              <span class="material-symbols-outlined" data-icon="local_fire_department"></span>
             </div>
             <label class="daily-goal-field__label" for="dg-burn">Calories Burn (kcal)</label>
             <input class="input-field" id="dg-burn" name="daily_burn_goal_kcal" type="number" min="50" max="1500" step="1" required>

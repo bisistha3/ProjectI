@@ -34,6 +34,8 @@ $nextYear  = (int)date('Y', $nextMonthTs);
 $isCurrentMonth = ($calYear === $nowYear && $calMonth === $nowMonth);
 $isFutureMonth  = ($calYear > $nowYear) || ($calYear === $nowYear && $calMonth > $nowMonth);
 $todayNum = $isCurrentMonth ? (int)date('j') : 0;
+// Week bucket (1–5) containing today, matching FLOOR((DAY-1)/7)+1 used in monthly queries.
+$currentWeek = $isCurrentMonth ? (int)floor(((int)date('j') - 1) / 7) + 1 : 0;
 
 $u = $db->prepare('SELECT u.full_name, g.daily_goal_ml, g.daily_calorie_goal, g.daily_protein_goal_g,
                           g.daily_fat_goal_g, g.daily_carbs_goal_g, g.daily_exercise_goal_min,
@@ -165,15 +167,35 @@ if ($type === 'water') {
     $metrics['week_n']  = (int)($wstat['n'] ?? 0);
 
     // MIN/MAX over text picks one arbitrary value as a placeholder label — not the actual most-logged item.
-    $tableQ = $db->prepare("
-        SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml,
-               MAX(drink_type) AS top_source
-        FROM water_logs
-        WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL {$rangeDays} DAY)
-        GROUP BY DATE(logged_at)
-        ORDER BY day DESC
-    ");
-    $tableQ->execute([$userId]);
+    if ($isHourly) {
+        $tableQ = $db->prepare("
+            SELECT logged_at, amount_ml AS total_ml, drink_type AS top_source
+            FROM water_logs
+            WHERE user_id=? AND DATE(logged_at)=CURDATE()
+            ORDER BY logged_at DESC
+        ");
+        $tableQ->execute([$userId]);
+    } elseif ($range === '1m') {
+        $tableQ = $db->prepare("
+            SELECT FLOOR((DAY(logged_at) - 1) / 7) + 1 AS day, SUM(amount_ml) AS total_ml,
+                   MAX(drink_type) AS top_source
+            FROM water_logs
+            WHERE user_id=? AND MONTH(logged_at)=? AND YEAR(logged_at)=?
+            GROUP BY day
+            ORDER BY day DESC
+        ");
+        $tableQ->execute([$userId, $calMonth, $calYear]);
+    } else {
+        $tableQ = $db->prepare("
+            SELECT DATE(logged_at) AS day, SUM(amount_ml) AS total_ml,
+                   MAX(drink_type) AS top_source
+            FROM water_logs
+            WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL {$rangeDays} DAY)
+            GROUP BY DATE(logged_at)
+            ORDER BY day DESC
+        ");
+        $tableQ->execute([$userId]);
+    }
     $tableRows = $tableQ->fetchAll();
 
     $calQ = $db->prepare('
@@ -249,16 +271,38 @@ if ($type === 'water') {
     $chartValue = 'kcal';
 
     // MIN/MAX over text picks one arbitrary value as a placeholder label — not the actual most-logged item.
-    $tableQ = $db->prepare("
-        SELECT DATE(logged_at) AS day, SUM(calories) AS total_kcal,
-               SUM(protein_g) AS prot, SUM(fat_g) AS fat, SUM(carbs_g) AS carbs,
-               MIN(meal_type) AS top_source
-        FROM food_logs
-        WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL {$rangeDays} DAY)
-        GROUP BY DATE(logged_at)
-        ORDER BY day DESC
-    ");
-    $tableQ->execute([$userId]);
+    if ($isHourly) {
+        $tableQ = $db->prepare("
+            SELECT fl.logged_at, fl.calories AS total_kcal,
+                   fl.protein_g AS prot, fl.fat_g AS fat, fl.carbs_g AS carbs,
+                   f.food_name AS top_source
+            FROM food_logs fl JOIN foods f ON f.food_id = fl.food_id
+            WHERE fl.user_id=? AND DATE(fl.logged_at)=CURDATE()
+            ORDER BY fl.logged_at DESC
+        ");
+        $tableQ->execute([$userId]);
+    } elseif ($range === '1m') {
+        $tableQ = $db->prepare("
+            SELECT FLOOR((DAY(logged_at) - 1) / 7) + 1 AS day, SUM(calories) AS total_kcal,
+                   SUM(protein_g) AS prot, SUM(fat_g) AS fat, SUM(carbs_g) AS carbs
+            FROM food_logs
+            WHERE user_id=? AND MONTH(logged_at)=? AND YEAR(logged_at)=?
+            GROUP BY day
+            ORDER BY day DESC
+        ");
+        $tableQ->execute([$userId, $calMonth, $calYear]);
+    } else {
+        $tableQ = $db->prepare("
+            SELECT DATE(logged_at) AS day, SUM(calories) AS total_kcal,
+                   SUM(protein_g) AS prot, SUM(fat_g) AS fat, SUM(carbs_g) AS carbs,
+                   MIN(meal_type) AS top_source
+            FROM food_logs
+            WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL {$rangeDays} DAY)
+            GROUP BY DATE(logged_at)
+            ORDER BY day DESC
+        ");
+        $tableQ->execute([$userId]);
+    }
     $tableRows = $tableQ->fetchAll();
 
     $calQ = $db->prepare('
@@ -299,7 +343,6 @@ if ($type === 'water') {
         ");
         $weekly->execute([$userId]);
     }
-    $weekly->execute([$userId]);
     $weekRaw = [];
     foreach ($weekly->fetchAll() as $r) {
         $key = ($isHourly || $range === '1m') ? (int)$r['bucket'] : $r['day'];
@@ -329,16 +372,37 @@ if ($type === 'water') {
     $chartValue = 'min';
 
     // MIN/MAX over text picks one arbitrary value as a placeholder label — not the actual most-logged item.
-    $tableQ = $db->prepare("
-        SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min,
-               SUM(calories_burned) AS total_burn, COUNT(*) AS sessions,
-               MAX(exercise_type) AS top_source
-        FROM exercise_logs
-        WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL {$rangeDays} DAY)
-        GROUP BY DATE(logged_at)
-        ORDER BY day DESC
-    ");
-    $tableQ->execute([$userId]);
+    if ($isHourly) {
+        $tableQ = $db->prepare("
+            SELECT logged_at, duration_min AS total_min,
+                   calories_burned AS total_burn, exercise_type AS top_source
+            FROM exercise_logs
+            WHERE user_id=? AND DATE(logged_at)=CURDATE()
+            ORDER BY logged_at DESC
+        ");
+        $tableQ->execute([$userId]);
+    } elseif ($range === '1m') {
+        $tableQ = $db->prepare("
+            SELECT FLOOR((DAY(logged_at) - 1) / 7) + 1 AS day, SUM(duration_min) AS total_min,
+                   SUM(calories_burned) AS total_burn
+            FROM exercise_logs
+            WHERE user_id=? AND MONTH(logged_at)=? AND YEAR(logged_at)=?
+            GROUP BY day
+            ORDER BY day DESC
+        ");
+        $tableQ->execute([$userId, $calMonth, $calYear]);
+    } else {
+        $tableQ = $db->prepare("
+            SELECT DATE(logged_at) AS day, SUM(duration_min) AS total_min,
+                   SUM(calories_burned) AS total_burn, COUNT(*) AS sessions,
+                   MAX(exercise_type) AS top_source
+            FROM exercise_logs
+            WHERE user_id=? AND logged_at >= DATE_SUB(CURDATE(), INTERVAL {$rangeDays} DAY)
+            GROUP BY DATE(logged_at)
+            ORDER BY day DESC
+        ");
+        $tableQ->execute([$userId]);
+    }
     $tableRows = $tableQ->fetchAll();
 
     $calQ = $db->prepare('
@@ -479,7 +543,8 @@ if ($type === 'water') {
         $weekFat   += (float)($f['fat'] ?? 0);
         $weekCarbs += (float)($f['carbs'] ?? 0);
 
-        if (!$w && !$f && !$e) continue;
+        $isCurrentWk = ($range === '1m' && $isCurrentMonth && $key === $currentWeek);
+        if (!$w && !$f && !$e && !$isCurrentWk) continue;
         $tableRows[] = [
             'day'       => ($isHourly || $range === '1m') ? $key : $date,
             'water_ml'  => $ml,
@@ -491,8 +556,34 @@ if ($type === 'water') {
             'goals_met' => ($ml >= $goalMl * $goalMult ? 1 : 0) + ($kcal >= $goalKcal * $goalMult ? 1 : 0) + ($min >= $goalMin * $goalMult ? 1 : 0),
         ];
     }
-    // Table shows newest first.
-    $tableRows = array_reverse($tableRows);
+    // Table shows newest (most recent) first, oldest at bottom.
+
+    // 1D: every individual log today, newest first (chart still uses 3-hour buckets above).
+    if ($isHourly) {
+        $todayQ = $db->prepare("
+            SELECT * FROM (
+                SELECT logged_at, 'water' AS log_type, drink_type AS title,
+                       CONCAT(amount_ml, ' ml') AS amount, NULL AS detail
+                FROM water_logs
+                WHERE user_id=? AND DATE(logged_at)=CURDATE()
+                UNION ALL
+                SELECT fl.logged_at, 'food' AS log_type, f.food_name AS title,
+                       CONCAT(fl.calories, ' kcal') AS amount,
+                       CONCAT('P ', fl.protein_g, 'g · F ', fl.fat_g, 'g · C ', fl.carbs_g, 'g') AS detail
+                FROM food_logs fl JOIN foods f ON f.food_id = fl.food_id
+                WHERE fl.user_id=? AND DATE(fl.logged_at)=CURDATE()
+                UNION ALL
+                SELECT logged_at, 'exercise' AS log_type, exercise_type AS title,
+                       CONCAT(duration_min, ' min') AS amount,
+                       CONCAT(calories_burned, ' kcal burned') AS detail
+                FROM exercise_logs
+                WHERE user_id=? AND DATE(logged_at)=CURDATE()
+            ) t
+            ORDER BY logged_at DESC
+        ");
+        $todayQ->execute([$userId, $userId, $userId]);
+        $tableRows = $todayQ->fetchAll();
+    }
 
     // All-time headline metrics.
     $nQ = $db->prepare('SELECT (SELECT COUNT(*) FROM water_logs WHERE user_id=?)
@@ -545,6 +636,29 @@ if ($type === 'water') {
         'week_carbs'   => round($weekCarbs, 1),
     ];
     $chartValue = 'all';
+}
+
+// Single-type monthly views: always show the running week even with no logs yet.
+if ($range === '1m' && $isCurrentMonth && $currentWeek > 0 && $type !== 'all') {
+    $hasCurrent = false;
+    foreach ($tableRows as $r) {
+        if ((int)$r['day'] === $currentWeek) { $hasCurrent = true; break; }
+    }
+    if (!$hasCurrent) {
+        $emptyRow = ['day' => $currentWeek];
+        if ($type === 'water') {
+            $emptyRow['total_ml'] = 0;
+            $emptyRow['top_source'] = '—';
+        } elseif ($type === 'food') {
+            $emptyRow['total_kcal'] = 0;
+            $emptyRow['prot'] = 0; $emptyRow['fat'] = 0; $emptyRow['carbs'] = 0;
+        } else {
+            $emptyRow['total_min'] = 0;
+            $emptyRow['total_burn'] = 0;
+        }
+        $tableRows[] = $emptyRow;
+        usort($tableRows, fn($a, $b) => (int)$b['day'] <=> (int)$a['day']);
+    }
 }
 
 // Build chart data

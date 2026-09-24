@@ -71,7 +71,7 @@ export function initReminderToast() {
       opacity: 0; transition: opacity 0.4s, transform 0.4s;
     `;
     toast.innerHTML = `
-      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1; font-size: 22px;">notifications_active</span>
+      <span class="material-symbols-outlined" data-icon="notifications_active-filled" style="font-size: 22px"></span>
       <div>
         Time to log your water, meals and exercise!
         <button id="reminder-goto" style="margin-left:8px; background:rgba(255,255,255,0.22); border:none; color:#fff; font-size:12px; font-weight:700; padding:5px 10px; border-radius:8px; cursor:pointer;">Log now</button>

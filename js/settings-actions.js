@@ -9,7 +9,7 @@ export function initSettingsActions() {
       // Simulate save with visual feedback
       const originalText = saveBtn.innerHTML;
       saveBtn.innerHTML = `
-        <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span>
+        <span class="material-symbols-outlined" data-icon="check_circle" style="font-size: 18px"></span>
         Saved!
       `;
       saveBtn.style.backgroundColor = '#16a34a';
@@ -46,7 +46,7 @@ export function initSettingsActions() {
 
       const originalText = resetBtn.innerHTML;
       resetBtn.innerHTML = `
-        <span class="material-symbols-outlined" style="font-size: 18px;">check</span>
+        <span class="material-symbols-outlined" data-icon="check" style="font-size: 18px"></span>
         Reset Done
       `;
       setTimeout(() => {

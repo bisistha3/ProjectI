@@ -9,10 +9,10 @@ export function initPasswordToggles() {
       const icon = btn.querySelector('.material-symbols-outlined');
       if (input.type === 'password') {
         input.type = 'text';
-        icon.textContent = 'visibility';
+        icon.setAttribute('data-icon', 'visibility');
       } else {
         input.type = 'password';
-        icon.textContent = 'visibility_off';
+        icon.setAttribute('data-icon', 'visibility_off');
       }
     });
   });

@@ -730,7 +730,7 @@
 
 .status-badge--met {
   background-color: #c5e8d9;
-  color: #a9ccbd;
+  color: #1b5e3a;
 }
 
 .status-badge--missed {
@@ -741,6 +741,34 @@
 .status-badge--exceeded {
   background-color: #cdf2b8;
   color: #3d6b23;
+}
+
+/* Log type badges (Today's Log) */
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.type-badge--water {
+  background-color: #c4f5f7;
+  color: #005f63;
+}
+
+.type-badge--food {
+  background-color: #ffe8d5;
+  color: #c2410c;
+}
+
+.type-badge--exercise {
+  background-color: #d1fae5;
+  color: #047857;
 }
 
 .table-footer {

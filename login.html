@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,13 +6,14 @@
   <title>Login - HealthFlow</title>
   <meta name="description" content="Sign in to HealthFlow to track your water, food and exercise every day.">
   <link rel="stylesheet" href="login.css">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="auth-layout">
 
   <main class="auth-card" style="max-width: 448px;">
     <div class="sidebar__brand mb-2">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 30px;">monitor_heart</span>
+      <span class="material-symbols-outlined" data-icon="logo" style="font-size: 30px"></span>
       HealthFlow
     </div>
 
@@ -22,7 +23,7 @@
 
     <?php if (!empty($errors['general'])): ?>
       <div class="alert alert--error mb-4">
-        <span class="material-symbols-outlined" style="font-size: 18px;">error</span>
+        <span class="material-symbols-outlined" data-icon="error" style="font-size: 18px"></span>
         <?= htmlspecialchars($errors['general']) ?>
       </div>
     <?php endif; ?>
@@ -32,7 +33,7 @@
       if ($flash):
     ?>
       <div class="alert alert--success mb-4">
-        <span class="material-symbols-outlined" style="font-size: 18px;">check_circle</span>
+        <span class="material-symbols-outlined" data-icon="check_circle" style="font-size: 18px"></span>
         <?= htmlspecialchars($flash) ?>
       </div>
     <?php endif; ?>
@@ -42,7 +43,7 @@
       <div class="flex flex-col gap-1">
         <label class="text-label-md text-on-surface" for="email">Email Address <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
         <div class="input-group">
-          <span class="material-symbols-outlined icon-left">mail</span>
+          <span class="material-symbols-outlined icon-left" data-icon="mail"></span>
           <input
             class="input-field input-field--icon <?= isset($errors['email']) ? 'input-field--error' : '' ?>"
             id="email"
@@ -65,7 +66,7 @@
           <a class="text-label-md" style="color: #00696d; text-decoration: none;" href="forgot-password.php" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Forgot Password?</a>
         </div>
         <div class="input-group">
-          <span class="material-symbols-outlined icon-left">lock</span>
+          <span class="material-symbols-outlined icon-left" data-icon="lock"></span>
           <input
             class="input-field input-field--icon input-field--icon-right <?= isset($errors['password']) ? 'input-field--error' : '' ?>"
             id="password"
@@ -76,7 +77,7 @@
             required
           >
           <button type="button" class="icon-right toggle-password" data-target="password" aria-label="Toggle password visibility">
-            <span class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+            <span class="material-symbols-outlined" data-icon="visibility" style="font-size: 20px"></span>
           </button>
         </div>
         <?php if (isset($errors['password'])): ?>
@@ -86,7 +87,7 @@
 
       <button class="btn-primary w-full mt-2" type="submit" id="btn-signin">
         Sign in
-        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+        <span class="material-symbols-outlined" data-icon="arrow_forward" style="font-size: 18px"></span>
       </button>
     </form>
 

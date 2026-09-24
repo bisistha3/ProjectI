@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,18 +6,19 @@
   <title>Log - HealthFlow</title>
   <meta name="description" content="Log your daily water, nutrition and exercise with HealthFlow.">
   <link rel="stylesheet" href="log.css">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="app-layout" style="display: flex;">
 
   <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
-    <span class="material-symbols-outlined">menu</span>
+    <span class="material-symbols-outlined" data-icon="menu"></span>
   </button>
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar__brand">
-      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+      <span class="material-symbols-outlined" data-icon="logo"></span>
       HealthFlow
     </div>
     <div class="sidebar__profile">
@@ -27,25 +28,25 @@
       </div>
     </div>
     <nav class="sidebar__nav">
-      <a href="dashboard.php" class="nav-item"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a href="dashboard.php" class="nav-item"><span class="material-symbols-outlined" data-icon="dashboard"></span>Dashboard</a>
       <a href="log.php?type=water" class="nav-item <?= $type === 'water' ? 'nav-item--active' : '' ?>">
-        <span class="material-symbols-outlined" <?= $type === 'water' ? "style='font-variation-settings: \"FILL\" 1;'" : '' ?>>water_drop</span>
+        <span class="material-symbols-outlined" data-icon="<?= $type === 'water' ? 'water_drop-filled' : 'water_drop' ?>"></span>
         Log Water
       </a>
       <a href="log.php?type=nutrition" class="nav-item <?= $type === 'nutrition' ? 'nav-item--active' : '' ?>">
-        <span class="material-symbols-outlined" <?= $type === 'nutrition' ? "style='font-variation-settings: \"FILL\" 1;'" : '' ?>>restaurant</span>
+        <span class="material-symbols-outlined" data-icon="<?= $type === 'nutrition' ? 'restaurant-filled' : 'restaurant' ?>"></span>
         Log Nutrition
       </a>
       <a href="log.php?type=exercise" class="nav-item <?= $type === 'exercise' ? 'nav-item--active' : '' ?>">
-        <span class="material-symbols-outlined" <?= $type === 'exercise' ? "style='font-variation-settings: \"FILL\" 1;'" : '' ?>>directions_run</span>
+        <span class="material-symbols-outlined" data-icon="<?= $type === 'exercise' ? 'directions_run-filled' : 'directions_run' ?>"></span>
         Log Exercise
       </a>
-      <a href="history.php" class="nav-item"><span class="material-symbols-outlined">history</span>History</a>
-      <a href="settings.php" class="nav-item"><span class="material-symbols-outlined">settings</span>Settings</a>
+      <a href="history.php" class="nav-item"><span class="material-symbols-outlined" data-icon="history"></span>History</a>
+      <a href="settings.php" class="nav-item"><span class="material-symbols-outlined" data-icon="settings"></span>Settings</a>
     </nav>
     <div class="sidebar__footer">
       <a href="logout.php" class="nav-item" style="color: #ba1a1a;">
-        <span class="material-symbols-outlined">logout</span>Logout
+        <span class="material-symbols-outlined" data-icon="logout"></span>Logout
       </a>
     </div>
   </aside>
@@ -54,7 +55,7 @@
     <div class="topnav__actions" style="margin-left:auto;">
       <span class="topnav__greeting">Hello, <?= $fullName ?>!</span>
       <a href="logout.php" class="topnav__icon-btn" aria-label="Logout" title="Logout">
-        <span class="material-symbols-outlined">logout</span>
+        <span class="material-symbols-outlined" data-icon="logout"></span>
       </a>
     </div>
   </header>
@@ -83,15 +84,15 @@
 
           <div class="quick-log mt-8" style="justify-content:flex-start; flex-wrap:wrap;">
             <button class="quick-log__btn" data-action="water" data-amount="250" data-type="Water">
-              <div class="quick-log__icon"><span class="material-symbols-outlined">water_bottle</span></div>
+              <div class="quick-log__icon"><span class="material-symbols-outlined" data-icon="water_bottle"></span></div>
               <span class="quick-log__label">250ml</span>
             </button>
             <button class="quick-log__btn" data-action="water" data-amount="500" data-type="Water">
-              <div class="quick-log__icon"><span class="material-symbols-outlined">water_drop</span></div>
+              <div class="quick-log__icon"><span class="material-symbols-outlined" data-icon="water_drop"></span></div>
               <span class="quick-log__label">500ml</span>
             </button>
             <button class="quick-log__btn" data-action="water" data-amount="750" data-type="Water">
-              <div class="quick-log__icon"><span class="material-symbols-outlined">local_drink</span></div>
+              <div class="quick-log__icon"><span class="material-symbols-outlined" data-icon="local_drink"></span></div>
               <span class="quick-log__label">750ml</span>
             </button>
           </div>
@@ -99,7 +100,7 @@
           <!-- Custom amount -->
           <div class="mt-8" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
             <div class="input-group" style="flex:1; min-width:140px;">
-              <span class="material-symbols-outlined icon-left">add</span>
+              <span class="material-symbols-outlined icon-left" data-icon="add"></span>
               <input class="input-field input-field--icon" id="log-water-amount" type="number" min="1" max="5000" step="50" placeholder="Custom ml">
             </div>
             <select class="input-field" id="log-water-drink" style="width:auto; min-width:130px;">
@@ -120,13 +121,13 @@
         <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Drinks</h2>
         <div class="flex flex-col gap-4" id="log-list">
           <?php if (empty($recentLogs)): ?>
-            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">Nothing logged yet — grab a glass! 💧</p>
+            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">Nothing logged yet â€” grab a glass! ðŸ’§</p>
           <?php else: ?>
             <?php foreach ($recentLogs as $log): ?>
 <div class="log-item">
                 <div class="log-item__left">
                   <div class="log-item__avatar log-item__avatar--water">
-                    <span class="material-symbols-outlined" style="font-size:18px;"><?= $drinkIcons[$log['title']] ?? 'water_drop' ?></span>
+                    <span class="material-symbols-outlined" data-icon="<?= $drinkIcons[$log['title']] ?? 'water_drop' ?>" style="font-size:18px"></span>
                   </div>
                   <div>
                     <p class="log-item__amount"><?= $log['val'] ?>ml</p>
@@ -138,11 +139,11 @@
                   <button class="log-item__edit" type="button" data-edit-type="water" data-edit-id="<?= (int)$log['log_id'] ?>"
                           data-amount="<?= (int)$log['val'] ?>" data-drink="<?= htmlspecialchars($log['title']) ?>"
                           title="Edit entry" aria-label="Edit entry">
-                    <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                    <span class="material-symbols-outlined" data-icon="edit" style="font-size:16px"></span>
                   </button>
                   <button class="log-item__delete" type="button" data-delete-type="water" data-delete-id="<?= (int)$log['log_id'] ?>"
                           title="Delete entry" aria-label="Delete entry">
-                    <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                    <span class="material-symbols-outlined" data-icon="delete" style="font-size:16px"></span>
                   </button>
                 </div>
               </div>
@@ -216,7 +217,7 @@
           <h2 class="text-headline-md mb-6" style="color: #191c1e;">My Foods</h2>
           <?php if (empty($customFoods)): ?>
             <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:12px 0;">
-              No saved foods yet — add a custom food once and it appears here for one-click logging.
+              No saved foods yet â€” add a custom food once and it appears here for one-click logging.
             </p>
           <?php else: ?>
           <div class="food-grid" id="my-foods-grid">
@@ -224,7 +225,7 @@
             <div class="preset-btn preset-btn--custom">
               <button class="preset-btn__remove" type="button" data-delete-food="<?= (int)$cf['food_id'] ?>"
                       title="Remove from My Foods" aria-label="Remove from My Foods">
-                <span class="material-symbols-outlined" style="font-size:14px;">close</span>
+                <span class="material-symbols-outlined" data-icon="close" style="font-size:14px"></span>
               </button>
               <button class="preset-btn__main" type="button" data-action="food" data-food="<?= htmlspecialchars($cf['food_name'], ENT_QUOTES) ?>">
                 <span><?= htmlspecialchars($cf['food_name']) ?></span>
@@ -239,7 +240,7 @@
         <!-- Custom food -->
         <section class="glass-card-light" style="padding: 24px;">
           <h2 class="text-headline-md mb-6" style="color: #191c1e;">Add Custom Food</h2>
-          <p style="font-size:11px;color:#3f4852;margin:-8px 0 12px;">Fill in the food name, quantity and nutrition once — it's saved to My Foods and next time only the name and quantity are needed.</p>
+          <p style="font-size:11px;color:#3f4852;margin:-8px 0 12px;">Fill in the food name, quantity and nutrition once â€” it's saved to My Foods and next time only the name and quantity are needed.</p>
           <div style="display:flex; flex-direction:column; gap:10px;">
             <div class="flex" style="display:flex; gap:8px;">
               <input class="input-field" id="log-food-name" type="text" placeholder="Food name" style="flex:1.4;">
@@ -280,11 +281,11 @@
 <div class="log-item">
                 <div class="log-item__left">
                   <div class="log-item__avatar log-item__avatar--food">
-                    <span class="material-symbols-outlined" style="font-size:18px;"><?= $foodIcons[$log['meal_type']] ?? 'cookie' ?></span>
+                    <span class="material-symbols-outlined" data-icon="<?= $foodIcons[$log['meal_type']] ?? 'cookie' ?>" style="font-size:18px"></span>
                   </div>
                   <div>
-                    <p class="log-item__amount"><?= formatQty((float)$log['qty'], $log['unit_type']) ?> · <?= $log['val'] ?> kcal</p>
-                    <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?> · P <?= round((float)$log['protein_g'],1) ?> F <?= round((float)$log['fat_g'],1) ?> C <?= round((float)$log['carbs_g'],1) ?></p>
+                    <p class="log-item__amount"><?= formatQty((float)$log['qty'], $log['unit_type']) ?> Â· <?= $log['val'] ?> kcal</p>
+                    <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?> Â· P <?= round((float)$log['protein_g'],1) ?> F <?= round((float)$log['fat_g'],1) ?> C <?= round((float)$log['carbs_g'],1) ?></p>
                   </div>
                 </div>
                 <div class="log-item__actions">
@@ -292,11 +293,11 @@
                   <button class="log-item__edit" type="button" data-edit-type="food" data-edit-id="<?= (int)$log['log_id'] ?>"
                           data-meal="<?= htmlspecialchars($log['meal_type']) ?>" data-qty="<?= (float)$log['qty'] ?>" data-unit="<?= htmlspecialchars($log['unit_type']) ?>"
                           title="Edit entry" aria-label="Edit entry">
-                    <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                    <span class="material-symbols-outlined" data-icon="edit" style="font-size:16px"></span>
                   </button>
                   <button class="log-item__delete" type="button" data-delete-type="food" data-delete-id="<?= (int)$log['log_id'] ?>"
                           title="Delete entry" aria-label="Delete entry">
-                    <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                    <span class="material-symbols-outlined" data-icon="delete" style="font-size:16px"></span>
                   </button>
                 </div>
               </div>
@@ -328,7 +329,7 @@
           <div class="food-grid" style="grid-template-columns: repeat(2, 1fr);">
             <?php foreach ($exerciseTypes as $ex): ?>
             <button class="preset-btn preset-btn--icon" data-action="exercise" data-type="<?= htmlspecialchars($ex, ENT_QUOTES) ?>">
-              <span class="material-symbols-outlined"><?= $exerciseIcons[$ex] ?></span><span><?= htmlspecialchars($ex) ?></span>
+              <span class="material-symbols-outlined" data-icon="<?= $exerciseIcons[$ex] ?>"></span><span><?= htmlspecialchars($ex) ?></span>
             </button>
             <?php endforeach; ?>
           </div>
@@ -346,17 +347,17 @@
         <h2 class="text-headline-md mb-6" style="color: #191c1e;">Today's Workouts</h2>
         <div class="flex flex-col gap-4" id="log-list">
           <?php if (empty($recentLogs)): ?>
-            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">No workouts logged yet — get moving! 🏃</p>
+            <p class="text-body-md text-on-surface-variant" style="text-align:center; padding:24px 0;">No workouts logged yet â€” get moving! ðŸƒ</p>
           <?php else: ?>
             <?php foreach ($recentLogs as $log): ?>
 <div class="log-item">
                 <div class="log-item__left">
                   <div class="log-item__avatar log-item__avatar--exercise">
-                    <span class="material-symbols-outlined" style="font-size:18px;"><?= $exerciseIcons[$log['title']] ?? 'directions_run' ?></span>
+                    <span class="material-symbols-outlined" data-icon="<?= $exerciseIcons[$log['title']] ?? 'directions_run' ?>" style="font-size:18px"></span>
                   </div>
                   <div>
                     <p class="log-item__amount"><?= $log['val'] ?> min</p>
-                    <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?> · <?= $log['burn'] ?> kcal</p>
+                    <p class="log-item__desc"><?= htmlspecialchars($log['title']) ?> Â· <?= $log['burn'] ?> kcal</p>
                   </div>
                 </div>
                 <div class="log-item__actions">
@@ -364,11 +365,11 @@
                   <button class="log-item__edit" type="button" data-edit-type="exercise" data-edit-id="<?= (int)$log['log_id'] ?>"
                           data-exercise="<?= htmlspecialchars($log['title']) ?>" data-duration="<?= (int)$log['val'] ?>"
                           title="Edit entry" aria-label="Edit entry">
-                    <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                    <span class="material-symbols-outlined" data-icon="edit" style="font-size:16px"></span>
                   </button>
                   <button class="log-item__delete" type="button" data-delete-type="exercise" data-delete-id="<?= (int)$log['log_id'] ?>"
                           title="Delete entry" aria-label="Delete entry">
-                    <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                    <span class="material-symbols-outlined" data-icon="delete" style="font-size:16px"></span>
                   </button>
                 </div>
               </div>
@@ -386,7 +387,7 @@
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 class="text-headline-md" id="food-modal-title" style="color:#191c1e;">Log Food</h2>
         <button class="modal-close" type="button" data-modal-close aria-label="Close">
-          <span class="material-symbols-outlined">close</span>
+          <span class="material-symbols-outlined" data-icon="close"></span>
         </button>
       </div>
 
@@ -422,7 +423,7 @@
         </div>
 
         <div id="food-modal-nutrition">
-          <p class="food-modal__label" style="margin-bottom:4px;">Nutrition <span style="color:#3f4852; font-size:11px;">(for the quantity entered above — saved for next time)</span></p>
+          <p class="food-modal__label" style="margin-bottom:4px;">Nutrition <span style="color:#3f4852; font-size:11px;">(for the quantity entered above â€” saved for next time)</span></p>
           <div class="flex" style="display:flex; gap:8px;">
             <input class="input-field" id="food-modal-kcal" type="number" min="1" max="3000" placeholder="kcal" style="flex:1;">
             <input class="input-field" id="food-modal-protein" type="number" min="0" step="0.1" placeholder="Protein g" style="flex:1;">
@@ -454,7 +455,7 @@
   <script type="module" src="app.js"></script>
   <script type="module">
   import { showConfirm } from './js/confirm-modal.js';
-  // Logging AJAX — POST to log.php, refresh page on success (simplest reliable refresh).
+  // Logging AJAX â€” POST to log.php, refresh page on success (simplest reliable refresh).
   (() => {
     const post = async (fd) => {
       const res = await fetch('log.php', { method: 'POST', body: fd });
@@ -506,7 +507,7 @@
       nameInput.value = foodName;
 
       if (known) {
-        // Already logged before — only quantity is asked; unit is locked
+        // Already logged before â€” only quantity is asked; unit is locked
         unitSelect.value = known.unit;
         unitSelect.disabled = true;
         qtyInput.placeholder = known.unit === 'piece'
@@ -514,7 +515,7 @@
           : `e.g. ${Math.round(known.serving_qty)} (${known.kcal} kcal per ${known.unit})`;
         nutritionBox.hidden = true;
       } else {
-        // First time — name, quantity, unit and nutrition are all asked
+        // First time â€” name, quantity, unit and nutrition are all asked
         unitSelect.disabled = false;
         qtyInput.placeholder = 'e.g. 150';
         nutritionBox.hidden = false;
@@ -559,12 +560,12 @@
       }
     };
 
-    // Preset foods + My Foods → open modal with the food pre-filled
+    // Preset foods + My Foods â†’ open modal with the food pre-filled
     document.querySelectorAll('[data-action="food"]').forEach(btn => {
       btn.addEventListener('click', () => openModal(btn.dataset.food));
     });
 
-    // Add Custom Food → submit details directly (name + qty + unit + nutrition)
+    // Add Custom Food â†’ submit details directly (name + qty + unit + nutrition)
     document.getElementById('btn-log-food-custom')?.addEventListener('click', async () => {
       const name = document.getElementById('log-food-name').value.trim();
       const qty  = document.getElementById('log-food-qty').value;
@@ -645,12 +646,12 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-water-title">
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 class="text-headline-md" id="edit-water-title" style="color:#191c1e;">Edit Water Entry</h2>
-        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined" data-icon="close"></span></button>
       </div>
       <form id="edit-water-form">
         <div class="flex" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <div class="input-group" style="flex:1; min-width:140px;">
-            <span class="material-symbols-outlined icon-left">local_drink</span>
+            <span class="material-symbols-outlined icon-left" data-icon="local_drink"></span>
             <input class="input-field input-field--icon" id="edit-water-amount" type="number" min="1" max="5000" step="1" required>
           </div>
           <select class="input-field" id="edit-water-drink" style="width:auto; min-width:130px;" required>
@@ -671,7 +672,7 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-food-title">
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 class="text-headline-md" id="edit-food-title" style="color:#191c1e;">Edit Food Entry</h2>
-        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined" data-icon="close"></span></button>
       </div>
       <form id="edit-food-form">
         <div style="display:flex; flex-direction:column; gap:12px;">
@@ -713,7 +714,7 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="edit-exercise-title">
       <div class="flex justify-between items-center" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
         <h2 class="text-headline-md" id="edit-exercise-title" style="color:#191c1e;">Edit Exercise Entry</h2>
-        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"><span class="material-symbols-outlined" data-icon="close"></span></button>
       </div>
       <form id="edit-exercise-form">
         <div style="display:flex; flex-direction:column; gap:12px;">

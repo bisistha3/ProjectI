@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,7 +6,8 @@
   <title>Verify Email - HealthFlow</title>
   <meta name="description" content="Enter your 6-digit verification code to activate your HealthFlow account.">
   <link rel="stylesheet" href="verify-email.css">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="auth-layout">
 
@@ -20,7 +21,7 @@
       <p class="text-body-md text-on-surface-variant">We sent a 6-digit verification code to</p>
       <div style="display:flex;justify-content:center;">
         <span class="email-chip">
-          <span class="material-symbols-outlined" style="font-size:16px;">mail</span>
+          <span class="material-symbols-outlined" data-icon="mail" style="font-size:16px"></span>
           <?= htmlspecialchars(maskEmail($pendingEmail)) ?>
         </span>
       </div>
@@ -29,21 +30,21 @@
     <!-- Flash messages -->
     <?php if ($info): ?>
       <div class="alert alert--info" style="margin-top:12px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">info</span>
+        <span class="material-symbols-outlined" data-icon="info" style="font-size:18px"></span>
         <?= htmlspecialchars($info) ?>
       </div>
     <?php endif; ?>
 
     <?php if ($warning): ?>
       <div class="alert alert--warning" style="margin-top:12px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">warning</span>
+        <span class="material-symbols-outlined" data-icon="warning" style="font-size:18px"></span>
         <?= htmlspecialchars($warning) ?>
       </div>
     <?php endif; ?>
 
     <?php if ($error): ?>
       <div class="alert alert--error" style="margin-top:12px;">
-        <span class="material-symbols-outlined" style="font-size:18px;">error</span>
+        <span class="material-symbols-outlined" data-icon="error" style="font-size:18px"></span>
         <?= htmlspecialchars($error) ?>
       </div>
     <?php endif; ?>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,7 +6,8 @@
   <title>Register - HealthFlow</title>
   <meta name="description" content="Create your HealthFlow account and get personalised water, nutrition and exercise goals.">
   <link rel="stylesheet" href="register.css">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="icons.css">
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml">
 </head>
 <body class="auth-layout">
 
@@ -22,7 +23,7 @@
 
     <?php if (!empty($errors['general'])): ?>
       <div class="alert alert--error">
-        <span class="material-symbols-outlined" style="font-size: 18px;">error</span>
+        <span class="material-symbols-outlined" data-icon="error" style="font-size: 18px"></span>
         <?= htmlspecialchars($errors['general']) ?>
       </div>
     <?php endif; ?>
@@ -38,7 +39,7 @@
           <label class="text-label-md text-on-surface" for="name">Full Name <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
           <div class="input-group">
             <div class="icon-left" style="pointer-events: none;">
-              <span class="material-symbols-outlined" style="font-size: 20px;">person</span>
+              <span class="material-symbols-outlined" data-icon="person" style="font-size: 20px"></span>
             </div>
             <input
               class="input-field input-field--icon <?= isset($errors['name']) ? 'input-field--error' : '' ?>"
@@ -59,7 +60,7 @@
           <label class="text-label-md text-on-surface" for="reg-email">Email Address <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
           <div class="input-group">
             <div class="icon-left" style="pointer-events: none;">
-              <span class="material-symbols-outlined" style="font-size: 20px;">mail</span>
+              <span class="material-symbols-outlined" data-icon="mail" style="font-size: 20px"></span>
             </div>
             <input
               class="input-field input-field--icon <?= isset($errors['email']) ? 'input-field--error' : '' ?>"
@@ -81,7 +82,7 @@
           <label class="text-label-md text-on-surface" for="reg-password">Password <span class="required-indicator" style="color: #ba1a1a; margin-left: 2px;">*</span></label>
           <div class="input-group">
             <div class="icon-left" style="pointer-events: none;">
-              <span class="material-symbols-outlined" style="font-size: 20px;">lock</span>
+              <span class="material-symbols-outlined" data-icon="lock" style="font-size: 20px"></span>
             </div>
             <input
               class="input-field input-field--icon input-field--icon-right <?= isset($errors['password']) ? 'input-field--error' : '' ?>"
@@ -92,7 +93,7 @@
               required
             >
             <button type="button" class="icon-right toggle-password" data-target="reg-password" aria-label="Toggle password visibility">
-              <span class="material-symbols-outlined" style="font-size: 20px;">visibility_off</span>
+              <span class="material-symbols-outlined" data-icon="visibility_off" style="font-size: 20px"></span>
             </button>
           </div>
           <?php if (isset($errors['password'])): ?>
