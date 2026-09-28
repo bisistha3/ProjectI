@@ -544,7 +544,8 @@ if ($type === 'water') {
         $weekCarbs += (float)($f['carbs'] ?? 0);
 
         $isCurrentWk = ($range === '1m' && $isCurrentMonth && $key === $currentWeek);
-        if (!$w && !$f && !$e && !$isCurrentWk) continue;
+        $isSevenDay = !$isHourly && $range === '7d';
+        if (!$w && !$f && !$e && !$isCurrentWk && !$isSevenDay) continue;
         $tableRows[] = [
             'day'       => ($isHourly || $range === '1m') ? $key : $date,
             'water_ml'  => $ml,
@@ -557,6 +558,7 @@ if ($type === 'water') {
         ];
     }
     // Table shows newest (most recent) first, oldest at bottom.
+    if ($range === '7d' && !$isHourly) $tableRows = array_reverse($tableRows);
 
     // 1D: every individual log today, newest first (chart still uses 3-hour buckets above).
     if ($isHourly) {
@@ -636,6 +638,22 @@ if ($type === 'water') {
         'week_carbs'   => round($weekCarbs, 1),
     ];
     $chartValue = 'all';
+}
+
+// Single-type 7-day views: show every day in range, even with no logs (status: Missed).
+if ($range === '7d' && !$isHourly && $type !== 'all') {
+    $byDay = [];
+    foreach ($tableRows as $r) $byDay[$r['day']] = $r;
+    $tableRows = [];
+    for ($i = 0; $i <= $rangeDays; $i++) {
+        $d = date('Y-m-d', strtotime("-$i days"));
+        if (isset($byDay[$d])) { $tableRows[] = $byDay[$d]; continue; }
+        $row = ['day' => $d, 'top_source' => '—'];
+        if ($type === 'water')    $row += ['total_ml' => 0];
+        elseif ($type === 'food') $row += ['total_kcal' => 0, 'prot' => 0, 'fat' => 0, 'carbs' => 0];
+        else                      $row += ['total_min' => 0, 'total_burn' => 0];
+        $tableRows[] = $row;
+    }
 }
 
 // Single-type monthly views: always show the running week even with no logs yet.

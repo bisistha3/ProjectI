@@ -709,10 +709,6 @@
   background-color: rgba(186, 26, 26, 0.7);
 }
 
-.progress-fill--exceeded {
-  background-color: #3d6b23;
-}
-
 /* Status badges */
 .status-badge {
   display: inline-block;
@@ -736,11 +732,6 @@
 .status-badge--missed {
   background-color: #ffdad6;
   color: #ba1a1a;
-}
-
-.status-badge--exceeded {
-  background-color: #cdf2b8;
-  color: #3d6b23;
 }
 
 /* Log type badges (Today's Log) */

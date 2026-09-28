@@ -396,9 +396,7 @@
             <?php else:
               $g = (int)$row['goals_met'];
               if ($isToday)      { $statusCls = 'status-badge--progress'; $status = 'In Progress'; }
-              elseif ($g >= 3)   { $statusCls = 'status-badge--exceeded'; $status = 'Perfect Day'; }
-              elseif ($g === 2)  { $statusCls = 'status-badge--met';      $status = '2 of 3 Goals'; }
-              elseif ($g === 1)  { $statusCls = 'status-badge--progress'; $status = '1 of 3 Goals'; }
+              elseif ($g >= 3)   { $statusCls = 'status-badge--met';      $status = 'Perfect Day'; }
               else               { $statusCls = 'status-badge--missed';   $status = 'Missed'; }
             ?>
             <tr>
@@ -496,7 +494,6 @@
 
               if ($isHourly)                { $statusCls = ''; $status = ''; $barCls = 'progress-fill--primary'; }
               elseif ($isToday)             { $statusCls = 'status-badge--progress'; $status = 'In Progress'; $barCls = 'progress-fill--primary'; }
-              elseif ($val >= $goal * 1.1) { $statusCls = 'status-badge--exceeded'; $status = 'Exceeded';    $barCls = 'progress-fill--exceeded'; }
               elseif ($val >= $goal)       { $statusCls = 'status-badge--met';      $status = 'Met Goal';    $barCls = 'progress-fill--success'; }
               else                         { $statusCls = 'status-badge--missed';   $status = 'Missed';      $barCls = 'progress-fill--error'; }
             ?>
