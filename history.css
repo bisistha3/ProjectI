@@ -384,10 +384,6 @@
   min-height: 360px;
 }
 
-.chart-card--wide {
-  /* takes 2 cols on large screens via grid */
-}
-
 .chart-card__header {
   display: flex;
   justify-content: space-between;

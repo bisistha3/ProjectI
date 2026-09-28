@@ -243,7 +243,7 @@
     <!-- Charts Section -->
     <section class="charts-grid">
       <!-- Weekly Bar Chart -->
-      <div class="glass-card chart-card <?= $type === 'water' ? 'chart-card--wide' : 'chart-card--wide' ?>">
+      <div class="glass-card chart-card">
         <div class="chart-card__header">
           <h3 class="text-headline-md" style="color:#191c1e;"><?= $isHourly ? 'Today' : ($range === '1m' ? htmlspecialchars($calLabel) : 'Last 7 Days') ?></h3>
           <?php
