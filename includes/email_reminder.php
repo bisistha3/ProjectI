@@ -16,9 +16,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-function sendEmailReminders(bool $force = false): array {
+function sendEmailReminders(bool $force = false, bool $debug = false): array {
     $db = getDB();
-    $results = ['sent' => 0, 'skipped' => 0, 'errors' => 0];
+    $results = ['sent' => 0, 'skipped' => 0, 'errors' => 0, 'failures' => []];
 
     $users = $db->query(
         "SELECT u.user_id, u.full_name, u.email, r.reminder_id, r.reminder_interval_min
@@ -57,9 +57,9 @@ function sendEmailReminders(bool $force = false): array {
         }
 
         $stats = getUserDailyStats($db, $userId);
-        $sent = sendReminderEmail($email, $name, $stats);
+        $sent = sendReminderEmail($email, $name, $stats, $debug);
 
-        if ($sent) {
+        if ($sent === true) {
             $db->prepare(
                 "INSERT INTO reminders
                     (user_id, reminder_enabled, reminder_interval_min,
@@ -72,6 +72,7 @@ function sendEmailReminders(bool $force = false): array {
             $results['sent']++;
         } else {
             $results['errors']++;
+            $results['failures'][] = ['email' => $email, 'error' => $sent];
         }
     }
 
@@ -128,7 +129,7 @@ function getUserDailyStats(PDO $db, int $userId): array {
     ];
 }
 
-function sendReminderEmail(string $toAddr, string $toName, array $stats): bool {
+function sendReminderEmail(string $toAddr, string $toName, array $stats, bool $debug = false): bool|string {
     $subject = "Time to log your health data!";
 
     $pctMl = $stats['pct_ml'];
@@ -214,6 +215,12 @@ HTML;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = MAIL_PORT;
         $mail->CharSet    = 'UTF-8';
+        $mail->Timeout    = 20;
+
+        if ($debug) {
+            $mail->SMTPDebug    = 2;
+            $mail->Debugoutput  = 'error_log';
+        }
 
         $mail->setFrom(MAIL_FROM_ADDR, MAIL_FROM_NAME);
         $mail->addAddress($toAddr, $toName);
@@ -225,8 +232,12 @@ HTML;
 
         $mail->send();
         return true;
-    } catch (Exception $e) {
-        error_log("Email reminder failed for {$toAddr}: " . $mail->ErrorInfo);
-        return false;
+    } catch (\Throwable $e) {
+        $err = trim((string)($mail->ErrorInfo ?: $e->getMessage()));
+        if ($err === '') {
+            $err = get_class($e);
+        }
+        error_log("Email reminder failed for {$toAddr}: " . $err);
+        return $err;
     }
 }
