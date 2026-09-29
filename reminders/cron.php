@@ -78,6 +78,16 @@ $log = sprintf(
 echo $log;
 hfLog($log);
 
+if (($results['blocked'] ?? '') !== '') {
+    $detail = sprintf(
+        "%s BLOCKED: SMTP unreachable, no reminders attempted - %s\n",
+        $timestamp,
+        str_replace(["\r", "\n"], ' ', $results['blocked'])
+    );
+    echo $detail;
+    hfLog($detail);
+}
+
 foreach ($results['failures'] as $failure) {
     $detail = sprintf(
         "%s ERROR to %s: %s\n",

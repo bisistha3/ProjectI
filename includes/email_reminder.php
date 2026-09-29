@@ -16,9 +16,61 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+/**
+ * One-shot SMTP reachability check: DNS resolution + TCP connect.
+ * Returns null on success, or a human-readable error string.
+ */
+function smtpPreflight(?string $host = null, ?int $port = null, float $timeout = 5.0): ?string {
+    $host = ($host !== null && $host !== '') ? $host : MAIL_HOST;
+    $port = $port ?? MAIL_PORT;
+
+    if (MAIL_USER === '' || MAIL_PASS === '') {
+        return 'MAIL_USER / MAIL_PASS are empty in .env';
+    }
+
+    if (!filter_var($host, FILTER_VALIDATE_IP)) {
+        $resolved = gethostbyname($host);
+        if ($resolved === $host) {
+            return "DNS lookup failed for {$host}: host is not resolvable";
+        }
+    }
+
+    $errno = 0;
+    $errstr = '';
+    $sock = @fsockopen($host, $port, $errno, $errstr, $timeout);
+    if (!$sock) {
+        return "Cannot connect to {$host}:{$port} (" . ($errstr !== '' ? $errstr : "error {$errno}") . ")";
+    }
+    fclose($sock);
+    return null;
+}
+
+/**
+ * Pre-flight with backoff — a brief DNS/Wi-Fi blip must not kill the whole run.
+ */
+function smtpPreflightWithRetry(int $attempts = 3, int $delaySec = 5): ?string {
+    $last = null;
+    for ($i = 1; $i <= $attempts; $i++) {
+        $last = smtpPreflight();
+        if ($last === null) {
+            return null;
+        }
+        if ($i < $attempts) {
+            sleep($delaySec);
+        }
+    }
+    return $last;
+}
+
 function sendEmailReminders(bool $force = false, bool $debug = false): array {
     $db = getDB();
-    $results = ['sent' => 0, 'skipped' => 0, 'errors' => 0, 'failures' => []];
+    $results = ['sent' => 0, 'skipped' => 0, 'errors' => 0, 'failures' => [], 'blocked' => ''];
+
+    $blocked = smtpPreflightWithRetry();
+    if ($blocked !== null) {
+        $results['blocked'] = $blocked;
+        return $results;
+    }
 
     $users = $db->query(
         "SELECT u.user_id, u.full_name, u.email, r.reminder_id, r.reminder_interval_min
@@ -204,40 +256,69 @@ HTML;
           . "Exercise: {$stats['today_min']}/{$stats['goal_min']} min\n\n"
           . "Log now: http://localhost/ProjectI/log.php?type=water\n";
 
-    $mail = new PHPMailer(true);
-
-    try {
-        $mail->isSMTP();
-        $mail->Host       = MAIL_HOST;
-        $mail->SMTPAuth   = true;
-        $mail->Username   = MAIL_USER;
-        $mail->Password   = MAIL_PASS;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = MAIL_PORT;
-        $mail->CharSet    = 'UTF-8';
-        $mail->Timeout    = 20;
-
-        if ($debug) {
-            $mail->SMTPDebug    = 2;
-            $mail->Debugoutput  = 'error_log';
-        }
-
-        $mail->setFrom(MAIL_FROM_ADDR, MAIL_FROM_NAME);
-        $mail->addAddress($toAddr, $toName);
-
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body    = $html;
-        $mail->AltBody = $text;
-
-        $mail->send();
-        return true;
-    } catch (\Throwable $e) {
-        $err = trim((string)($mail->ErrorInfo ?: $e->getMessage()));
-        if ($err === '') {
-            $err = get_class($e);
-        }
-        error_log("Email reminder failed for {$toAddr}: " . $err);
-        return $err;
+    $encryption = strtolower(MAIL_ENCRYPTION);
+    if ($encryption === 'ssl') {
+        $secure = PHPMailer::ENCRYPTION_SMTPS;
+    } elseif ($encryption === 'tls' || $encryption === 'starttls') {
+        $secure = PHPMailer::ENCRYPTION_STARTTLS;
+    } else {
+        $secure = '';
     }
+
+    // Retry only connectivity-class failures (DNS blips, refused, timeout);
+    // auth/recipient errors are permanent, so they return immediately.
+    $maxAttempts = 3;
+    $backoff = [5, 15];
+    $err = 'Unknown SMTP error';
+
+    for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host       = MAIL_HOST;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = MAIL_USER;
+            $mail->Password   = MAIL_PASS;
+            $mail->SMTPSecure = $secure;
+            $mail->Port       = MAIL_PORT;
+            $mail->CharSet    = 'UTF-8';
+            $mail->Timeout    = 20;
+
+            if ($debug) {
+                $mail->SMTPDebug    = 2;
+                $mail->Debugoutput  = 'error_log';
+            }
+
+            $mail->setFrom(MAIL_FROM_ADDR, MAIL_FROM_NAME);
+            $mail->addAddress($toAddr, $toName);
+
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body    = $html;
+            $mail->AltBody = $text;
+
+            $mail->send();
+            return true;
+        } catch (\Throwable $e) {
+            $err = trim((string)($mail->ErrorInfo ?: $e->getMessage()));
+            if ($err === '') {
+                $err = get_class($e);
+            }
+
+            $connectError = (bool)preg_match(
+                '/connect|getaddrinfo|resolve|timed?\s*out|network|no such host/i',
+                $err
+            );
+
+            if ($attempt < $maxAttempts && $connectError) {
+                sleep($backoff[$attempt - 1] ?? 15);
+                continue;
+            }
+
+            error_log("Email reminder failed for {$toAddr}: " . $err);
+            return $err;
+        }
+    }
+
+    return $err;
 }
